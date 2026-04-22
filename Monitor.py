@@ -27,63 +27,70 @@ from pathlib import Path
 
 class VLMMonitor:
     def __init__(self,
-                 model="gemma-4-26b-a4b-it",
-                 lmstudio_url="http://localhost:1234",
-                 capture_interval=30,
-                 monitor_area=None,
-                 diary_hour=22,
-                 output_dir="diari"):
+                 model="gemma-4-26b-a4b-it", # Modello VLM da LM Studio
+                 lmstudio_url="http://localhost:1234", # URL del server locale  LM Studio
+                 capture_interval=30, # Intervallo base in secondi tra le catture (adattivo)
+                 monitor_area=None, #area dello schermo da catturare
+                 diary_hour=24, #quando generare il diario
+                 output_dir="diari"): #dove salvare i file . lo salva in "diari/YYYY-MM-DD_data.json" e "diari/YYYY-MM-DD_diario.txt"
         self.model = model
         self.lmstudio_url = lmstudio_url
         self.capture_interval = capture_interval
         self.diary_hour = diary_hour
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir = Path(output_dir) #crea la cartella se non esiste
+        self.output_dir.mkdir(exist_ok=True) #evita errori se la cartella esiste già
 
         # Screen capture
         self.sct = mss.mss()
         if monitor_area:
-            self.monitor = monitor_area
+            self.monitor = monitor_area  
         else:
-            self.monitor = {"top": 130, "left": 100, "width": 870, "height": 520}
+            self.monitor = {"top": 270, "left": 10, "width": 900, "height": 520} #area dello schermo da catturare
 
         # Stato giornata
-        self.today = date.today().isoformat()
-        self.diary_generated = False
+        self.today = date.today().isoformat() # "YYYY-MM-DD"
+        self.diary_generated = False #serve per evitare di generare più di un diario se il programma viene riavviato durante la stessa giornata
 
         # Osservazioni grezze (livello 1)
-        self.observations = []
+        self.observations = [] #ora, descrizione, tipo (singolo o sequenza), timestamp ISO 
 
         # Riepiloghi orari (livello 2)
-        self.hourly_summaries = []
+        self.hourly_summaries = [] #ora, numero osservazioni, testo del riepilogo sintetico
 
         # Change detection
-        self._prev_frame_gray = None
-        self._prev_observation_time = 0
+        self._prev_frame_gray = None #frame precendente 
+        self._prev_observation_time = 0 #timestamp dell'ultima osservazione
         self._same_scene_count = 0
 
         # Intervalli adattivi
-        self._min_interval = capture_interval       # 30s durante attività
+        self._min_interval = capture_interval       # 30s durante attività (minimo tempo tra osservazioni)
         self._max_interval = 900                    # 15 min se scena stabile (notte)
         self._current_interval = capture_interval
         self._no_change_streak = 0
 
         # Tracking orario
-        self._last_hourly_summary = datetime.now().hour
+        self._last_hourly_summary = datetime.now().hour #per sapere quando generare il riepilogo orario successivo
 
         # Prompt di sistema
         self.system_prompt = (
-            "Sei un assistente per il monitoraggio domiciliare di una persona anziana. "
-            "Ti viene mostrata un'immagine dalla telecamera nell'ambiente domestico. "
-            "Descrivi brevemente cosa sta facendo la persona, la sua postura, "
-            "il suo stato apparente e qualsiasi cosa rilevante dal punto di vista clinico.\n\n"
-            "Scrivi in italiano, in 2-3 frasi, come un'annotazione per cartella clinica. "
-            "Sii oggettivo e conciso. Se la persona non è visibile, dillo. "
-            "Se noti segni di difficoltà, disagio o rischio, segnalali chiaramente."
-        )
-
+        "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
+        "Analizza l'immagine e descrivi SOLO informazioni rilevanti dal punto di vista clinico.\n\n"
+        "In ogni risposta, valuta sempre:\n"
+        "- Presenza o assenza della persona\n"
+        "- Postura (seduta, in piedi, sdraiata)\n"
+        "- Attività in corso\n"
+        "- Stabilità e movimento (normale, lento, incerto)\n"
+        "- Possibili segnali di rischio (caduta, immobilità prolungata, difficoltà)\n\n"
+        "Se nelle osservazioni precedenti la persona era in una posizione diversa, "
+        "segnala il cambiamento.\n\n"
+        "Scrivi in italiano, massimo 2-3 frasi, stile cartella clinica.\n"
+        "Sii oggettivo, preciso e sintetico.\n"
+        "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
+        "a meno che non siano importanti per la sicurezza.\n"
+        "Se la persona non è visibile, dichiaralo chiaramente."
+    )
         # Carica dati esistenti se il programma viene riavviato
-        self._load_existing_data()
+        self._load_existing_data()  
 
     # =========================================
     # CATTURA E CHANGE DETECTION
@@ -112,18 +119,18 @@ class VLMMonitor:
         Differenza media assoluta su versione a bassa risoluzione.
         Soglia 5: sotto è rumore/luce, sopra è movimento reale.
         """
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.resize(gray, (160, 120))
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #elimina i colori per semplificare il confronto
+        gray = cv2.resize(gray, (160, 120)) #ridimensiona per velocizzare il confronto
 
         if self._prev_frame_gray is None:
             self._prev_frame_gray = gray
             return True
 
-        diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float)))
+        diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float))) #differenza media assoluta tra i pixel del frame corrente e quello precedente
         self._prev_frame_gray = gray
 
-        return diff > 5
-
+        return diff > 5 #se è minotre di 5, consideriamo che la scena è stabile, altrimenti è cambiata (movimento reale)
+        #è giusta la soglia di 5?dipende molto dalla scena, dalla luce, dal monitor. In generale è un buon punto di partenza per distinguere tra piccoli cambiamenti (rumore, luce) e movimenti reali. Se si notano troppe osservazioni durante la notte, si può aumentare a 7-10. Se invece si perdono movimenti importanti, si può abbassare a 3-4.
     def _capture_burst(self, n_frames=4, interval=0.5):
         """Cattura una sequenza rapida di frame per analizzare un'azione.
         
@@ -142,13 +149,16 @@ class VLMMonitor:
                 time.sleep(interval)
         return frames
 
-    # =========================================
+    # ==================-=======================
     # INTERVALLO ADATTIVO
     # =========================================
     def _update_interval(self, scene_changed):
-        """Adatta l'intervallo: attività → 30s, stabile/notte → fino a 15 min."""
+        """Adatta l'intervallo: attività → 30s, stabile/notte → fino a 15 min.
+        permette di evitare lo spreco di risorse quando non succede nulla
+        se la scena è attiva la controlla spesso 
+        """
         if scene_changed:
-            self._no_change_streak = 0
+            self._no_change_streak = 0 
             self._current_interval = self._min_interval
         else:
             self._no_change_streak += 1
@@ -161,8 +171,14 @@ class VLMMonitor:
     # =========================================
     # DECISIONE: CHIAMARE IL VLM?
     # =========================================
-    def _should_observe(self, scene_changed):
+    def _should_observe(self, scene_changed): 
         """Decide se e come osservare.
+        scene_changed viene calcolato confrontando il frame corrente con quello precedente. 
+        Se è cambiato, significa che c'è un movimento o un'attività in corso, 
+        quindi è più probabile che ci siano informazioni rilevanti da catturare. 
+        Se invece la scena è stabile, 
+    potrebbe essere inutile chiamare il VLM troppo spesso, 
+    soprattutto durante la notte quando la persona potrebbe essere immobile, quindi un frame singolo ogni tanto può essere sufficiente 
         
         Ritorna:
             None: non osservare
@@ -194,7 +210,7 @@ class VLMMonitor:
             max_tokens: token massimi
             prompt_text: testo personalizzato (default: "Descrivi cosa vedi")
         """
-        messages = [{"role": "system", "content": self.system_prompt}]
+        messages = [{"role": "system", "content": self.system_prompt}] 
 
         if context_messages:
             messages.extend(context_messages)
@@ -372,7 +388,7 @@ class VLMMonitor:
         summary = self._call_vlm_text(
             prompt,
             system="Sei un assistente clinico per il monitoraggio domiciliare.",
-            max_tokens=300
+            max_tokens=300 
         )
 
         if summary:
