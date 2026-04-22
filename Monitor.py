@@ -8,8 +8,17 @@ Architettura a tre livelli:
   3. Diario giornaliero: a fine giornata, sintetizza i riepiloghi orari
      in un diario narrativo di 2-3 pagine.
 
+Migliorie:
+  - Soglia diff adattiva (media + 2σ dei diff recenti)
+  - Mini-storia: servono 2+ diff consecutivi sopra soglia per confermare un cambiamento
+  - Smart burst: burst veloce per movimenti rapidi, lento per movimenti graduali
+  - Prompt con contesto orario (notte vs giorno)
+  - Osservazione di confronto ogni 2 ore
+  - Rilevamento assenza prolungata
+
 Uso:
     python vlm_monitor.py
+    python vlm_monitor.py --preview
     python vlm_monitor.py --interval 30 --diary-hour 22
 """
 
@@ -23,74 +32,90 @@ import requests
 import numpy as np
 from datetime import datetime, date
 from pathlib import Path
+from collections import deque
 
 
 class VLMMonitor:
     def __init__(self,
-                 model="gemma-4-26b-a4b-it", # Modello VLM da LM Studio
-                 lmstudio_url="http://localhost:1234", # URL del server locale  LM Studio
-                 capture_interval=30, # Intervallo base in secondi tra le catture (adattivo)
-                 monitor_area=None, #area dello schermo da catturare
-                 diary_hour=24, #quando generare il diario
-                 output_dir="diari"): #dove salvare i file . lo salva in "diari/YYYY-MM-DD_data.json" e "diari/YYYY-MM-DD_diario.txt"
+                 model="gemma-4-26b-a4b-it",       # Modello VLM da LM Studio
+                 lmstudio_url="http://localhost:1234", # URL del server locale LM Studio
+                 capture_interval=30,                # Intervallo base in secondi (adattivo)
+                 monitor_area=None,                  # Area dello schermo da catturare
+                 diary_hour=22,                      # Ora generazione diario
+                 output_dir="diari"):                # Cartella output
         self.model = model
         self.lmstudio_url = lmstudio_url
         self.capture_interval = capture_interval
         self.diary_hour = diary_hour
-        self.output_dir = Path(output_dir) #crea la cartella se non esiste
-        self.output_dir.mkdir(exist_ok=True) #evita errori se la cartella esiste già
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True)
 
         # Screen capture
         self.sct = mss.mss()
         if monitor_area:
-            self.monitor = monitor_area  
+            self.monitor = monitor_area
         else:
-            self.monitor = {"top": 270, "left": 10, "width": 900, "height": 520} #area dello schermo da catturare
+            self.monitor = {"top": 270, "left": 10, "width": 900, "height": 520}
 
         # Stato giornata
-        self.today = date.today().isoformat() # "YYYY-MM-DD"
-        self.diary_generated = False #serve per evitare di generare più di un diario se il programma viene riavviato durante la stessa giornata
+        self.today = date.today().isoformat()
+        self.diary_generated = False
 
         # Osservazioni grezze (livello 1)
-        self.observations = [] #ora, descrizione, tipo (singolo o sequenza), timestamp ISO 
+        self.observations = []
 
         # Riepiloghi orari (livello 2)
-        self.hourly_summaries = [] #ora, numero osservazioni, testo del riepilogo sintetico
+        self.hourly_summaries = []
 
-        # Change detection
-        self._prev_frame_gray = None #frame precendente 
-        self._prev_observation_time = 0 #timestamp dell'ultima osservazione
-        self._same_scene_count = 0
+        # Change detection con soglia adattiva
+        self._prev_frame_gray = None
+        self._prev_observation_time = 0
+        self._diff_history = deque(maxlen=20)   # storico dei diff per soglia adattiva
+        self._change_streak = 0                  # frame consecutivi con cambiamento
+        self._last_diff = 0                      # grandezza ultimo diff (per smart burst)
 
         # Intervalli adattivi
-        self._min_interval = capture_interval       # 30s durante attività (minimo tempo tra osservazioni)
-        self._max_interval = 900                    # 15 min se scena stabile (notte)
+        self._min_interval = capture_interval
+        self._max_interval = 900                 # 15 min se scena stabile (notte)
         self._current_interval = capture_interval
         self._no_change_streak = 0
 
         # Tracking orario
-        self._last_hourly_summary = datetime.now().hour #per sapere quando generare il riepilogo orario successivo
+        self._last_hourly_summary = datetime.now().hour
+
+        # Osservazione di confronto
+        self._last_comparison_time = time.time()
+        self._comparison_interval = 7200         # ogni 2 ore
+        self._comparison_frame = None            # frame di riferimento per il confronto
+        self._comparison_frame_time = None
+
+        # Rilevamento assenza
+        self._consecutive_absence = 0            # osservazioni consecutive senza persona
+        self._absence_alerted = False            # evita alert ripetuti
 
         # Prompt di sistema
         self.system_prompt = (
-        "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
-        "Analizza l'immagine e descrivi SOLO informazioni rilevanti dal punto di vista clinico.\n\n"
-        "In ogni risposta, valuta sempre:\n"
-        "- Presenza o assenza della persona\n"
-        "- Postura (seduta, in piedi, sdraiata)\n"
-        "- Attività in corso\n"
-        "- Stabilità e movimento (normale, lento, incerto)\n"
-        "- Possibili segnali di rischio (caduta, immobilità prolungata, difficoltà)\n\n"
-        "Se nelle osservazioni precedenti la persona era in una posizione diversa, "
-        "segnala il cambiamento.\n\n"
-        "Scrivi in italiano, massimo 2-3 frasi, stile cartella clinica.\n"
-        "Sii oggettivo, preciso e sintetico.\n"
-        "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
-        "a meno che non siano importanti per la sicurezza.\n"
-        "Se la persona non è visibile, dichiaralo chiaramente."
-    )
+            "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
+            "Nell'ambiente possono essere presenti una o più persone, concentrati sulla persona anziana se visibile"
+            "Analizza l'immagine e descrivi SOLO informazioni rilevanti dal punto di vista clinico.\n\n"
+            "In ogni risposta, valuta sempre:\n"
+            "- Presenza o assenza della persona\n"
+            "- Postura (seduta, in piedi, sdraiata)\n"
+            "- Attività in corso\n"
+            "- Stabilità e movimento (normale, lento, incerto)\n"
+            "-se la persona è assista da qualcuno nell'alzarsi, camminare o altre azioni quotidiane\n"
+            "- Possibili segnali di rischio (caduta, immobilità prolungata, difficoltà)\n\n"
+            "Se nelle osservazioni precedenti la persona era in una posizione diversa, "
+            "segnala il cambiamento.\n\n"
+            "Scrivi in italiano, massimo 2-3 frasi, stile cartella clinica.\n"
+            "Sii oggettivo e preciso.\n"
+            "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
+            "a meno che non siano importanti per la sicurezza.\n"
+            "Se la persona non è visibile, dichiaralo chiaramente."
+        )
+
         # Carica dati esistenti se il programma viene riavviato
-        self._load_existing_data()  
+        self._load_existing_data()
 
     # =========================================
     # CATTURA E CHANGE DETECTION
@@ -116,30 +141,47 @@ class VLMMonitor:
     def _scene_changed(self, frame):
         """Confronta il frame corrente con il precedente.
         
-        Differenza media assoluta su versione a bassa risoluzione.
-        Soglia 5: sotto è rumore/luce, sopra è movimento reale.
+        Usa soglia adattiva: media dei diff recenti + 2 deviazioni standard.
+        Di notte (scena stabile, diff medio 1-2) la soglia scende a ~5.
+        Di giorno (luce variabile, diff medio 3-4) sale a ~8-10.
+        
+        Richiede 2 frame consecutivi sopra soglia per confermare il cambiamento,
+        filtrando ombre, riflessi e rumore momentaneo.
         """
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #elimina i colori per semplificare il confronto
-        gray = cv2.resize(gray, (160, 120)) #ridimensiona per velocizzare il confronto
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.resize(gray, (160, 120))
 
         if self._prev_frame_gray is None:
             self._prev_frame_gray = gray
             return True
 
-        diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float))) #differenza media assoluta tra i pixel del frame corrente e quello precedente
+        diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float)))
         self._prev_frame_gray = gray
+        self._last_diff = diff
 
-        return diff > 5 #se è minotre di 5, consideriamo che la scena è stabile, altrimenti è cambiata (movimento reale)
-        #è giusta la soglia di 5?dipende molto dalla scena, dalla luce, dal monitor. In generale è un buon punto di partenza per distinguere tra piccoli cambiamenti (rumore, luce) e movimenti reali. Se si notano troppe osservazioni durante la notte, si può aumentare a 7-10. Se invece si perdono movimenti importanti, si può abbassare a 3-4.
+        # Soglia adattiva
+        self._diff_history.append(diff)
+        if len(self._diff_history) >= 5:
+            mean_diff = np.mean(list(self._diff_history))
+            std_diff = np.std(list(self._diff_history))
+            threshold = max(5, mean_diff + 2 * std_diff)
+        else:
+            threshold = 5
+
+        # Mini-storia: 2 frame consecutivi sopra soglia
+        if diff > threshold:
+            self._change_streak += 1
+        else:
+            self._change_streak = 0
+
+        return self._change_streak >= 2
+
     def _capture_burst(self, n_frames=4, interval=0.5):
         """Cattura una sequenza rapida di frame per analizzare un'azione.
         
-        Usato quando la scena cambia: il VLM vede il movimento,
-        non solo una posa statica.
-        
         Args:
-            n_frames: quanti frame catturare (3-5)
-            interval: secondi tra i frame (0.5 = 2fps)
+            n_frames: quanti frame catturare
+            interval: secondi tra i frame
         """
         frames = []
         for i in range(n_frames):
@@ -149,16 +191,40 @@ class VLMMonitor:
                 time.sleep(interval)
         return frames
 
-    # ==================-=======================
+    # =========================================
+    # CONTESTO ORARIO
+    # =========================================
+    def _get_time_context(self): 
+        """Ritorna una frase di contesto basata sull'ora del giorno.
+        risulta utile per guidare il VLM a interpretare meglio la scena
+        
+        Di notte qualsiasi attività è rilevante.
+        A pranzo il contesto è diverso dalla mattina.
+        """
+        hour = datetime.now().hour
+        if 23 <= hour or hour < 6:
+            return "È notte. Qualsiasi attività in questo orario è potenzialmente rilevante. La persona dovrebbe essere a riposo."
+        elif 6 <= hour < 8:
+            return "È mattina presto, orario tipico del risveglio. valuta se la persona mantiene stabilità"
+        elif 8 <= hour < 12:
+            return "È mattina. valuta anche il tipo di attività"
+        elif 12 <= hour < 14:
+            return "È ora di pranzo."
+        elif 14 <= hour < 18:
+            return "È pomeriggio. Osserva eventuale difficoltà nei movimenti"
+        elif 18 <= hour < 20:
+            return "È ora di cena."
+        elif 20 <= hour < 23:
+            return "È sera, orario pre-riposo."
+        return ""
+
+    # =========================================
     # INTERVALLO ADATTIVO
     # =========================================
     def _update_interval(self, scene_changed):
-        """Adatta l'intervallo: attività → 30s, stabile/notte → fino a 15 min.
-        permette di evitare lo spreco di risorse quando non succede nulla
-        se la scena è attiva la controlla spesso 
-        """
+        """Adatta l'intervallo: attività → 30s, stabile/notte → fino a 15 min."""
         if scene_changed:
-            self._no_change_streak = 0 
+            self._no_change_streak = 0
             self._current_interval = self._min_interval
         else:
             self._no_change_streak += 1
@@ -171,25 +237,24 @@ class VLMMonitor:
     # =========================================
     # DECISIONE: CHIAMARE IL VLM?
     # =========================================
-    def _should_observe(self, scene_changed): 
+    def _should_observe(self, scene_changed):
         """Decide se e come osservare.
-        scene_changed viene calcolato confrontando il frame corrente con quello precedente. 
-        Se è cambiato, significa che c'è un movimento o un'attività in corso, 
-        quindi è più probabile che ci siano informazioni rilevanti da catturare. 
-        Se invece la scena è stabile, 
-    potrebbe essere inutile chiamare il VLM troppo spesso, 
-    soprattutto durante la notte quando la persona potrebbe essere immobile, quindi un frame singolo ogni tanto può essere sufficiente 
         
         Ritorna:
             None: non osservare
             'single': frame singolo (scena stabile, check periodico)
-            'burst': sequenza di frame (scena che cambia, azione in corso)
+            'burst': sequenza standard (4 frame ogni 0.5s)
+            'burst_fast': sequenza rapida (5 frame ogni 0.3s, per movimenti veloci)
         """
         now = time.time()
         time_since_last = now - self._prev_observation_time
 
-        # Scena cambiata → burst per catturare l'azione
+        # Scena cambiata → burst
         if scene_changed and time_since_last >= 15:
+            # Diff grande (>15): movimento rapido → burst veloce
+            if self._last_diff > 15:
+                return 'burst_fast'
+            # Diff medio: movimento normale → burst standard
             return 'burst'
 
         # Troppo tempo senza osservazioni → frame singolo di controllo
@@ -208,21 +273,22 @@ class VLMMonitor:
             images_b64: stringa base64 (singola) o lista di stringhe (sequenza)
             context_messages: contesto conversazionale
             max_tokens: token massimi
-            prompt_text: testo personalizzato (default: "Descrivi cosa vedi")
+            prompt_text: testo personalizzato
         """
-        messages = [{"role": "system", "content": self.system_prompt}] 
+        messages = [{"role": "system", "content": self.system_prompt}]
 
         if context_messages:
             messages.extend(context_messages)
 
         now = datetime.now().strftime("%H:%M:%S")
-        
+        time_ctx = self._get_time_context()
+
         # Costruisci il contenuto con una o più immagini
         if isinstance(images_b64, list):
-            # Sequenza di frame — il VLM vede un'azione
             if prompt_text is None:
                 prompt_text = (
-                    f"Ore {now}. Questa è una sequenza di {len(images_b64)} frame consecutivi "
+                    f"Ore {now}. {time_ctx} "
+                    f"Questa è una sequenza di {len(images_b64)} frame consecutivi "
                     f"catturati in pochi secondi. Descrivi l'azione in corso: "
                     f"cosa sta facendo la persona? Come si muove? "
                     f"Noti difficoltà, instabilità o qualcosa di rilevante?"
@@ -234,9 +300,8 @@ class VLMMonitor:
                     "image_url": {"url": f"data:image/jpeg;base64,{img}"}
                 })
         else:
-            # Frame singolo — scena statica
             if prompt_text is None:
-                prompt_text = f"Ore {now}. Descrivi cosa vedi."
+                prompt_text = f"Ore {now}. {time_ctx} Descrivi cosa vedi."
             content = [
                 {"type": "text", "text": prompt_text},
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{images_b64}"}}
@@ -298,25 +363,29 @@ class VLMMonitor:
             return None
 
     # =========================================
-    # CONTESTO
+    # CONTESTO CONVERSAZIONALE
     # =========================================
     def _build_context(self):
-        """Ultime 3 osservazioni come contesto conversazionale."""
+        """Contesto intelligente: ultime osservazioni rilevanti."""
         if not self.observations:
             return None
 
+        # Prendi le ultime 3 osservazioni, ma solo il testo
+        # Non costruire una finta conversazione — dai un riepilogo
         recent = self.observations[-3:]
-        context = []
+        
+        summary = "Osservazioni precedenti:\n"
         for obs in recent:
-            context.append({
-                "role": "user",
-                "content": f"Ore {obs['time']}. Descrivi cosa vedi."
-            })
-            context.append({
-                "role": "assistant",
-                "content": obs['description']
-            })
-        return context
+            obs_type = obs.get('type', 'singolo')
+            tag = ""
+            if obs_type == "alert":
+                tag = " [ALERT]"
+            elif obs_type == "confronto":
+                tag = " [CONFRONTO]"
+            summary += f"- Ore {obs['time']}{tag}: {obs['description']}\n"
+
+        return [{"role": "user", "content": summary + "\nOra osserva il frame corrente."}]
+    
 
     # =========================================
     # LIVELLO 1: OSSERVAZIONE
@@ -326,12 +395,17 @@ class VLMMonitor:
         
         Args:
             frame: frame corrente (usato per 'single')
-            mode: 'single' per frame singolo, 'burst' per sequenza rapida
+            mode: 'single', 'burst', o 'burst_fast'
         """
         context = self._build_context()
 
-        if mode == 'burst':
-            # Cattura sequenza rapida per vedere l'azione
+        if mode == 'burst_fast':
+            # Movimento rapido → 5 frame ravvicinati
+            images = self._capture_burst(n_frames=5, interval=0.3)
+            description = self._call_vlm(images, context, max_tokens=250)
+            obs_type = "sequenza_rapida"
+        elif mode == 'burst':
+            # Movimento normale → 4 frame standard
             images = self._capture_burst(n_frames=4, interval=0.5)
             description = self._call_vlm(images, context, max_tokens=250)
             obs_type = "sequenza"
@@ -352,12 +426,117 @@ class VLMMonitor:
             self.observations.append(obs)
             self._prev_observation_time = time.time()
             self._save_data()
-            tag = "SEQ" if mode == 'burst' else "   "
+
+            # Tag per il log
+            tags = {"singolo": "   ", "sequenza": "SEQ", "sequenza_rapida": "FAS"}
+            tag = tags.get(obs_type, "   ")
             print(f"[{obs['time']}] [{tag}] {description}")
+
+            # Traccia assenza
+            self._track_absence(description)
+
             return True
         else:
             print(f"[{datetime.now().strftime('%H:%M')}] Nessuna risposta dal VLM")
             return False
+
+    # =========================================
+    # RILEVAMENTO ASSENZA PROLUNGATA
+    # =========================================
+    def _track_absence(self, description):
+        """Traccia osservazioni consecutive senza persona visibile.
+        
+        Se la persona non è visibile per 30+ minuti durante il giorno,
+        genera un'osservazione di alert.
+        """
+        desc_lower = description.lower()
+        person_absent = ("non è visibile" in desc_lower or
+                         "non visibile" in desc_lower or
+                         "assenza" in desc_lower or
+                         "non è presente" in desc_lower or
+                         "non presente" in desc_lower)
+
+        if person_absent:
+            self._consecutive_absence += 1
+        else:
+            self._consecutive_absence = 0
+            self._absence_alerted = False
+
+        # Alert dopo ~30 minuti di assenza durante il giorno (6:00-22:00)
+        # Con intervallo adattivo, 30 min ~ 2-6 osservazioni consecutive
+        hour = datetime.now().hour
+        is_daytime = 6 <= hour < 22
+        minutes_absent = self._consecutive_absence * self._current_interval / 60
+
+        if (is_daytime and minutes_absent >= 30 and not self._absence_alerted):
+            alert_obs = {
+                "time": datetime.now().strftime("%H:%M"),
+                "timestamp": datetime.now().isoformat(),
+                "hour": datetime.now().hour,
+                "type": "alert",
+                "description": (f"⚠ ALERT: La persona non è visibile da circa "
+                               f"{minutes_absent:.0f} minuti durante le ore diurne. "
+                               f"Verificare se è uscita o se si trova fuori dall'inquadratura.")
+            }
+            self.observations.append(alert_obs)
+            self._save_data()
+            self._absence_alerted = True
+            print(f"\n{'!'*60}")
+            print(f"[{alert_obs['time']}] {alert_obs['description']}")
+            print(f"{'!'*60}\n")
+
+    # =========================================
+    # OSSERVAZIONE DI CONFRONTO
+    # =========================================
+    def _check_comparison(self, frame):
+        """Ogni 2 ore manda al VLM il frame corrente e quello di 2 ore prima.
+        Cattura cambiamenti graduali che il diff frame-to-frame non vede:
+        persona che si accascia lentamente, oggetto caduto, cambio di postura.
+        """
+        now = time.time()
+        if now - self._last_comparison_time < self._comparison_interval:
+            return
+
+        self._last_comparison_time = now
+
+        if self._comparison_frame is None:
+            # Primo frame di riferimento
+            self._comparison_frame = self._frame_to_base64(frame)
+            self._comparison_frame_time = datetime.now().strftime("%H:%M")
+            return
+
+        # Manda entrambi i frame
+        current_b64 = self._frame_to_base64(frame)
+        now_str = datetime.now().strftime("%H:%M")
+
+        prompt = (
+            f"Ti mostro due immagini della stessa stanza. "
+            f"La prima è delle ore {self._comparison_frame_time}, la seconda delle ore {now_str}. "
+            f"Ci sono cambiamenti nello stato della persona o nell'ambiente? "
+            f"La persona è nella stessa posizione? Si è spostata? "
+            f"Noti oggetti caduti, cambiamenti nella postura, o qualsiasi cosa diversa? "
+            f"Rispondi in 2-3 frasi."
+        )
+
+        images = [self._comparison_frame, current_b64]
+        context = self._build_context()
+        description = self._call_vlm(images, context, max_tokens=250, prompt_text=prompt)
+
+        if description:
+            obs = {
+                "time": now_str,
+                "timestamp": datetime.now().isoformat(),
+                "hour": datetime.now().hour,
+                "type": "confronto",
+                "description": f"[CONFRONTO {self._comparison_frame_time}→{now_str}] {description}"
+            }
+            self.observations.append(obs)
+            self._save_data()
+            print(f"[{now_str}] [CMP] {description}")
+
+        # Aggiorna il frame di riferimento
+        self._comparison_frame = current_b64
+        self._comparison_frame_time = now_str
 
     # =========================================
     # LIVELLO 2: SINTESI ORARIA
@@ -388,7 +567,7 @@ class VLMMonitor:
         summary = self._call_vlm_text(
             prompt,
             system="Sei un assistente clinico per il monitoraggio domiciliare.",
-            max_tokens=300 
+            max_tokens=300
         )
 
         if summary:
@@ -415,7 +594,6 @@ class VLMMonitor:
     # =========================================
     def generate_diary(self):
         """Genera il diario giornaliero dai riepiloghi orari."""
-        # Genera l'ultimo riepilogo orario
         current_hour = datetime.now().hour
         self._generate_hourly_summary(current_hour)
 
@@ -429,7 +607,6 @@ class VLMMonitor:
         print(f"  Riepiloghi orari: {len(self.hourly_summaries)}")
         print(f"{'='*60}")
 
-        # Usa i riepiloghi orari se disponibili
         if self.hourly_summaries:
             content = "\n\n".join(
                 f"[{s['hour_label']}] ({s['n_observations']} osservazioni)\n{s['summary']}"
@@ -443,6 +620,15 @@ class VLMMonitor:
             )
             source = "osservazioni grezze"
 
+        # Conta gli alert
+        alerts = [o for o in self.observations if o.get('type') == 'alert']
+        alert_text = ""
+        if alerts:
+            alert_text = (
+                f"\n\nATTENZIONE — Durante la giornata sono stati generati {len(alerts)} alert:\n"
+                + "\n".join(f"- {a['time']}: {a['description']}" for a in alerts)
+            )
+
         first_time = self.observations[0]['time'] if self.observations else "N/D"
         last_time = self.observations[-1]['time'] if self.observations else "N/D"
 
@@ -450,7 +636,7 @@ class VLMMonitor:
             f"Oggi {self.today}, il sistema ha monitorato la persona dalle {first_time} alle {last_time}.\n"
             f"Totale osservazioni: {len(self.observations)}.\n\n"
             f"Ecco i {source} della giornata:\n\n"
-            f"{content}\n\n"
+            f"{content}{alert_text}\n\n"
             f"Scrivi un DIARIO GIORNALIERO completo in italiano (2-3 pagine). Struttura:\n\n"
             f"RIEPILOGO GENERALE: 3-4 frasi sullo stato complessivo della persona.\n\n"
             f"MATTINA (6:00-12:00): cosa ha fatto, come stava, eventuali difficoltà.\n\n"
@@ -479,12 +665,22 @@ class VLMMonitor:
         first_time = self.observations[0]['time'] if self.observations else "N/D"
         last_time = self.observations[-1]['time'] if self.observations else "N/D"
 
+        # Conta tipi di osservazione
+        types = {}
+        for o in self.observations:
+            t = o.get('type', 'singolo')
+            types[t] = types.get(t, 0) + 1
+
         header = (
             f"DIARIO DI MONITORAGGIO DOMICILIARE\n"
             f"{'='*50}\n"
             f"Data: {self.today}\n"
             f"Periodo: {first_time} - {last_time}\n"
-            f"Osservazioni: {len(self.observations)}\n"
+            f"Osservazioni totali: {len(self.observations)}\n"
+            f"  Singole: {types.get('singolo', 0)}\n"
+            f"  Sequenze: {types.get('sequenza', 0) + types.get('sequenza_rapida', 0)}\n"
+            f"  Confronti: {types.get('confronto', 0)}\n"
+            f"  Alert: {types.get('alert', 0)}\n"
             f"Riepiloghi orari: {len(self.hourly_summaries)}\n"
             f"{'='*50}\n\n"
         )
@@ -534,8 +730,31 @@ class VLMMonitor:
             self.hourly_summaries = []
             self.diary_generated = False
             self._last_hourly_summary = datetime.now().hour
+            self._consecutive_absence = 0
+            self._absence_alerted = False
+            self._comparison_frame = None
             self._load_existing_data()
             print(f"[INIT] Nuovo giorno: {self.today}")
+
+    # =========================================
+    # ANTEPRIMA AREA DI CATTURA
+    # =========================================
+    def preview(self):
+        """Mostra una finestra con l'area catturata. Premi Q per chiudere."""
+        print(f"[PREVIEW] Area: top={self.monitor['top']} left={self.monitor['left']} "
+              f"{self.monitor['width']}x{self.monitor['height']}")
+        print("Premi Q per chiudere l'anteprima e avviare il monitoraggio\n")
+
+        cv2.namedWindow("VLM Monitor - Preview (Q per chiudere)", cv2.WINDOW_NORMAL)
+        cv2.moveWindow("VLM Monitor - Preview (Q per chiudere)",
+                       self.monitor['left'] + self.monitor['width'] + 10, 0)
+
+        while True:
+            frame = self._capture_frame()
+            cv2.imshow("VLM Monitor - Preview (Q per chiudere)", frame)
+            if cv2.waitKey(100) & 0xFF == ord('q'):
+                break
+        cv2.destroyAllWindows()
 
     # =========================================
     # LOOP PRINCIPALE
@@ -560,10 +779,15 @@ class VLMMonitor:
                 changed = self._scene_changed(frame)
                 self._update_interval(changed)
 
+                # Osservazione regolare o burst
                 obs_mode = self._should_observe(changed)
                 if obs_mode:
                     self._observe(frame, mode=obs_mode)
 
+                # Osservazione di confronto ogni 2 ore
+                self._check_comparison(frame)
+
+                # Genera diario all'ora impostata
                 now = datetime.now()
                 if now.hour >= self.diary_hour and not self.diary_generated:
                     self.generate_diary()
@@ -587,10 +811,12 @@ def main():
     parser.add_argument("--interval", type=int, default=30)
     parser.add_argument("--diary-hour", type=int, default=22)
     parser.add_argument("--output", default="diari")
-    parser.add_argument("--top", type=int, default=130)
-    parser.add_argument("--left", type=int, default=100)
-    parser.add_argument("--width", type=int, default=870)
+    parser.add_argument("--top", type=int, default=270)
+    parser.add_argument("--left", type=int, default=10)
+    parser.add_argument("--width", type=int, default=900)
     parser.add_argument("--height", type=int, default=520)
+    parser.add_argument("--preview", action="store_true",
+                        help="Mostra anteprima dell'area catturata prima di avviare")
 
     args = parser.parse_args()
 
@@ -605,6 +831,10 @@ def main():
         diary_hour=args.diary_hour,
         output_dir=args.output
     )
+
+    if args.preview:
+        monitor.preview()
+
     monitor.run()
 
 
