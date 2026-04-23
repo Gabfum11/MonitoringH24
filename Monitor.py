@@ -1,26 +1,3 @@
-"""
-VLM Daily Monitor — Monitoraggio h24 con Vision Language Model.
-
-Architettura a tre livelli:
-  1. Cattura intelligente: confronta i frame e chiama il VLM solo quando
-     la scena cambia o è passato troppo tempo dall'ultima osservazione.
-  2. Sintesi oraria: ogni ora condensa le osservazioni in un paragrafo.
-  3. Diario giornaliero: a fine giornata, sintetizza i riepiloghi orari
-     in un diario narrativo di 2-3 pagine.
-
-Migliorie:
-  - Soglia diff adattiva (media + 2σ dei diff recenti)
-  - Mini-storia: servono 2+ diff consecutivi sopra soglia per confermare un cambiamento
-  - Smart burst: burst veloce per movimenti rapidi, lento per movimenti graduali
-  - Prompt con contesto orario (notte vs giorno)
-  - Osservazione di confronto ogni 2 ore
-  - Rilevamento assenza prolungata
-
-Uso:
-    python vlm_monitor.py
-    python vlm_monitor.py --preview
-    python vlm_monitor.py --interval 30 --diary-hour 22
-"""
 
 import cv2
 import time
@@ -30,7 +7,7 @@ import base64
 import argparse
 import requests
 import numpy as np
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from pathlib import Path
 from collections import deque
 
@@ -41,12 +18,10 @@ class VLMMonitor:
                  lmstudio_url="http://localhost:1234", # URL del server locale LM Studio
                  capture_interval=30,                # Intervallo base in secondi (adattivo)
                  monitor_area=None,                  # Area dello schermo da catturare
-                 diary_hour=22,                      # Ora generazione diario
                  output_dir="diari"):                # Cartella output
         self.model = model
         self.lmstudio_url = lmstudio_url
         self.capture_interval = capture_interval
-        self.diary_hour = diary_hour
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
 
@@ -85,7 +60,7 @@ class VLMMonitor:
 
         # Osservazione di confronto
         self._last_comparison_time = time.time()
-        self._comparison_interval = 7200         # ogni 2 ore
+        self._comparison_interval = 3600         # ogni 1 ore
         self._comparison_frame = None            # frame di riferimento per il confronto
         self._comparison_frame_time = None
 
@@ -96,19 +71,17 @@ class VLMMonitor:
         # Prompt di sistema
         self.system_prompt = (
             "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
-            "Nell'ambiente possono essere presenti una o più persone, concentrati sulla persona anziana se visibile"
             "Analizza l'immagine e descrivi SOLO informazioni rilevanti dal punto di vista clinico.\n\n"
             "In ogni risposta, valuta sempre:\n"
             "- Presenza o assenza della persona\n"
             "- Postura (seduta, in piedi, sdraiata)\n"
             "- Attività in corso\n"
             "- Stabilità e movimento (normale, lento, incerto)\n"
-            "-se la persona è assista da qualcuno nell'alzarsi, camminare o altre azioni quotidiane\n"
             "- Possibili segnali di rischio (caduta, immobilità prolungata, difficoltà)\n\n"
             "Se nelle osservazioni precedenti la persona era in una posizione diversa, "
             "segnala il cambiamento.\n\n"
             "Scrivi in italiano, massimo 2-3 frasi, stile cartella clinica.\n"
-            "Sii oggettivo e preciso.\n"
+            "Sii oggettivo, preciso e sintetico.\n"
             "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
             "a meno che non siano importanti per la sicurezza.\n"
             "Se la persona non è visibile, dichiaralo chiaramente."
@@ -167,7 +140,10 @@ class VLMMonitor:
             threshold = max(5, mean_diff + 2 * std_diff)
         else:
             threshold = 5
-
+        """
+        la soglia adattiva funziona cosi: se la scena è stabile (es. di notte) i diff medi sono bassi (1-2) e la soglia si adatta a circa 5,
+        altrimenti, se la scena è più variabile (es. di giorno con luce che cambia), i diff medi salgono (3-4) e la soglia si adatta a circa 8-10.
+        """
         # Mini-storia: 2 frame consecutivi sopra soglia
         if diff > threshold:
             self._change_streak += 1
@@ -175,6 +151,11 @@ class VLMMonitor:
             self._change_streak = 0
 
         return self._change_streak >= 2
+        """
+        la mini-storia dei 2 frame consecutivi sopra soglia serve a evitare falsi positivi
+          dovuti a rumore, ombre o riflessi momentanei.
+        """
+    
 
     def _capture_burst(self, n_frames=4, interval=0.5):
         """Cattura una sequenza rapida di frame per analizzare un'azione.
@@ -194,24 +175,23 @@ class VLMMonitor:
     # =========================================
     # CONTESTO ORARIO
     # =========================================
-    def _get_time_context(self): 
+    def _get_time_context(self):
         """Ritorna una frase di contesto basata sull'ora del giorno.
-        risulta utile per guidare il VLM a interpretare meglio la scena
         
         Di notte qualsiasi attività è rilevante.
         A pranzo il contesto è diverso dalla mattina.
         """
         hour = datetime.now().hour
         if 23 <= hour or hour < 6:
-            return "È notte. Qualsiasi attività in questo orario è potenzialmente rilevante. La persona dovrebbe essere a riposo."
+            return "È notte. Qualsiasi attività in questo orario è potenzialmente rilevante."
         elif 6 <= hour < 8:
-            return "È mattina presto, orario tipico del risveglio. valuta se la persona mantiene stabilità"
+            return "È mattina presto, orario tipico del risveglio."
         elif 8 <= hour < 12:
-            return "È mattina. valuta anche il tipo di attività"
+            return "È mattina."
         elif 12 <= hour < 14:
             return "È ora di pranzo."
         elif 14 <= hour < 18:
-            return "È pomeriggio. Osserva eventuale difficoltà nei movimenti"
+            return "È pomeriggio."
         elif 18 <= hour < 20:
             return "È ora di cena."
         elif 20 <= hour < 23:
@@ -366,26 +346,22 @@ class VLMMonitor:
     # CONTESTO CONVERSAZIONALE
     # =========================================
     def _build_context(self):
-        """Contesto intelligente: ultime osservazioni rilevanti."""
+        """Ultime 3 osservazioni come contesto conversazionale."""
         if not self.observations:
             return None
 
-        # Prendi le ultime 3 osservazioni, ma solo il testo
-        # Non costruire una finta conversazione — dai un riepilogo
         recent = self.observations[-3:]
-        
-        summary = "Osservazioni precedenti:\n"
+        context = []
         for obs in recent:
-            obs_type = obs.get('type', 'singolo')
-            tag = ""
-            if obs_type == "alert":
-                tag = " [ALERT]"
-            elif obs_type == "confronto":
-                tag = " [CONFRONTO]"
-            summary += f"- Ore {obs['time']}{tag}: {obs['description']}\n"
-
-        return [{"role": "user", "content": summary + "\nOra osserva il frame corrente."}]
-    
+            context.append({
+                "role": "user",
+                "content": f"Ore {obs['time']}. Descrivi cosa vedi."
+            })
+            context.append({
+                "role": "assistant",
+                "content": obs['description']
+            })
+        return context
 
     # =========================================
     # LIVELLO 1: OSSERVAZIONE
@@ -490,6 +466,7 @@ class VLMMonitor:
     # =========================================
     def _check_comparison(self, frame):
         """Ogni 2 ore manda al VLM il frame corrente e quello di 2 ore prima.
+        
         Cattura cambiamenti graduali che il diff frame-to-frame non vede:
         persona che si accascia lentamente, oggetto caduto, cambio di postura.
         """
@@ -691,6 +668,240 @@ class VLMMonitor:
         print(f"[DIARIO] Salvato in {path}")
 
     # =========================================
+    # LIVELLO 4: DIARIO SETTIMANALE
+    # =========================================
+    def generate_weekly_diary(self, end_date=None):
+        """Genera il diario settimanale dagli ultimi 7 diari giornalieri.
+        
+        Legge i file diario_YYYY-MM-DD.txt degli ultimi 7 giorni
+        e li sintetizza in un report settimanale.
+        Chiamato automaticamente ogni lunedì per la settimana appena conclusa.
+        """
+        if end_date is None:
+            end_date = date.today() - timedelta(days=1)  # ieri = ultimo giorno della settimana
+
+        start_date = end_date - timedelta(days=6)
+
+        print(f"\n{'='*60}")
+        print(f"[SETTIMANALE] Generazione diario settimanale")
+        print(f"  Periodo: {start_date.isoformat()} → {end_date.isoformat()}")
+        print(f"{'='*60}")
+
+        # Leggi i diari giornalieri disponibili
+        daily_diaries = self._read_daily_diaries(start_date, end_date)
+
+        if not daily_diaries:
+            print("[SETTIMANALE] Nessun diario giornaliero trovato, skip")
+            return None
+
+        # Costruisci il contenuto dai diari giornalieri
+        content = "\n\n".join(
+            f"--- {entry['date']} ---\n{entry['content']}"
+            for entry in daily_diaries
+        )
+
+        prompt = (
+            f"Sei un geriatra. Ecco i diari giornalieri di monitoraggio domiciliare "
+            f"dal {start_date.isoformat()} al {end_date.isoformat()} "
+            f"({len(daily_diaries)} giorni su 7 con dati disponibili).\n\n"
+            f"{content}\n\n"
+            f"Scrivi un REPORT SETTIMANALE completo in italiano (2-3 pagine). Struttura:\n\n"
+            f"RIEPILOGO SETTIMANALE: stato complessivo della persona durante la settimana.\n\n"
+            f"ANDAMENTO GIORNALIERO: per ogni giorno, una sintesi di 2-3 frasi "
+            f"con gli eventi più rilevanti.\n\n"
+            f"PATTERN SETTIMANALI: pattern ricorrenti osservati durante la settimana "
+            f"(orari di maggiore attività, momenti di difficoltà ricorrenti, "
+            f"evoluzione della mobilità giorno dopo giorno).\n\n"
+            f"CONFRONTO E TREND: la persona sta migliorando, peggiorando o è stabile? "
+            f"Ci sono differenze tra inizio e fine settimana?\n\n"
+            f"RACCOMANDAZIONI CLINICHE: suggerimenti basati sui pattern osservati.\n\n"
+            f"Scrivi in modo professionale, per un medico di base o un caregiver."
+        )
+
+        diary = self._call_vlm_text(
+            prompt,
+            system="Sei un geriatra esperto in monitoraggio domiciliare a lungo termine.",
+            max_tokens=4000
+        )
+
+        if diary:
+            self._save_weekly_diary(diary, start_date, end_date, len(daily_diaries))
+            return diary
+        else:
+            print("[SETTIMANALE] Errore nella generazione")
+            return None
+
+    def _save_weekly_diary(self, diary_text, start_date, end_date, n_days):
+        header = (
+            f"REPORT SETTIMANALE DI MONITORAGGIO DOMICILIARE\n"
+            f"{'='*50}\n"
+            f"Periodo: {start_date.isoformat()} → {end_date.isoformat()}\n"
+            f"Giorni con dati: {n_days}/7\n"
+            f"{'='*50}\n\n"
+        )
+
+        path = self.output_dir / f"settimanale_{start_date.isoformat()}_{end_date.isoformat()}.txt"
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(header + diary_text)
+        print(f"[SETTIMANALE] Salvato in {path}")
+
+    # =========================================
+    # LIVELLO 5: DIARIO MENSILE
+    # =========================================
+    def generate_monthly_diary(self, year=None, month=None):
+        """Genera il diario mensile dai report settimanali e/o diari giornalieri.
+        
+        Cerca prima i report settimanali del mese. Se non ci sono,
+        usa i diari giornalieri direttamente.
+        Chiamato automaticamente il primo giorno di ogni mese per il mese precedente.
+        """
+        if year is None or month is None:
+            # Mese precedente
+            today = date.today()
+            if today.month == 1:
+                year = today.year - 1
+                month = 12
+            else:
+                year = today.year
+                month = today.month - 1
+
+        # Calcola il range del mese
+        start_date = date(year, month, 1)
+        if month == 12:
+            end_date = date(year + 1, 1, 1) - timedelta(days=1)
+        else:
+            end_date = date(year, month + 1, 1) - timedelta(days=1)
+
+        month_name = start_date.strftime("%B %Y")
+
+        print(f"\n{'='*60}")
+        print(f"[MENSILE] Generazione diario mensile: {month_name}")
+        print(f"  Periodo: {start_date.isoformat()} → {end_date.isoformat()}")
+        print(f"{'='*60}")
+
+        # Cerca prima i report settimanali
+        weekly_reports = self._read_weekly_diaries(start_date, end_date)
+
+        # Leggi anche i diari giornalieri
+        daily_diaries = self._read_daily_diaries(start_date, end_date)
+
+        if not weekly_reports and not daily_diaries:
+            print("[MENSILE] Nessun dato trovato, skip")
+            return None
+
+        # Preferisci i settimanali se disponibili, altrimenti usa i giornalieri
+        if weekly_reports:
+            content = "\n\n".join(
+                f"--- Settimana {entry['period']} ---\n{entry['content']}"
+                for entry in weekly_reports
+            )
+            source = f"{len(weekly_reports)} report settimanali"
+        else:
+            content = "\n\n".join(
+                f"--- {entry['date']} ---\n{entry['content']}"
+                for entry in daily_diaries
+            )
+            source = f"{len(daily_diaries)} diari giornalieri"
+
+        prompt = (
+            f"Sei un geriatra. Ecco i dati di monitoraggio domiciliare per {month_name} "
+            f"(fonte: {source}).\n\n"
+            f"{content}\n\n"
+            f"Scrivi un REPORT MENSILE completo in italiano (3-4 pagine). Struttura:\n\n"
+            f"RIEPILOGO DEL MESE: stato complessivo della persona durante il mese.\n\n"
+            f"ANDAMENTO SETTIMANALE: per ogni settimana, una sintesi di 3-4 frasi.\n\n"
+            f"EVOLUZIONE DELLA MOBILITÀ: come è cambiata la mobilità durante il mese. "
+            f"La persona è più o meno autonoma rispetto all'inizio del mese?\n\n"
+            f"PATTERN MENSILI: orari ricorrenti di attività e riposo, "
+            f"giorni migliori e peggiori, frequenza di eventi critici (cadute, "
+            f"immobilità prolungata, necessità di assistenza).\n\n"
+            f"CONFRONTO CON IL MESE PRECEDENTE: se disponibili dati precedenti, "
+            f"evidenzia miglioramenti o peggioramenti.\n\n"
+            f"VALUTAZIONE CLINICA E RACCOMANDAZIONI: impressione complessiva, "
+            f"suggerimenti per il piano di cura, eventuali esami o visite consigliate.\n\n"
+            f"Scrivi in modo professionale, per un medico di base o un geriatra."
+        )
+
+        diary = self._call_vlm_text(
+            prompt,
+            system="Sei un geriatra esperto in monitoraggio domiciliare a lungo termine.",
+            max_tokens=5000
+        )
+
+        if diary:
+            self._save_monthly_diary(diary, year, month, start_date, end_date)
+            return diary
+        else:
+            print("[MENSILE] Errore nella generazione")
+            return None
+
+    def _save_monthly_diary(self, diary_text, year, month, start_date, end_date):
+        header = (
+            f"REPORT MENSILE DI MONITORAGGIO DOMICILIARE\n"
+            f"{'='*50}\n"
+            f"Mese: {start_date.strftime('%B %Y')}\n"
+            f"Periodo: {start_date.isoformat()} → {end_date.isoformat()}\n"
+            f"{'='*50}\n\n"
+        )
+
+        path = self.output_dir / f"mensile_{year}-{month:02d}.txt"
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(header + diary_text)
+        print(f"[MENSILE] Salvato in {path}")
+
+    # =========================================
+    # LETTURA DIARI PRECEDENTI
+    # =========================================
+    def _read_daily_diaries(self, start_date, end_date):
+        """Legge i diari giornalieri nel range di date."""
+        diaries = []
+        current = start_date
+        while current <= end_date:
+            path = self.output_dir / f"diario_{current.isoformat()}.txt"
+            if path.exists():
+                with open(path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                # Rimuovi l'header (tutto prima della prima riga vuota dopo l'header)
+                parts = content.split('\n\n', 1)
+                body = parts[1] if len(parts) > 1 else content
+                diaries.append({
+                    "date": current.isoformat(),
+                    "content": body.strip()
+                })
+            current += timedelta(days=1)
+
+        print(f"[LETTURA] Trovati {len(diaries)} diari giornalieri "
+              f"su {(end_date - start_date).days + 1} giorni")
+        return diaries
+
+    def _read_weekly_diaries(self, start_date, end_date):
+        """Legge i report settimanali che cadono nel range di date."""
+        reports = []
+        # Cerca tutti i file settimanale_*.txt nella cartella
+        for path in sorted(self.output_dir.glob("settimanale_*.txt")):
+            try:
+                # Estrai le date dal nome file: settimanale_2026-04-14_2026-04-20.txt
+                parts = path.stem.replace("settimanale_", "").split("_")
+                week_start = date.fromisoformat(parts[0])
+                week_end = date.fromisoformat(parts[1])
+
+                # Controlla se la settimana cade nel range del mese
+                if week_start <= end_date and week_end >= start_date:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    body_parts = content.split('\n\n', 1)
+                    body = body_parts[1] if len(body_parts) > 1 else content
+                    reports.append({
+                        "period": f"{week_start.isoformat()} → {week_end.isoformat()}",
+                        "content": body.strip()
+                    })
+            except (ValueError, IndexError):
+                continue
+
+        print(f"[LETTURA] Trovati {len(reports)} report settimanali nel periodo")
+        return reports
+
+    # =========================================
     # PERSISTENZA
     # =========================================
     def _data_path(self):
@@ -719,13 +930,31 @@ class VLMMonitor:
     # CAMBIO GIORNATA
     # =========================================
     def _check_new_day(self):
-        today = date.today().isoformat()
-        if today != self.today:
+        today = date.today()
+        today_str = today.isoformat()
+        if today_str != self.today:
+            # Genera la sintesi dell'ultima ora del giorno precedente (es. 23:00)
+            # prima di generare il diario, altrimenti l'ultima ora viene persa
+            self._generate_hourly_summary(self._last_hourly_summary)
+
+            # Genera il diario giornaliero completo (24 ore)
             if not self.diary_generated and self.observations:
                 print(f"[DIARIO] Cambio giornata, genero diario per {self.today}")
                 self.generate_diary()
 
-            self.today = today
+            # Ogni lunedì → diario settimanale della settimana appena conclusa
+            if today.weekday() == 0:  # 0 = lunedì
+                yesterday = today - timedelta(days=1)
+                print(f"[SETTIMANALE] È lunedì, genero report settimanale")
+                self.generate_weekly_diary(end_date=yesterday)
+
+            # Primo del mese → diario mensile del mese appena concluso
+            if today.day == 1:
+                print(f"[MENSILE] Primo del mese, genero report mensile")
+                self.generate_monthly_diary()
+
+            # Reset per il nuovo giorno
+            self.today = today_str
             self.observations = []
             self.hourly_summaries = []
             self.diary_generated = False
@@ -765,7 +994,7 @@ class VLMMonitor:
         print(f"  Modello:      {self.model}")
         print(f"  Server:       {self.lmstudio_url}")
         print(f"  Intervallo:   {self.capture_interval}s (adattivo)")
-        print(f"  Diario:       ore {self.diary_hour}:00")
+        print(f"  Diario:       a mezzanotte (automatico)")
         print(f"  Output:       {self.output_dir}")
         print(f"{'='*60}")
         print("Premi Ctrl+C per fermare e generare il diario\n")
@@ -784,14 +1013,8 @@ class VLMMonitor:
                 if obs_mode:
                     self._observe(frame, mode=obs_mode)
 
-                # Osservazione di confronto ogni 2 ore
+                # Osservazione di confronto ogni ora
                 self._check_comparison(frame)
-
-                # Genera diario all'ora impostata
-                now = datetime.now()
-                if now.hour >= self.diary_hour and not self.diary_generated:
-                    self.generate_diary()
-                    self.diary_generated = True
 
                 time.sleep(self._current_interval)
 
@@ -809,7 +1032,6 @@ def main():
     parser.add_argument("--model", default="gemma-4-26b-a4b-it")
     parser.add_argument("--url", default="http://localhost:1234")
     parser.add_argument("--interval", type=int, default=30)
-    parser.add_argument("--diary-hour", type=int, default=22)
     parser.add_argument("--output", default="diari")
     parser.add_argument("--top", type=int, default=270)
     parser.add_argument("--left", type=int, default=10)
@@ -817,6 +1039,11 @@ def main():
     parser.add_argument("--height", type=int, default=520)
     parser.add_argument("--preview", action="store_true",
                         help="Mostra anteprima dell'area catturata prima di avviare")
+    # Comandi per generazione manuale report
+    parser.add_argument("--gen-weekly", action="store_true",
+                        help="Genera il report settimanale e esci")
+    parser.add_argument("--gen-monthly", action="store_true",
+                        help="Genera il report mensile e esci")
 
     args = parser.parse_args()
 
@@ -828,9 +1055,17 @@ def main():
             "top": args.top, "left": args.left,
             "width": args.width, "height": args.height
         },
-        diary_hour=args.diary_hour,
         output_dir=args.output
     )
+
+    # Generazione manuale report
+    if args.gen_weekly:
+        monitor.generate_weekly_diary()
+        return
+
+    if args.gen_monthly:
+        monitor.generate_monthly_diary()
+        return
 
     if args.preview:
         monitor.preview()
