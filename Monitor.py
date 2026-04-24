@@ -1,3 +1,26 @@
+"""
+VLM Daily Monitor — Monitoraggio h24 con Vision Language Model.
+
+Architettura a tre livelli:
+  1. Cattura intelligente: confronta i frame e chiama il VLM solo quando
+     la scena cambia o è passato troppo tempo dall'ultima osservazione.
+  2. Sintesi oraria: ogni ora condensa le osservazioni in un paragrafo.
+  3. Diario giornaliero: a fine giornata, sintetizza i riepiloghi orari
+     in un diario narrativo di 2-3 pagine.
+
+Migliorie:
+  - Soglia diff adattiva (media + 2σ dei diff recenti)
+  - Mini-storia: servono 2+ diff consecutivi sopra soglia per confermare un cambiamento
+  - Smart burst: burst veloce per movimenti rapidi, lento per movimenti graduali
+  - Prompt con contesto orario (notte vs giorno)
+  - Osservazione di confronto ogni 2 ore
+  - Rilevamento assenza prolungata
+
+Uso:
+    python vlm_monitor.py
+    python vlm_monitor.py --preview
+    python vlm_monitor.py --interval 30
+"""
 
 import cv2
 import time
@@ -10,6 +33,17 @@ import numpy as np
 from datetime import datetime, date, timedelta
 from pathlib import Path
 from collections import deque
+
+# Cattura finestra specifica su macOS (anche se coperta da altre finestre)
+try:
+    import Quartz
+    from Quartz import (CGWindowListCopyWindowInfo, kCGWindowListOptionAll,
+                        kCGNullWindowID, CGWindowListCreateImage,
+                        kCGWindowImageDefault, CGRectNull,
+                        kCGWindowListOptionIncludingWindow)
+    HAS_QUARTZ = True
+except ImportError:
+    HAS_QUARTZ = False
 
 
 class VLMMonitor:
@@ -32,6 +66,16 @@ class VLMMonitor:
         else:
             self.monitor = {"top": 270, "left": 10, "width": 900, "height": 520}
 
+        # Cattura finestra Xiaomi Home (macOS)
+        self._xiaomi_window_id = None
+        self._use_window_capture = False  # disabilitato — usa screen capture
+        if self._use_window_capture:
+            self._xiaomi_window_id = self._find_xiaomi_window()
+            if self._xiaomi_window_id:
+                print(f"[INIT] Cattura finestra Xiaomi Home (window ID: {self._xiaomi_window_id})")
+            else:
+                print("[INIT] Finestra Xiaomi Home non trovata, uso screen capture")
+
         # Stato giornata
         self.today = date.today().isoformat()
         self.diary_generated = False
@@ -45,43 +89,46 @@ class VLMMonitor:
         # Change detection con soglia adattiva
         self._prev_frame_gray = None
         self._prev_observation_time = 0
-        self._diff_history = deque(maxlen=20)   # storico dei diff per soglia adattiva
-        self._change_streak = 0                  # frame consecutivi con cambiamento
-        self._last_diff = 0                      # grandezza ultimo diff (per smart burst)
+        self._diff_history = deque(maxlen=20)
+        self._change_streak = 0
+        self._last_diff = 0
 
         # Intervalli adattivi
         self._min_interval = capture_interval
-        self._max_interval = 900                 # 15 min se scena stabile (notte)
         self._current_interval = capture_interval
         self._no_change_streak = 0
+        self._prev_logged_interval = capture_interval  # per log cambio intervallo
 
         # Tracking orario
         self._last_hourly_summary = datetime.now().hour
 
         # Osservazione di confronto
         self._last_comparison_time = time.time()
-        self._comparison_interval = 3600         # ogni 1 ore
-        self._comparison_frame = None            # frame di riferimento per il confronto
+        self._comparison_interval = 3600         # ogni 1 ora
+        self._comparison_frame = None
         self._comparison_frame_time = None
 
         # Rilevamento assenza
-        self._consecutive_absence = 0            # osservazioni consecutive senza persona
-        self._absence_alerted = False            # evita alert ripetuti
+        self._consecutive_absence = 0
+        self._absence_alerted = False
 
         # Prompt di sistema
         self.system_prompt = (
             "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
+            "Nell'ambiente possono essere presenti una o più persone, "
+            "concentrati sulla persona anziana se visibile.\n"
             "Analizza l'immagine e descrivi SOLO informazioni rilevanti dal punto di vista clinico.\n\n"
             "In ogni risposta, valuta sempre:\n"
             "- Presenza o assenza della persona\n"
             "- Postura (seduta, in piedi, sdraiata)\n"
             "- Attività in corso\n"
             "- Stabilità e movimento (normale, lento, incerto)\n"
+            "- Se la persona è assistita da qualcuno nell'alzarsi, camminare o altre azioni\n"
             "- Possibili segnali di rischio (caduta, immobilità prolungata, difficoltà)\n\n"
             "Se nelle osservazioni precedenti la persona era in una posizione diversa, "
             "segnala il cambiamento.\n\n"
             "Scrivi in italiano, massimo 2-3 frasi, stile cartella clinica.\n"
-            "Sii oggettivo, preciso e sintetico.\n"
+            "Sii oggettivo e preciso.\n"
             "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
             "a meno che non siano importanti per la sicurezza.\n"
             "Se la persona non è visibile, dichiaralo chiaramente."
@@ -91,14 +138,64 @@ class VLMMonitor:
         self._load_existing_data()
 
     # =========================================
-    # CATTURA E CHANGE DETECTION
+    # CATTURA FRAME
     # =========================================
+    def _find_xiaomi_window(self):
+        """Trova l'ID della finestra Xiaomi Home su macOS."""
+        if not HAS_QUARTZ:
+            return None
+        windows = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID)
+        for w in windows:
+            name = w.get('kCGWindowOwnerName', '')
+            if 'Xiaomi' in name:
+                return w.get('kCGWindowNumber')
+        return None
+
     def _capture_frame(self):
-        """Cattura un frame dallo schermo."""
+        """Cattura un frame dalla finestra Xiaomi Home o dallo schermo."""
+        if self._use_window_capture:
+            frame = self._capture_window()
+            if frame is not None:
+                return frame
+            self._xiaomi_window_id = self._find_xiaomi_window()
+            if self._xiaomi_window_id:
+                frame = self._capture_window()
+                if frame is not None:
+                    return frame
+
+        # Fallback: screen capture
         sct_img = self.sct.grab(self.monitor)
         frame = np.array(sct_img)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
         return frame
+
+    def _capture_window(self):
+        """Cattura la finestra Xiaomi Home tramite le API macOS."""
+        if self._xiaomi_window_id is None:
+            return None
+        try:
+            image = CGWindowListCreateImage(
+                CGRectNull,
+                kCGWindowListOptionIncludingWindow,
+                self._xiaomi_window_id,
+                kCGWindowImageDefault
+            )
+            if image is None:
+                self._xiaomi_window_id = None
+                return None
+            width = Quartz.CGImageGetWidth(image)
+            height = Quartz.CGImageGetHeight(image)
+            bytes_per_row = Quartz.CGImageGetBytesPerRow(image)
+            pixel_data = Quartz.CGDataProviderCopyData(Quartz.CGImageGetDataProvider(image))
+            frame = np.frombuffer(pixel_data, dtype=np.uint8)
+            frame = frame.reshape(height, bytes_per_row // 4, 4)
+            frame = frame[:height, :width, :3]
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            return frame
+        except Exception as e:
+            print(f"[CAPTURE] Errore cattura finestra: {e}")
+            self._xiaomi_window_id = None
+            return None
 
     def _frame_to_base64(self, frame):
         """Ridimensiona e converte un frame in JPEG base64."""
@@ -107,19 +204,13 @@ class VLMMonitor:
         if max(h, w) > max_size:
             scale = max_size / max(h, w)
             frame = cv2.resize(frame, (int(w * scale), int(h * scale)))
-
         _, jpg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
         return base64.b64encode(jpg.tobytes()).decode('utf-8')
 
     def _scene_changed(self, frame):
         """Confronta il frame corrente con il precedente.
         
-        Usa soglia adattiva: media dei diff recenti + 2 deviazioni standard.
-        Di notte (scena stabile, diff medio 1-2) la soglia scende a ~5.
-        Di giorno (luce variabile, diff medio 3-4) sale a ~8-10.
-        
-        Richiede 2 frame consecutivi sopra soglia per confermare il cambiamento,
-        filtrando ombre, riflessi e rumore momentaneo.
+        Soglia adattiva + mini-storia (2 frame consecutivi sopra soglia).
         """
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.resize(gray, (160, 120))
@@ -129,6 +220,7 @@ class VLMMonitor:
             return True
 
         diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float)))
+        print(f"[DIFF] {diff:.2f}", end=' | ') # log diff per debug
         self._prev_frame_gray = gray
         self._last_diff = diff
 
@@ -140,10 +232,7 @@ class VLMMonitor:
             threshold = max(5, mean_diff + 2 * std_diff)
         else:
             threshold = 5
-        """
-        la soglia adattiva funziona cosi: se la scena è stabile (es. di notte) i diff medi sono bassi (1-2) e la soglia si adatta a circa 5,
-        altrimenti, se la scena è più variabile (es. di giorno con luce che cambia), i diff medi salgono (3-4) e la soglia si adatta a circa 8-10.
-        """
+
         # Mini-storia: 2 frame consecutivi sopra soglia
         if diff > threshold:
             self._change_streak += 1
@@ -151,19 +240,9 @@ class VLMMonitor:
             self._change_streak = 0
 
         return self._change_streak >= 2
-        """
-        la mini-storia dei 2 frame consecutivi sopra soglia serve a evitare falsi positivi
-          dovuti a rumore, ombre o riflessi momentanei.
-        """
-    
 
     def _capture_burst(self, n_frames=4, interval=0.5):
-        """Cattura una sequenza rapida di frame per analizzare un'azione.
-        
-        Args:
-            n_frames: quanti frame catturare
-            interval: secondi tra i frame
-        """
+        """Cattura una sequenza rapida di frame per analizzare un'azione."""
         frames = []
         for i in range(n_frames):
             frame = self._capture_frame()
@@ -176,42 +255,55 @@ class VLMMonitor:
     # CONTESTO ORARIO
     # =========================================
     def _get_time_context(self):
-        """Ritorna una frase di contesto basata sull'ora del giorno.
-        
-        Di notte qualsiasi attività è rilevante.
-        A pranzo il contesto è diverso dalla mattina.
-        """
+        """Contesto clinico basato sull'ora del giorno."""
         hour = datetime.now().hour
         if 23 <= hour or hour < 6:
-            return "È notte. Qualsiasi attività in questo orario è potenzialmente rilevante."
+            return (
+                "È notte. La persona dovrebbe essere a riposo. "
+                "Un'alzata breve può indicare un bisogno fisiologico, "
+                "ma attività prolungata o instabilità sono potenzialmente anomale."
+            )
         elif 6 <= hour < 8:
-            return "È mattina presto, orario tipico del risveglio."
+            return "È mattina presto, orario tipico del risveglio. Valuta stabilità nei movimenti."
         elif 8 <= hour < 12:
-            return "È mattina."
+            return "È mattina. Valuta continuità delle attività e mobilità."
         elif 12 <= hour < 14:
-            return "È ora di pranzo."
+            return "È ora di pranzo. Verifica presenza e autonomia."
         elif 14 <= hour < 18:
-            return "È pomeriggio."
+            return "È pomeriggio. Osserva eventuale sonnolenza o difficoltà nei movimenti."
         elif 18 <= hour < 20:
-            return "È ora di cena."
+            return "È ora di cena. Valuta attività e autonomia."
         elif 20 <= hour < 23:
-            return "È sera, orario pre-riposo."
+            return "È sera, orario pre-riposo. Osserva stabilità nei movimenti."
         return ""
 
     # =========================================
     # INTERVALLO ADATTIVO
     # =========================================
     def _update_interval(self, scene_changed):
-        """Adatta l'intervallo: attività → 30s, stabile/notte → fino a 15 min."""
+        """Adatta l'intervallo in base al livello di movimento.
+        
+        Molto movimento (diff > 15): controlla ogni 10s
+        Movimento moderato (diff > 5): controlla ogni 20s
+        Scena stabile: intervallo cresce fino a 5min (giorno) o 15min (notte)
+        """
         if scene_changed:
             self._no_change_streak = 0
-            self._current_interval = self._min_interval
+            # Adatta in base all'intensità del cambiamento
+            if self._last_diff > 15:
+                self._current_interval = 10   # molto movimento
+            elif self._last_diff > 5:
+                self._current_interval = 20   # movimento moderato
+            else:
+                self._current_interval = self._min_interval
         else:
             self._no_change_streak += 1
-            if self._no_change_streak % 3 == 0:
+            # Raddoppia ogni 5 frame stabili (non 3 — crescita più lenta)
+            if self._no_change_streak % 5 == 0:
+                max_int=300
                 self._current_interval = min(
                     self._current_interval * 2,
-                    self._max_interval
+                    max_int
                 )
 
     # =========================================
@@ -229,32 +321,21 @@ class VLMMonitor:
         now = time.time()
         time_since_last = now - self._prev_observation_time
 
-        # Scena cambiata → burst
         if scene_changed and time_since_last >= 15:
-            # Diff grande (>15): movimento rapido → burst veloce
             if self._last_diff > 15:
                 return 'burst_fast'
-            # Diff medio: movimento normale → burst standard
             return 'burst'
-
-        # Troppo tempo senza osservazioni → frame singolo di controllo
-        if time_since_last >= self._max_interval:
+        max_int = 300 
+        if time_since_last >= max_int: #se è passato più del massimo intervallo consentito (5min giorno, 15min notte) dall'ultima osservazione, forza un'osservazione anche se la scena è stabile
             return 'single'
 
-        return None
+        return None #se non c'è movimento o non è passato abbastanza tempo dall'ultima osservazione
 
     # =========================================
     # CHIAMATA VLM
     # =========================================
     def _call_vlm(self, images_b64, context_messages=None, max_tokens=200, prompt_text=None):
-        """Invia una o più immagini a LM Studio con contesto.
-        
-        Args:
-            images_b64: stringa base64 (singola) o lista di stringhe (sequenza)
-            context_messages: contesto conversazionale
-            max_tokens: token massimi
-            prompt_text: testo personalizzato
-        """
+        """Invia una o più immagini a LM Studio con contesto."""
         messages = [{"role": "system", "content": self.system_prompt}]
 
         if context_messages:
@@ -263,7 +344,6 @@ class VLMMonitor:
         now = datetime.now().strftime("%H:%M:%S")
         time_ctx = self._get_time_context()
 
-        # Costruisci il contenuto con una o più immagini
         if isinstance(images_b64, list):
             if prompt_text is None:
                 prompt_text = (
@@ -300,14 +380,12 @@ class VLMMonitor:
                 },
                 timeout=60
             )
-
             if response.status_code == 200:
                 data = response.json()
                 return data["choices"][0]["message"]["content"].strip()
             else:
                 print(f"[VLM] Errore: {response.status_code}")
                 return None
-
         except Exception as e:
             print(f"[VLM] Errore connessione: {e}")
             return None
@@ -330,14 +408,12 @@ class VLMMonitor:
                 },
                 timeout=120
             )
-
             if response.status_code == 200:
                 data = response.json()
                 return data["choices"][0]["message"]["content"].strip()
             else:
                 print(f"[VLM] Errore: {response.status_code}")
                 return None
-
         except Exception as e:
             print(f"[VLM] Errore: {e}")
             return None
@@ -346,50 +422,45 @@ class VLMMonitor:
     # CONTESTO CONVERSAZIONALE
     # =========================================
     def _build_context(self):
-        """Ultime 3 osservazioni come contesto conversazionale."""
+        """Contesto intelligente: ultime osservazioni rilevanti."""
         if not self.observations:
             return None
 
         recent = self.observations[-3:]
-        context = []
+        summary = "Osservazioni precedenti:\n"
         for obs in recent:
-            context.append({
-                "role": "user",
-                "content": f"Ore {obs['time']}. Descrivi cosa vedi."
-            })
-            context.append({
-                "role": "assistant",
-                "content": obs['description']
-            })
-        return context
+            obs_type = obs.get('type', 'singolo')
+            tag = ""
+            if obs_type == "alert":
+                tag = " [ALERT]"
+            elif obs_type == "confronto":
+                tag = " [CONFRONTO]"
+            summary += f"- Ore {obs['time']}{tag}: {obs['description']}\n"
+
+        return [{"role": "user", "content": summary + "\nOra osserva il frame corrente."}]
 
     # =========================================
     # LIVELLO 1: OSSERVAZIONE
     # =========================================
     def _observe(self, frame, mode='single'):
-        """Analizza il frame (o una sequenza) e salva l'osservazione.
-        
-        Args:
-            frame: frame corrente (usato per 'single')
-            mode: 'single', 'burst', o 'burst_fast'
-        """
+        """Analizza il frame (o una sequenza) e salva l'osservazione."""
         context = self._build_context()
 
         if mode == 'burst_fast':
-            # Movimento rapido → 5 frame ravvicinati
             images = self._capture_burst(n_frames=5, interval=0.3)
             description = self._call_vlm(images, context, max_tokens=250)
             obs_type = "sequenza_rapida"
+            n_frames = 5
         elif mode == 'burst':
-            # Movimento normale → 4 frame standard
             images = self._capture_burst(n_frames=4, interval=0.5)
             description = self._call_vlm(images, context, max_tokens=250)
             obs_type = "sequenza"
+            n_frames = 4
         else:
-            # Frame singolo per scena statica
             image_b64 = self._frame_to_base64(frame)
             description = self._call_vlm(image_b64, context)
             obs_type = "singolo"
+            n_frames = 1
 
         if description:
             obs = {
@@ -403,14 +474,16 @@ class VLMMonitor:
             self._prev_observation_time = time.time()
             self._save_data()
 
-            # Tag per il log
-            tags = {"singolo": "   ", "sequenza": "SEQ", "sequenza_rapida": "FAS"}
-            tag = tags.get(obs_type, "   ")
+            # Tag con numero di frame per il log
+            if mode == 'burst_fast':
+                tag = f"FAS×{n_frames}"
+            elif mode == 'burst':
+                tag = f"SEQ×{n_frames}"
+            else:
+                tag = f"   ×{n_frames}"
             print(f"[{obs['time']}] [{tag}] {description}")
 
-            # Traccia assenza
             self._track_absence(description)
-
             return True
         else:
             print(f"[{datetime.now().strftime('%H:%M')}] Nessuna risposta dal VLM")
@@ -420,11 +493,7 @@ class VLMMonitor:
     # RILEVAMENTO ASSENZA PROLUNGATA
     # =========================================
     def _track_absence(self, description):
-        """Traccia osservazioni consecutive senza persona visibile.
-        
-        Se la persona non è visibile per 30+ minuti durante il giorno,
-        genera un'osservazione di alert.
-        """
+        """Traccia osservazioni consecutive senza persona visibile."""
         desc_lower = description.lower()
         person_absent = ("non è visibile" in desc_lower or
                          "non visibile" in desc_lower or
@@ -438,8 +507,6 @@ class VLMMonitor:
             self._consecutive_absence = 0
             self._absence_alerted = False
 
-        # Alert dopo ~30 minuti di assenza durante il giorno (6:00-22:00)
-        # Con intervallo adattivo, 30 min ~ 2-6 osservazioni consecutive
         hour = datetime.now().hour
         is_daytime = 6 <= hour < 22
         minutes_absent = self._consecutive_absence * self._current_interval / 60
@@ -465,11 +532,7 @@ class VLMMonitor:
     # OSSERVAZIONE DI CONFRONTO
     # =========================================
     def _check_comparison(self, frame):
-        """Ogni 2 ore manda al VLM il frame corrente e quello di 2 ore prima.
-        
-        Cattura cambiamenti graduali che il diff frame-to-frame non vede:
-        persona che si accascia lentamente, oggetto caduto, cambio di postura.
-        """
+        """Ogni ora confronta il frame corrente con quello precedente."""
         now = time.time()
         if now - self._last_comparison_time < self._comparison_interval:
             return
@@ -477,22 +540,20 @@ class VLMMonitor:
         self._last_comparison_time = now
 
         if self._comparison_frame is None:
-            # Primo frame di riferimento
             self._comparison_frame = self._frame_to_base64(frame)
             self._comparison_frame_time = datetime.now().strftime("%H:%M")
             return
 
-        # Manda entrambi i frame
         current_b64 = self._frame_to_base64(frame)
         now_str = datetime.now().strftime("%H:%M")
 
         prompt = (
             f"Ti mostro due immagini della stessa stanza. "
             f"La prima è delle ore {self._comparison_frame_time}, la seconda delle ore {now_str}. "
-            f"Ci sono cambiamenti nello stato della persona o nell'ambiente? "
-            f"La persona è nella stessa posizione? Si è spostata? "
-            f"Noti oggetti caduti, cambiamenti nella postura, o qualsiasi cosa diversa? "
-            f"Rispondi in 2-3 frasi."
+            f"Ignora la persona. Concentrati sull'AMBIENTE: "
+            f"ci sono oggetti caduti, ostacoli nuovi, sedie spostate, "
+            f"o qualsiasi cambiamento che potrebbe rappresentare un rischio? "
+            f"Se non noti cambiamenti rilevanti, scrivi 'Ambiente invariato'."
         )
 
         images = [self._comparison_frame, current_b64]
@@ -511,7 +572,6 @@ class VLMMonitor:
             self._save_data()
             print(f"[{now_str}] [CMP] {description}")
 
-        # Aggiorna il frame di riferimento
         self._comparison_frame = current_b64
         self._comparison_frame_time = now_str
 
@@ -520,17 +580,19 @@ class VLMMonitor:
     # =========================================
     def _generate_hourly_summary(self, hour):
         """Genera un riepilogo per un'ora specifica."""
-        hour_obs = [o for o in self.observations if o.get('hour') == hour]
-
+        hour_obs = [o for o in self.observations if o.get('hour') == hour] #prende tutte le osservazioni dell'ora specifica
         if not hour_obs:
             return
 
-        # Evita duplicati
-        existing_hours = {s['hour'] for s in self.hourly_summaries}
+        existing_hours = {s['hour'] for s in self.hourly_summaries} # per evitare riepiloghi duplicati se il programma viene riavviato
         if hour in existing_hours:
             return
 
         obs_text = "\n".join(f"- {o['time']}: {o['description']}" for o in hour_obs)
+        """
+        ogni osservazione dell'ora viene formattata come "- ore: descrizione" e concatenata in un 
+        unico testo che sarà usato come input per il VLM per generare la sintesi oraria.
+        """
 
         prompt = (
             f"Ecco le osservazioni raccolte tra le {hour}:00 e le {hour}:59:\n\n"
@@ -597,7 +659,6 @@ class VLMMonitor:
             )
             source = "osservazioni grezze"
 
-        # Conta gli alert
         alerts = [o for o in self.observations if o.get('type') == 'alert']
         alert_text = ""
         if alerts:
@@ -642,7 +703,6 @@ class VLMMonitor:
         first_time = self.observations[0]['time'] if self.observations else "N/D"
         last_time = self.observations[-1]['time'] if self.observations else "N/D"
 
-        # Conta tipi di osservazione
         types = {}
         for o in self.observations:
             t = o.get('type', 'singolo')
@@ -671,15 +731,9 @@ class VLMMonitor:
     # LIVELLO 4: DIARIO SETTIMANALE
     # =========================================
     def generate_weekly_diary(self, end_date=None):
-        """Genera il diario settimanale dagli ultimi 7 diari giornalieri.
-        
-        Legge i file diario_YYYY-MM-DD.txt degli ultimi 7 giorni
-        e li sintetizza in un report settimanale.
-        Chiamato automaticamente ogni lunedì per la settimana appena conclusa.
-        """
+        """Genera il diario settimanale dagli ultimi 7 diari giornalieri."""
         if end_date is None:
-            end_date = date.today() - timedelta(days=1)  # ieri = ultimo giorno della settimana
-
+            end_date = date.today() - timedelta(days=1)
         start_date = end_date - timedelta(days=6)
 
         print(f"\n{'='*60}")
@@ -687,14 +741,11 @@ class VLMMonitor:
         print(f"  Periodo: {start_date.isoformat()} → {end_date.isoformat()}")
         print(f"{'='*60}")
 
-        # Leggi i diari giornalieri disponibili
         daily_diaries = self._read_daily_diaries(start_date, end_date)
-
         if not daily_diaries:
             print("[SETTIMANALE] Nessun diario giornaliero trovato, skip")
             return None
 
-        # Costruisci il contenuto dai diari giornalieri
         content = "\n\n".join(
             f"--- {entry['date']} ---\n{entry['content']}"
             for entry in daily_diaries
@@ -707,13 +758,10 @@ class VLMMonitor:
             f"{content}\n\n"
             f"Scrivi un REPORT SETTIMANALE completo in italiano (2-3 pagine). Struttura:\n\n"
             f"RIEPILOGO SETTIMANALE: stato complessivo della persona durante la settimana.\n\n"
-            f"ANDAMENTO GIORNALIERO: per ogni giorno, una sintesi di 2-3 frasi "
-            f"con gli eventi più rilevanti.\n\n"
-            f"PATTERN SETTIMANALI: pattern ricorrenti osservati durante la settimana "
-            f"(orari di maggiore attività, momenti di difficoltà ricorrenti, "
-            f"evoluzione della mobilità giorno dopo giorno).\n\n"
-            f"CONFRONTO E TREND: la persona sta migliorando, peggiorando o è stabile? "
-            f"Ci sono differenze tra inizio e fine settimana?\n\n"
+            f"ANDAMENTO GIORNALIERO: per ogni giorno, una sintesi di 2-3 frasi.\n\n"
+            f"PATTERN SETTIMANALI: pattern ricorrenti, orari di maggiore attività, "
+            f"momenti di difficoltà, evoluzione della mobilità.\n\n"
+            f"CONFRONTO E TREND: miglioramento, peggioramento o stabilità?\n\n"
             f"RACCOMANDAZIONI CLINICHE: suggerimenti basati sui pattern osservati.\n\n"
             f"Scrivi in modo professionale, per un medico di base o un caregiver."
         )
@@ -739,7 +787,6 @@ class VLMMonitor:
             f"Giorni con dati: {n_days}/7\n"
             f"{'='*50}\n\n"
         )
-
         path = self.output_dir / f"settimanale_{start_date.isoformat()}_{end_date.isoformat()}.txt"
         with open(path, 'w', encoding='utf-8') as f:
             f.write(header + diary_text)
@@ -749,14 +796,8 @@ class VLMMonitor:
     # LIVELLO 5: DIARIO MENSILE
     # =========================================
     def generate_monthly_diary(self, year=None, month=None):
-        """Genera il diario mensile dai report settimanali e/o diari giornalieri.
-        
-        Cerca prima i report settimanali del mese. Se non ci sono,
-        usa i diari giornalieri direttamente.
-        Chiamato automaticamente il primo giorno di ogni mese per il mese precedente.
-        """
+        """Genera il diario mensile dai report settimanali o diari giornalieri."""
         if year is None or month is None:
-            # Mese precedente
             today = date.today()
             if today.month == 1:
                 year = today.year - 1
@@ -765,7 +806,6 @@ class VLMMonitor:
                 year = today.year
                 month = today.month - 1
 
-        # Calcola il range del mese
         start_date = date(year, month, 1)
         if month == 12:
             end_date = date(year + 1, 1, 1) - timedelta(days=1)
@@ -779,17 +819,13 @@ class VLMMonitor:
         print(f"  Periodo: {start_date.isoformat()} → {end_date.isoformat()}")
         print(f"{'='*60}")
 
-        # Cerca prima i report settimanali
         weekly_reports = self._read_weekly_diaries(start_date, end_date)
-
-        # Leggi anche i diari giornalieri
         daily_diaries = self._read_daily_diaries(start_date, end_date)
 
         if not weekly_reports and not daily_diaries:
             print("[MENSILE] Nessun dato trovato, skip")
             return None
 
-        # Preferisci i settimanali se disponibili, altrimenti usa i giornalieri
         if weekly_reports:
             content = "\n\n".join(
                 f"--- Settimana {entry['period']} ---\n{entry['content']}"
@@ -808,18 +844,13 @@ class VLMMonitor:
             f"(fonte: {source}).\n\n"
             f"{content}\n\n"
             f"Scrivi un REPORT MENSILE completo in italiano (3-4 pagine). Struttura:\n\n"
-            f"RIEPILOGO DEL MESE: stato complessivo della persona durante il mese.\n\n"
-            f"ANDAMENTO SETTIMANALE: per ogni settimana, una sintesi di 3-4 frasi.\n\n"
-            f"EVOLUZIONE DELLA MOBILITÀ: come è cambiata la mobilità durante il mese. "
-            f"La persona è più o meno autonoma rispetto all'inizio del mese?\n\n"
-            f"PATTERN MENSILI: orari ricorrenti di attività e riposo, "
-            f"giorni migliori e peggiori, frequenza di eventi critici (cadute, "
-            f"immobilità prolungata, necessità di assistenza).\n\n"
-            f"CONFRONTO CON IL MESE PRECEDENTE: se disponibili dati precedenti, "
-            f"evidenzia miglioramenti o peggioramenti.\n\n"
-            f"VALUTAZIONE CLINICA E RACCOMANDAZIONI: impressione complessiva, "
-            f"suggerimenti per il piano di cura, eventuali esami o visite consigliate.\n\n"
-            f"Scrivi in modo professionale, per un medico di base o un geriatra."
+            f"RIEPILOGO DEL MESE: stato complessivo della persona.\n\n"
+            f"ANDAMENTO SETTIMANALE: per ogni settimana, 3-4 frasi.\n\n"
+            f"EVOLUZIONE DELLA MOBILITÀ: autonomia rispetto all'inizio del mese?\n\n"
+            f"PATTERN MENSILI: orari ricorrenti, giorni migliori/peggiori, eventi critici.\n\n"
+            f"CONFRONTO CON IL MESE PRECEDENTE: miglioramenti o peggioramenti.\n\n"
+            f"VALUTAZIONE CLINICA E RACCOMANDAZIONI: impressione e suggerimenti.\n\n"
+            f"Scrivi in modo professionale, per un medico o un geriatra."
         )
 
         diary = self._call_vlm_text(
@@ -843,7 +874,6 @@ class VLMMonitor:
             f"Periodo: {start_date.isoformat()} → {end_date.isoformat()}\n"
             f"{'='*50}\n\n"
         )
-
         path = self.output_dir / f"mensile_{year}-{month:02d}.txt"
         with open(path, 'w', encoding='utf-8') as f:
             f.write(header + diary_text)
@@ -861,7 +891,6 @@ class VLMMonitor:
             if path.exists():
                 with open(path, 'r', encoding='utf-8') as f:
                     content = f.read()
-                # Rimuovi l'header (tutto prima della prima riga vuota dopo l'header)
                 parts = content.split('\n\n', 1)
                 body = parts[1] if len(parts) > 1 else content
                 diaries.append({
@@ -869,23 +898,18 @@ class VLMMonitor:
                     "content": body.strip()
                 })
             current += timedelta(days=1)
-
         print(f"[LETTURA] Trovati {len(diaries)} diari giornalieri "
               f"su {(end_date - start_date).days + 1} giorni")
         return diaries
 
     def _read_weekly_diaries(self, start_date, end_date):
-        """Legge i report settimanali che cadono nel range di date."""
+        """Legge i report settimanali nel range di date."""
         reports = []
-        # Cerca tutti i file settimanale_*.txt nella cartella
         for path in sorted(self.output_dir.glob("settimanale_*.txt")):
             try:
-                # Estrai le date dal nome file: settimanale_2026-04-14_2026-04-20.txt
                 parts = path.stem.replace("settimanale_", "").split("_")
                 week_start = date.fromisoformat(parts[0])
                 week_end = date.fromisoformat(parts[1])
-
-                # Controlla se la settimana cade nel range del mese
                 if week_start <= end_date and week_end >= start_date:
                     with open(path, 'r', encoding='utf-8') as f:
                         content = f.read()
@@ -897,7 +921,6 @@ class VLMMonitor:
                     })
             except (ValueError, IndexError):
                 continue
-
         print(f"[LETTURA] Trovati {len(reports)} report settimanali nel periodo")
         return reports
 
@@ -932,28 +955,22 @@ class VLMMonitor:
     def _check_new_day(self):
         today = date.today()
         today_str = today.isoformat()
-        if today_str != self.today:
-            # Genera la sintesi dell'ultima ora del giorno precedente (es. 23:00)
-            # prima di generare il diario, altrimenti l'ultima ora viene persa
+        if today_str != self.today: #serve per capire quando è cambiato il giorno e quindi generare il diario
             self._generate_hourly_summary(self._last_hourly_summary)
 
-            # Genera il diario giornaliero completo (24 ore)
-            if not self.diary_generated and self.observations:
+            if not self.diary_generated and self.observations: 
                 print(f"[DIARIO] Cambio giornata, genero diario per {self.today}")
                 self.generate_diary()
 
-            # Ogni lunedì → diario settimanale della settimana appena conclusa
-            if today.weekday() == 0:  # 0 = lunedì
+            if today.weekday() == 0:
                 yesterday = today - timedelta(days=1)
                 print(f"[SETTIMANALE] È lunedì, genero report settimanale")
                 self.generate_weekly_diary(end_date=yesterday)
 
-            # Primo del mese → diario mensile del mese appena concluso
             if today.day == 1:
                 print(f"[MENSILE] Primo del mese, genero report mensile")
                 self.generate_monthly_diary()
 
-            # Reset per il nuovo giorno
             self.today = today_str
             self.observations = []
             self.hourly_summaries = []
@@ -966,17 +983,19 @@ class VLMMonitor:
             print(f"[INIT] Nuovo giorno: {self.today}")
 
     # =========================================
-    # ANTEPRIMA AREA DI CATTURA
+    # ANTEPRIMA
     # =========================================
     def preview(self):
         """Mostra una finestra con l'area catturata. Premi Q per chiudere."""
-        print(f"[PREVIEW] Area: top={self.monitor['top']} left={self.monitor['left']} "
-              f"{self.monitor['width']}x{self.monitor['height']}")
+        if self._xiaomi_window_id:
+            print(f"[PREVIEW] Cattura finestra Xiaomi Home (window ID: {self._xiaomi_window_id})")
+        else:
+            print(f"[PREVIEW] Screen capture - Area: top={self.monitor['top']} left={self.monitor['left']} "
+                  f"{self.monitor['width']}x{self.monitor['height']}")
         print("Premi Q per chiudere l'anteprima e avviare il monitoraggio\n")
 
         cv2.namedWindow("VLM Monitor - Preview (Q per chiudere)", cv2.WINDOW_NORMAL)
-        cv2.moveWindow("VLM Monitor - Preview (Q per chiudere)",
-                       self.monitor['left'] + self.monitor['width'] + 10, 0)
+        cv2.moveWindow("VLM Monitor - Preview (Q per chiudere)", 1000, 0)
 
         while True:
             frame = self._capture_frame()
@@ -990,9 +1009,11 @@ class VLMMonitor:
     # =========================================
     def run(self):
         print(f"{'='*60}")
+        capture_mode = "Finestra Xiaomi Home" if self._xiaomi_window_id else "Screen capture"
         print(f"VLM Daily Monitor — Monitoraggio h24")
         print(f"  Modello:      {self.model}")
         print(f"  Server:       {self.lmstudio_url}")
+        print(f"  Cattura:      {capture_mode}")
         print(f"  Intervallo:   {self.capture_interval}s (adattivo)")
         print(f"  Diario:       a mezzanotte (automatico)")
         print(f"  Output:       {self.output_dir}")
@@ -1008,12 +1029,16 @@ class VLMMonitor:
                 changed = self._scene_changed(frame)
                 self._update_interval(changed)
 
-                # Osservazione regolare o burst
+                # Log cambio intervallo
+                if self._current_interval != self._prev_logged_interval: #senza questo controllo, ad ogni ciclo in cui cambia l'intervallo, viene stampato il messaggio di cambio intervallo, anche se l'intervallo è già stato cambiato in precedenza. Con questo controllo, il messaggio viene stampato solo quando l'intervallo effettivamente cambia rispetto all'ultimo intervallo registrato.
+                    print(f"[INTERVAL] {self._prev_logged_interval}s → {self._current_interval}s "
+                          f"({'movimento' if changed else 'stabile'})")
+                    self._prev_logged_interval = self._current_interval
+
                 obs_mode = self._should_observe(changed)
                 if obs_mode:
                     self._observe(frame, mode=obs_mode)
 
-                # Osservazione di confronto ogni ora
                 self._check_comparison(frame)
 
                 time.sleep(self._current_interval)
@@ -1039,7 +1064,6 @@ def main():
     parser.add_argument("--height", type=int, default=520)
     parser.add_argument("--preview", action="store_true",
                         help="Mostra anteprima dell'area catturata prima di avviare")
-    # Comandi per generazione manuale report
     parser.add_argument("--gen-weekly", action="store_true",
                         help="Genera il report settimanale e esci")
     parser.add_argument("--gen-monthly", action="store_true",
@@ -1058,15 +1082,12 @@ def main():
         output_dir=args.output
     )
 
-    # Generazione manuale report
     if args.gen_weekly:
         monitor.generate_weekly_diary()
         return
-
     if args.gen_monthly:
         monitor.generate_monthly_diary()
         return
-
     if args.preview:
         monitor.preview()
 
