@@ -8,14 +8,6 @@ Architettura a tre livelli:
   3. Diario giornaliero: a fine giornata, sintetizza i riepiloghi orari
      in un diario narrativo di 2-3 pagine.
 
-Migliorie:
-  - Soglia diff adattiva (media + 2σ dei diff recenti)
-  - Mini-storia: servono 2+ diff consecutivi sopra soglia per confermare un cambiamento
-  - Smart burst: burst veloce per movimenti rapidi, lento per movimenti graduali
-  - Prompt con contesto orario (notte vs giorno)
-  - Osservazione di confronto ogni 2 ore
-  - Rilevamento assenza prolungata
-
 Uso:
     python vlm_monitor.py
     python vlm_monitor.py --preview
@@ -111,6 +103,7 @@ class VLMMonitor:
         # Rilevamento assenza
         self._consecutive_absence = 0
         self._absence_alerted = False
+        self._absence_start_time = 0 
 
         # Prompt di sistema
         self.system_prompt = (
@@ -321,12 +314,11 @@ class VLMMonitor:
         now = time.time()
         time_since_last = now - self._prev_observation_time
 
-        if scene_changed and time_since_last >= 15:
+        if scene_changed and time_since_last >= 15: #time_since_last >= 15 per evitare burst troppo frequenti
             if self._last_diff > 15:
                 return 'burst_fast'
             return 'burst'
-        max_int = 300 
-        if time_since_last >= max_int: #se è passato più del massimo intervallo consentito (5min giorno, 15min notte) dall'ultima osservazione, forza un'osservazione anche se la scena è stabile
+        if time_since_last >= self._current_interval: 
             return 'single'
 
         return None #se non c'è movimento o non è passato abbastanza tempo dall'ultima osservazione
@@ -389,7 +381,22 @@ class VLMMonitor:
         except Exception as e:
             print(f"[VLM] Errore connessione: {e}")
             return None
-
+    """
+    def _is_redundant(self, description):
+        #Evita osservazioni ripetitive (stesso stato 3+ volte consecutive).
+        if len(self.observations) < 2:
+            return False
+        
+        recent = [o['description'].lower() for o in self.observations[-2:]]
+        current = description.lower()
+        
+        states = ['seduta', 'in piedi', 'cammina', 'sdraiata', 
+                'non visibile', 'non è visibile', 'non presente']
+        for state in states:
+            if state in current and all(state in d for d in recent):
+                return True
+        return False
+    """
     def _call_vlm_text(self, prompt, system=None, max_tokens=800):
         """Chiamata solo testo (per sintesi e diario)."""
         messages = []
@@ -429,7 +436,7 @@ class VLMMonitor:
         recent = self.observations[-3:]
         summary = "Osservazioni precedenti:\n"
         for obs in recent:
-            obs_type = obs.get('type', 'singolo')
+            obs_type = obs.get('type', 'singolo') #se non è presente il campo 'type' nell'osservazione, assume che sia 'singolo' per mantenere la compatibilità con eventuali osservazioni salvate in precedenza senza questo campo.
             tag = ""
             if obs_type == "alert":
                 tag = " [ALERT]"
@@ -437,7 +444,14 @@ class VLMMonitor:
                 tag = " [CONFRONTO]"
             summary += f"- Ore {obs['time']}{tag}: {obs['description']}\n"
 
-        return [{"role": "user", "content": summary + "\nOra osserva il frame corrente."}]
+        return [{"role": "user", "content": summary + "\nOra osserva il frame corrente."}] 
+        """
+        #il contesto è costruito come un messaggio utente che riassume le ultime 3 
+        # osservazioni, con eventuali tag per alert o confronti, seguito da 
+        # un invito a osservare il frame corrente. 
+        # Questo aiuta il VLM ad avere una memoria a breve termine delle osservazioni recenti
+        #  e a contestualizzare meglio la sua analisi del nuovo frame.
+        """
 
     # =========================================
     # LIVELLO 1: OSSERVAZIONE
@@ -463,6 +477,12 @@ class VLMMonitor:
             n_frames = 1
 
         if description:
+            """
+            if self._is_redundant(description):
+                self._prev_observation_time = time.time()
+                print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Stato invariato")
+                return False
+            """
             obs = {
                 "time": datetime.now().strftime("%H:%M"),
                 "timestamp": datetime.now().isoformat(),
@@ -494,7 +514,7 @@ class VLMMonitor:
     # =========================================
     def _track_absence(self, description):
         """Traccia osservazioni consecutive senza persona visibile."""
-        desc_lower = description.lower()
+        desc_lower = description.lower() #il metodo lower() converte la stringa description in minuscolo, in modo da rendere il controllo case-insensitive. In questo modo, se il VLM risponde con "Non è visibile" o "non è visibile", entrambe le risposte saranno riconosciute come indicazioni di assenza della persona.
         person_absent = ("non è visibile" in desc_lower or
                          "non visibile" in desc_lower or
                          "assenza" in desc_lower or
@@ -502,16 +522,17 @@ class VLMMonitor:
                          "non presente" in desc_lower)
 
         if person_absent:
+            if self._consecutive_absence == 0:
+                self._absence_start_time = time.time()  # inizio assenza
             self._consecutive_absence += 1
         else:
             self._consecutive_absence = 0
             self._absence_alerted = False
-
-        hour = datetime.now().hour
-        is_daytime = 6 <= hour < 22
-        minutes_absent = self._consecutive_absence * self._current_interval / 60
-
-        if (is_daytime and minutes_absent >= 30 and not self._absence_alerted):
+        if self._consecutive_absence > 0:
+            minutes_absent = (time.time() - self._absence_start_time) / 60
+        else:
+            minutes_absent = 0
+        if (minutes_absent >= 30 and not self._absence_alerted):
             alert_obs = {
                 "time": datetime.now().strftime("%H:%M"),
                 "timestamp": datetime.now().isoformat(),
@@ -540,12 +561,12 @@ class VLMMonitor:
         self._last_comparison_time = now
 
         if self._comparison_frame is None:
-            self._comparison_frame = self._frame_to_base64(frame)
-            self._comparison_frame_time = datetime.now().strftime("%H:%M")
+            self._comparison_frame = self._frame_to_base64(frame) #frame precedente per il confronto
+            self._comparison_frame_time = datetime.now().strftime("%H:%M") #salva l'ora del frame di confronto
             return
 
-        current_b64 = self._frame_to_base64(frame)
-        now_str = datetime.now().strftime("%H:%M")
+        current_b64 = self._frame_to_base64(frame) #frame corrente
+        now_str = datetime.now().strftime("%H:%M") #ottiene l'ora corrente in formato stringa per usarla nel prompt e nell'osservazione
 
         prompt = (
             f"Ti mostro due immagini della stessa stanza. "
@@ -554,6 +575,7 @@ class VLMMonitor:
             f"ci sono oggetti caduti, ostacoli nuovi, sedie spostate, "
             f"o qualsiasi cambiamento che potrebbe rappresentare un rischio? "
             f"Se non noti cambiamenti rilevanti, scrivi 'Ambiente invariato'."
+            f"Nota che l'inquadratura potrebbe essere cambiata."
         )
 
         images = [self._comparison_frame, current_b64]
@@ -1041,7 +1063,7 @@ class VLMMonitor:
 
                 self._check_comparison(frame)
 
-                time.sleep(self._current_interval)
+                time.sleep(10) 
 
         except KeyboardInterrupt:
             print(f"\n\n{'='*60}")
