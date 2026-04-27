@@ -104,7 +104,7 @@ class VLMMonitor:
         self._consecutive_absence = 0
         self._absence_alerted = False
         self._absence_start_time = 0 
-
+   
         # Prompt di sistema
         self.system_prompt = (
             "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
@@ -744,7 +744,7 @@ class VLMMonitor:
             f"{'='*50}\n\n"
         )
 
-        path = self.output_dir / f"diario_{self.today}.txt"
+        path = self._get_daily_dir() / "diario.txt"
         with open(path, 'w', encoding='utf-8') as f:
             f.write(header + diary_text)
         print(f"[DIARIO] Salvato in {path}")
@@ -755,7 +755,7 @@ class VLMMonitor:
     def generate_weekly_diary(self, end_date=None):
         """Genera il diario settimanale dagli ultimi 7 diari giornalieri."""
         if end_date is None:
-            end_date = date.today() - timedelta(days=1)
+            end_date = date.today() - timedelta(days=1) #parte da ieri per avere 7 giorni completi
         start_date = end_date - timedelta(days=6)
 
         print(f"\n{'='*60}")
@@ -770,7 +770,7 @@ class VLMMonitor:
 
         content = "\n\n".join(
             f"--- {entry['date']} ---\n{entry['content']}"
-            for entry in daily_diaries
+            for entry in daily_diaries #vengono incollati i diari giornalieri trovati, con una separazione chiara tra i giorni
         )
 
         prompt = (
@@ -809,7 +809,8 @@ class VLMMonitor:
             f"Giorni con dati: {n_days}/7\n"
             f"{'='*50}\n\n"
         )
-        path = self.output_dir / f"settimanale_{start_date.isoformat()}_{end_date.isoformat()}.txt"
+        month_dir = self._get_monthly_dir(end_date.year, end_date.month)
+        path = month_dir / f"settimanale_{start_date.isoformat()}_{end_date.isoformat()}.txt"
         with open(path, 'w', encoding='utf-8') as f:
             f.write(header + diary_text)
         print(f"[SETTIMANALE] Salvato in {path}")
@@ -821,15 +822,14 @@ class VLMMonitor:
         """Genera il diario mensile dai report settimanali o diari giornalieri."""
         if year is None or month is None:
             today = date.today()
-            if today.month == 1:
+            if today.month == 1: #se è gennaio, prende dicembre dell'anno precedente
                 year = today.year - 1
                 month = 12
             else:
                 year = today.year
                 month = today.month - 1
-
-        start_date = date(year, month, 1)
-        if month == 12:
+        start_date = date(year, month, 1) #il parametro 1 è l'indice di partenza
+        if month == 12: #se è dicembre, prende il 31 dicembre come data di fine
             end_date = date(year + 1, 1, 1) - timedelta(days=1)
         else:
             end_date = date(year, month + 1, 1) - timedelta(days=1)
@@ -848,18 +848,32 @@ class VLMMonitor:
             print("[MENSILE] Nessun dato trovato, skip")
             return None
 
+        weekly_reports = self._read_weekly_diaries(start_date, end_date)
+    
         if weekly_reports:
+            # Preferisci i settimanali (~8000 token vs ~60000)
             content = "\n\n".join(
                 f"--- Settimana {entry['period']} ---\n{entry['content']}"
                 for entry in weekly_reports
             )
             source = f"{len(weekly_reports)} report settimanali"
         else:
+            # Fallback: diari giornalieri ma solo il riepilogo generale
+            daily_diaries = self._read_daily_diaries(start_date, end_date)
+            # Tronca ogni diario alle prime 500 parole (~700 token)
+            truncated = []
+            for entry in daily_diaries:
+                words = entry['content'].split()
+                short = ' '.join(words[:500])
+                if len(words) > 500:
+                    short += "\n[...troncato...]"
+                truncated.append({"date": entry['date'], "content": short})
+            
             content = "\n\n".join(
                 f"--- {entry['date']} ---\n{entry['content']}"
-                for entry in daily_diaries
+                for entry in truncated
             )
-            source = f"{len(daily_diaries)} diari giornalieri"
+            source = f"{len(truncated)} diari giornalieri (sintesi)"
 
         prompt = (
             f"Sei un geriatra. Ecco i dati di monitoraggio domiciliare per {month_name} "
@@ -896,10 +910,94 @@ class VLMMonitor:
             f"Periodo: {start_date.isoformat()} → {end_date.isoformat()}\n"
             f"{'='*50}\n\n"
         )
-        path = self.output_dir / f"mensile_{year}-{month:02d}.txt"
+        month_dir = self._get_monthly_dir(year, month)
+        path =month_dir / f"mensile_{year}-{month:02d}.txt"
         with open(path, 'w', encoding='utf-8') as f:
             f.write(header + diary_text)
         print(f"[MENSILE] Salvato in {path}")
+
+    # =========================================
+# LIVELLO 6: DIARIO ANNUALE
+    # =========================================
+    def generate_annual_diary(self, year=None):
+        """Genera il diario annuale dai report mensili o settimanali."""
+        if year is None:
+            year = date.today().year - 1  # anno precedente
+
+        print(f"\n{'='*60}")
+        print(f"[ANNUALE] Generazione diario annuale: {year}")
+        print(f"{'='*60}")
+
+        # Cerca i report mensili
+        monthly_reports = []
+        for month in range(1, 13):
+            annual_dir = self._get_annual_dir(year)
+            path = annual_dir / f"annuale_{year}.txt"
+            if path.exists():
+                with open(path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                body = content.split('\n\n', 1)
+                body = body[1] if len(body) > 1 else content
+                # Tronca ogni mensile a 800 parole (~1100 token)
+                words = body.strip().split()
+                short = ' '.join(words[:800])
+                if len(words) > 800:
+                    short += "\n[...troncato...]"
+                monthly_reports.append({
+                    "month": f"{year}-{month:02d}",
+                    "content": short
+                })
+
+        if not monthly_reports:
+            print("[ANNUALE] Nessun report mensile trovato, skip")
+            return None
+
+        print(f"  Mesi con dati: {len(monthly_reports)}/12")
+
+        content = "\n\n".join(
+            f"--- {entry['month']} ---\n{entry['content']}"
+            for entry in monthly_reports
+        )
+
+        prompt = (
+            f"Sei un geriatra. Ecco i report mensili di monitoraggio domiciliare "
+            f"per l'anno {year} ({len(monthly_reports)} mesi su 12 con dati).\n\n"
+            f"{content}\n\n"
+            f"Scrivi un REPORT ANNUALE completo in italiano (4-5 pagine). Struttura:\n\n"
+            f"RIEPILOGO ANNUALE: stato complessivo della persona durante l'anno.\n\n"
+            f"EVOLUZIONE TRIMESTRALE: per ogni trimestre, 4-5 frasi sull'andamento.\n\n"
+            f"MOBILITÀ E AUTONOMIA: come è cambiata nel corso dell'anno. "
+            f"Miglioramenti o peggioramenti progressivi?\n\n"
+            f"PATTERN STAGIONALI: differenze tra estate e inverno, "
+            f"periodi migliori e peggiori, correlazioni con il meteo o le stagioni.\n\n"
+            f"EVENTI SIGNIFICATIVI: cadute, ospedalizzazioni, cambiamenti improvvisi.\n\n"
+            f"VALUTAZIONE CLINICA COMPLESSIVA: impressione generale, "
+            f"prognosi, suggerimenti per il piano di cura annuale.\n\n"
+            f"Scrivi in modo professionale, per un geriatra o un medico di base."
+        )
+
+        diary = self._call_vlm_text(
+            prompt,
+            system="Sei un geriatra esperto in monitoraggio domiciliare a lungo termine.",
+            max_tokens=6000
+        )
+
+        if diary:
+            header = (
+                f"REPORT ANNUALE DI MONITORAGGIO DOMICILIARE\n"
+                f"{'='*50}\n"
+                f"Anno: {year}\n"
+                f"Mesi con dati: {len(monthly_reports)}/12\n"
+                f"{'='*50}\n\n"
+            )
+            path = self.output_dir / f"annuale_{year}.txt"
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(header + diary)
+            print(f"[ANNUALE] Salvato in {path}")
+            return diary
+        else:
+            print("[ANNUALE] Errore nella generazione")
+            return None
 
     # =========================================
     # LETTURA DIARI PRECEDENTI
@@ -909,7 +1007,9 @@ class VLMMonitor:
         diaries = []
         current = start_date
         while current <= end_date:
-            path = self.output_dir / f"diario_{current.isoformat()}.txt"
+            day_dir = (self.output_dir / str(current.year) / 
+                    f"{current.month:02d}" / current.isoformat())
+            path = day_dir / "diario.txt"
             if path.exists():
                 with open(path, 'r', encoding='utf-8') as f:
                     content = f.read()
@@ -920,37 +1020,46 @@ class VLMMonitor:
                     "content": body.strip()
                 })
             current += timedelta(days=1)
-        print(f"[LETTURA] Trovati {len(diaries)} diari giornalieri "
-              f"su {(end_date - start_date).days + 1} giorni")
         return diaries
+        
 
     def _read_weekly_diaries(self, start_date, end_date):
         """Legge i report settimanali nel range di date."""
         reports = []
-        for path in sorted(self.output_dir.glob("settimanale_*.txt")):
-            try:
-                parts = path.stem.replace("settimanale_", "").split("_")
-                week_start = date.fromisoformat(parts[0])
-                week_end = date.fromisoformat(parts[1])
-                if week_start <= end_date and week_end >= start_date:
-                    with open(path, 'r', encoding='utf-8') as f:
-                        content = f.read()
-                    body_parts = content.split('\n\n', 1)
-                    body = body_parts[1] if len(body_parts) > 1 else content
-                    reports.append({
-                        "period": f"{week_start.isoformat()} → {week_end.isoformat()}",
-                        "content": body.strip()
-                    })
-            except (ValueError, IndexError):
-                continue
-        print(f"[LETTURA] Trovati {len(reports)} report settimanali nel periodo")
+        # Cerca in tutte le cartelle mensili nel range
+        current_month = date(start_date.year, start_date.month, 1)
+        while current_month <= end_date:
+            month_dir = (self.output_dir / str(current_month.year) / 
+                        f"{current_month.month:02d}")
+            if month_dir.exists():
+                for path in sorted(month_dir.glob("settimanale_*.txt")):
+                    try:
+                        parts = path.stem.replace("settimanale_", "").split("_")
+                        week_start = date.fromisoformat(parts[0])
+                        week_end = date.fromisoformat(parts[1])
+                        if week_start <= end_date and week_end >= start_date:
+                            with open(path, 'r', encoding='utf-8') as f:
+                                content = f.read()
+                            body = content.split('\n\n', 1)
+                            body = body[1] if len(body) > 1 else content
+                            reports.append({
+                                "period": f"{week_start.isoformat()} → {week_end.isoformat()}",
+                                "content": body.strip()
+                            })
+                    except (ValueError, IndexError):
+                        continue
+            # Mese successivo
+            if current_month.month == 12:
+                current_month = date(current_month.year + 1, 1, 1)
+            else:
+                current_month = date(current_month.year, current_month.month + 1, 1)
         return reports
 
     # =========================================
     # PERSISTENZA
     # =========================================
     def _data_path(self):
-        return self.output_dir / f"data_{self.today}.json"
+        return self._get_daily_dir() / "data.json"
 
     def _save_data(self):
         data = {
@@ -992,6 +1101,11 @@ class VLMMonitor:
             if today.day == 1:
                 print(f"[MENSILE] Primo del mese, genero report mensile")
                 self.generate_monthly_diary()
+            
+            # 1° gennaio → diario annuale dell'anno appena concluso
+            if today.month == 1 and today.day == 1:
+                print(f"[ANNUALE] Primo gennaio, genero report annuale")
+                self.generate_annual_diary()
 
             self.today = today_str
             self.observations = []
@@ -1003,6 +1117,33 @@ class VLMMonitor:
             self._comparison_frame = None
             self._load_existing_data()
             print(f"[INIT] Nuovo giorno: {self.today}")
+        
+    def _get_daily_dir(self, day_str=None):
+        """Ritorna il path della cartella giornaliera, creandola se necessario.
+        Es: diari/2026/04/2026-04-24/
+        """
+        if day_str is None:
+            day_str = self.today
+        d = date.fromisoformat(day_str)
+        path = self.output_dir / str(d.year) / f"{d.month:02d}" / day_str
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _get_monthly_dir(self, year, month):
+        """Ritorna il path della cartella mensile.
+        Es: diari/2026/04/
+        """
+        path = self.output_dir / str(year) / f"{month:02d}"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _get_annual_dir(self, year):
+        """Ritorna il path della cartella annuale.
+        Es: diari/2026/
+        """
+        path = self.output_dir / str(year)
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
     # =========================================
     # ANTEPRIMA
@@ -1090,6 +1231,9 @@ def main():
                         help="Genera il report settimanale e esci")
     parser.add_argument("--gen-monthly", action="store_true",
                         help="Genera il report mensile e esci")
+    parser.add_argument("--gen-annual", action="store_true",
+                    help="Genera il report annuale e esci")
+
 
     args = parser.parse_args()
 
@@ -1109,6 +1253,9 @@ def main():
         return
     if args.gen_monthly:
         monitor.generate_monthly_diary()
+        return
+    if args.gen_annual:
+        monitor.generate_annual_diary()
         return
     if args.preview:
         monitor.preview()
