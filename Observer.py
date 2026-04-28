@@ -16,7 +16,7 @@ from datetime import datetime
 
 class Observer:
     def __init__(self, capture_manager, vlm_client, observations,
-                 save_callback, capture_interval=30, comparison_interval=3600):
+                 save_callback, capture_interval=30, comparison_interval=1800):
         """
         Args:
             capture_manager: istanza di CaptureManager
@@ -24,7 +24,7 @@ class Observer:
             observations: lista condivisa delle osservazioni (passata per riferimento)
             save_callback: funzione da chiamare per salvare i dati su disco
             capture_interval: intervallo base in secondi
-            comparison_interval: secondi tra confronti ambientali (default: 1 ora)
+            comparison_interval: secondi tra confronti ambientali (default: 30 minuti)
         """
         self.capture = capture_manager
         self.vlm = vlm_client
@@ -71,7 +71,7 @@ class Observer:
         """
         if scene_changed:
             self._no_change_streak = 0
-            if last_diff > 15:
+            if last_diff > 10:
                 self._current_interval = 10
             elif last_diff > 5:
                 self._current_interval = 20
@@ -82,7 +82,7 @@ class Observer:
             if self._no_change_streak % 5 == 0:
                 self._current_interval = min(
                     self._current_interval * 2,
-                    300  # max 5 minuti
+                    60  # max 1 minuto
                 )
 
         # Log cambio intervallo
