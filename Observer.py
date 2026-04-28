@@ -120,21 +120,16 @@ class Observer:
     # FILTRO RIDONDANZA
     # =========================================
     def _is_redundant(self, description):
-        """Evita osservazioni ripetitive (stesso stato 3+ volte consecutive).
-        
-        Se le ultime 2 osservazioni e quella corrente contengono tutte
-        la stessa keyword di stato, l'osservazione è ridondante.
-        """
-        if len(self.observations) < 2:
+        if not self.observations:
             return False
 
-        recent = [o['description'].lower() for o in self.observations[-2:]]
+        last = self.observations[-1]['description'].lower()
         current = description.lower()
 
         states = ['seduta', 'in piedi', 'cammina', 'sdraiata',
-                  'non visibile', 'non è visibile', 'non presente']
+                'non visibile', 'non è visibile', 'non presente']
         for state in states:
-            if state in current and all(state in d for d in recent):
+            if state in current and state in last:
                 return True
         return False
 
