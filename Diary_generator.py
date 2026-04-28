@@ -324,32 +324,53 @@ class DiaryGenerator:
         print(f"{'='*60}")
 
         weekly_reports = self._read_weekly_diaries(start_date, end_date)
+        daily_diaries = self._read_daily_diaries(start_date, end_date)
+
+        if not weekly_reports and not daily_diaries:
+            print("[MENSILE] Nessun dato trovato, skip")
+            return None
 
         if weekly_reports:
-            content = "\n\n".join(
+            # Settimanali per il quadro generale
+            content = "REPORT SETTIMANALI:\n\n"
+            content += "\n\n".join(
                 f"--- Settimana {entry['period']} ---\n{entry['content']}"
                 for entry in weekly_reports
             )
-            source = f"{len(weekly_reports)} report settimanali"
+            # Aggiungi anche i giornalieri per il dettaglio
+            if daily_diaries:
+                content += "\n\nDETTAGLIO GIORNALIERO:\n\n"
+                content += "\n\n".join(
+                    f"--- {entry['date']} ---\n{entry['content']}"
+                    for entry in daily_diaries
+                )
+            source = (f"{len(weekly_reports)} report settimanali + "
+                      f"{len(daily_diaries)} diari giornalieri")
         else:
-            daily_diaries = self._read_daily_diaries(start_date, end_date)
-            if not daily_diaries:
-                print("[MENSILE] Nessun dato trovato, skip")
-                return None
-            # Tronca ogni diario a 500 parole per contenere i token
-            truncated = []
-            for entry in daily_diaries:
-                words = entry['content'].split()
-                short = ' '.join(words[:500])
-                if len(words) > 500:
-                    short += "\n[...troncato...]"
-                truncated.append({"date": entry['date'], "content": short})
+            # Fallback: solo giornalieri — tronca solo se necessario
+            # Stima token: ~1.4 token per parola
+            total_words = sum(len(e['content'].split()) for e in daily_diaries)
+            max_words = 35000  # ~50000 token lasciando spazio per prompt e risposta
+            
+            if total_words > max_words:
+                # Tronca proporzionalmente ogni diario
+                words_per_diary = max_words // len(daily_diaries)
+                truncated = []
+                for entry in daily_diaries:
+                    words = entry['content'].split()
+                    short = ' '.join(words[:words_per_diary])
+                    if len(words) > words_per_diary:
+                        short += "\n[...troncato...]"
+                    truncated.append({"date": entry['date'], "content": short})
+                daily_diaries = truncated
+                source = f"{len(daily_diaries)} diari giornalieri (troncati)"
+            else:
+                source = f"{len(daily_diaries)} diari giornalieri"
 
             content = "\n\n".join(
                 f"--- {entry['date']} ---\n{entry['content']}"
-                for entry in truncated
+                for entry in daily_diaries
             )
-            source = f"{len(truncated)} diari giornalieri (sintesi)"
 
         prompt = (
             f"Sei un geriatra. Ecco i dati di monitoraggio domiciliare per {month_name} "
@@ -401,7 +422,7 @@ class DiaryGenerator:
         print(f"[ANNUALE] Generazione diario annuale: {year}")
         print(f"{'='*60}")
 
-        # Cerca i report mensili
+        # Cerca i report mensili — li usa completi (12 × ~2500 token = ~30000, dentro i 64K)
         monthly_reports = []
         for month in range(1, 13):
             month_dir = self._get_monthly_dir(year, month)
@@ -411,14 +432,9 @@ class DiaryGenerator:
                     content = f.read()
                 body = content.split('\n\n', 1)
                 body = body[1] if len(body) > 1 else content
-                # Tronca ogni mensile a 800 parole
-                words = body.strip().split()
-                short = ' '.join(words[:800])
-                if len(words) > 800:
-                    short += "\n[...troncato...]"
                 monthly_reports.append({
                     "month": f"{year}-{month:02d}",
-                    "content": short
+                    "content": body.strip()
                 })
 
         if not monthly_reports:

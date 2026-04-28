@@ -82,7 +82,7 @@ class Observer:
             if self._no_change_streak % 5 == 0:
                 self._current_interval = min(
                     self._current_interval * 2,
-                    60  # max 1 minuto
+                    300  # max 5 minuti
                 )
 
         # Log cambio intervallo
@@ -117,23 +117,6 @@ class Observer:
         return None
 
     # =========================================
-    # FILTRO RIDONDANZA
-    # =========================================
-    def _is_redundant(self, description):
-        if not self.observations:
-            return False
-
-        last = self.observations[-1]['description'].lower()
-        current = description.lower()
-
-        states = ['seduta', 'in piedi', 'cammina', 'sdraiata',
-                'non visibile', 'non è visibile', 'non presente']
-        for state in states:
-            if state in current and state in last:
-                return True
-        return False
-
-    # =========================================
     # CONTESTO CONVERSAZIONALE
     # =========================================
     def _build_context(self):
@@ -145,8 +128,16 @@ class Observer:
         if not self.observations:
             return None
 
-        recent = self.observations[-3:]
-        summary = "Osservazioni precedenti:\n"
+        summary = ""
+    
+    # Includi l'ultima sintesi oraria se disponibile
+    # Dà al VLM il quadro dell'ultima ora, non solo gli ultimi 3 frame
+        if hasattr(self, '_last_hourly_text') and self._last_hourly_text:
+            summary += f"Riepilogo dell'ultima ora: {self._last_hourly_text}\n\n"
+
+        # Ultime 5 osservazioni (non 3 — abbiamo spazio)
+        recent = self.observations[-5:]
+        summary += "Osservazioni recenti:\n"
         for obs in recent:
             obs_type = obs.get('type', 'singolo')
             tag = ""
@@ -171,6 +162,12 @@ class Observer:
         Returns:
             bool: True se l'osservazione è stata salvata, False se skippata/errore
         """
+        if (self.capture.last_diff < 3 and 
+            len(self.observations) > 0 and
+            time.time() - self._prev_observation_time < 60):
+            self._prev_observation_time = time.time()
+            print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Scena stabile (diff={self.capture.last_diff:.1f})")
+            return False
         context = self._build_context()
 
         if mode == 'burst_fast':
@@ -191,11 +188,7 @@ class Observer:
 
         if description:
             # Filtro ridondanza
-            if self._is_redundant(description):
-                self._prev_observation_time = time.time()
-                print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Stato invariato")
-                return False
-
+            
             obs = {
                 "time": datetime.now().strftime("%H:%M"),
                 "timestamp": datetime.now().isoformat(),

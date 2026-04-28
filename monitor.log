@@ -1,5 +1,6 @@
 /Users/xiaomicamera/Documents/dev/MonitoringH24/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
   warnings.warn(
+[INIT] Caricati 40 osservazioni e 2 riepiloghi per 2026-04-28
 ============================================================
 VLM Daily Monitor — Monitoraggio h24
   Modello:      gemma-4-26b-a4b-it
@@ -11,164 +12,224 @@ VLM Daily Monitor — Monitoraggio h24
 ============================================================
 Premi Ctrl+C per fermare e generare il diario
 
-[15:46] [SEQ×4] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di rischio.
-[15:47] [   ×1] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di rischio.
+[18:26] [SKIP] Stato invariato
+[18:27] [SKIP] Stato invariato
 [INTERVAL] 30s → 60s (stabile)
-[15:48] [SKIP] Stato invariato
-[15:49] [SKIP] Stato invariato
-[15:50] [SKIP] Stato invariato
-[15:51] [   ×1] La persona è presente, in piedi e rivolta verso l'obiettivo. La postura appare stabile durante l'attività di sistemazione o movimento delle braccia; non si rilevano segnali immediati di rischio o difficoltà motorie.
-[INTERVAL] 60s → 10s (movimento)
-[15:51] [   ×1] La persona è presente, in posizione seduta e rivolta verso la telecamera. L'attività consiste nell'uso di uno smartphone; non si rilevano segni di sonnolenza, difficoltà motorie o segnali di rischio immediato.
-[15:51] [   ×1] La persona è presente, in posizione seduta e rivolta verso l'obiettivo. L'attività consiste nell'uso di uno smartphone; la postura appare stabile e non si rilevano segni di sonnolenza, difficoltà motorie o segnali di rischio immediato.
-[15:52] [SKIP] Stato invariato
-[15:52] [SKIP] Stato invariato
-[15:52] [SKIP] Stato invariato
+[18:28] [   ×1] La persona è presente, in piedi e chinata verso un divano. L'attività consiste nel sistemare o raccogliere oggetti sul divano; la postura è flessa e il movimento appare controllato. Non si rilevano segnali di rischio immediati o necessità di assistenza.
+[INTERVAL] 60s → 120s (stabile)
+[INTERVAL] 120s → 240s (stabile)
+[INTERVAL] 240s → 300s (stabile)
+[INTERVAL] 300s → 10s (movimento)
+[18:31] [FAS×5] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[18:31] [SKIP] Stato invariato
+[18:31] [SKIP] Stato invariato
+[18:31] [SKIP] Stato invariato
+[18:32] [SKIP] Stato invariato
 [INTERVAL] 10s → 20s (stabile)
-[15:52] [SKIP] Stato invariato
-[15:53] [SKIP] Stato invariato
+[18:32] [SKIP] Stato invariato
+[18:32] [SKIP] Stato invariato
 [INTERVAL] 20s → 40s (stabile)
-[15:54] [SKIP] Stato invariato
-[INTERVAL] 40s → 60s (stabile)
-[15:55] [SKIP] Stato invariato
-[15:56] [SKIP] Stato invariato
-[15:57] [SKIP] Stato invariato
-[15:58] [SKIP] Stato invariato
-[15:59] [SKIP] Stato invariato
+[18:33] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[18:38] [SKIP] Stato invariato
+[18:43] [SKIP] Stato invariato
+[18:48] [SKIP] Stato invariato
+[18:53] [SKIP] Stato invariato
+[18:58] [SKIP] Stato invariato
 
-[SINTESI 15:00] Ecco il riassunto clinico del periodo monitorato:
+[SINTESI 18:00] Durante il periodo monitorato, l'utente è stato osservato mentre si occupava di sistemare oggetti su un divano con movimenti controllati e postura flessa. Non sono state rilevate criticità o necessità di assistenza immediata, sebbene l'assenza temporanea dall'inquadratura alle 18:31 abbia impedito la valutazione continua. Nel complesso, l'attività è apparsa autonoma e priva di segnali di rischio rilevanti.
 
-Durante l'intervallo temporale considerato, la persona è stata inizialmente assente dall'ambiente per poi rientrare e stabilizzarsi nella stanza. Le attività registrate hanno riguardato movimenti domestici e l'uso dello smartphone, con la persona che si è alternata tra la posizione eretta e quella seduta. Non sono state rilevate variazioni significative nello stato clinico, poiché la postura è apparsa sempre stabile e non sono emersi segni di sonnolenza, difficoltà motorie o segnali di rischio immediato. Il monitoraggio non ha evidenziato criticità che richiedano attenzione clinica urgente.
+[19:04] [SKIP] Stato invariato
+[19:09] [SKIP] Stato invariato
+[INTERVAL] 300s → 10s (movimento)
+[19:11] [SKIP] Stato invariato
+[19:11] [SKIP] Stato invariato
+[19:12] [SKIP] Stato invariato
+[19:12] [SKIP] Stato invariato
+[19:12] [SKIP] Stato invariato
+[INTERVAL] 10s → 20s (stabile)
+[19:12] [SKIP] Stato invariato
+[19:13] [SKIP] Stato invariato
+[INTERVAL] 20s → 40s (stabile)
+[19:14] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[19:19] [   ×1] La persona è presente, in piedi e si muove verso la finestra/apertura laterale. L'attività consiste nel regolare le tende; il movimento appare fluido e l'autonomia è completa, senza segni di instabilità o necessità di assistenza.
+[19:24] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[19:26] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o oggetti che possano rappresentare un rischio per la sicurezza.
+[19:29] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[19:34] [SKIP] Stato invariato
+[INTERVAL] 300s → 10s (movimento)
+[19:35] [FAS×5] La persona è presente e in piedi, intenta a spostare o sistemare un sacchetto/oggetto ingombrante. Il movimento appare fluido e autonomo, senza segni evidenti di instabilità o difficoltà motorie.
+[19:35] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[19:35] [SKIP] Stato invariato
+[19:35] [SKIP] Stato invariato
+[19:35] [SKIP] Stato invariato
+[INTERVAL] 10s → 20s (stabile)
+[19:36] [SKIP] Stato invariato
+[19:36] [SKIP] Stato invariato
+[INTERVAL] 20s → 40s (stabile)
+[19:37] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[INTERVAL] 300s → 10s (movimento)
+[19:40] [FAS×5] La persona è parzialmente visibile in primo piano, seduta al tavolo. L'attività in corso sembra essere la preparazione o il consumo del pasto; i movimenti non mostrano segni evidenti di instabilità o difficoltà motorie.
+[19:41] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[19:41] [SKIP] Stato invariato
+[19:41] [SKIP] Stato invariato
+[19:41] [SKIP] Stato invariato
+[19:41] [SKIP] Stato invariato
+[INTERVAL] 10s → 20s (stabile)
+[19:42] [SKIP] Stato invariato
+[19:42] [SKIP] Stato invariato
+[INTERVAL] 20s → 40s (stabile)
+[19:43] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[19:48] [SKIP] Stato invariato
+[19:53] [SKIP] Stato invariato
+[INTERVAL] 300s → 20s (movimento)
+[19:56] [SEQ×4] La persona è parzialmente visibile in primo piano, in posizione seduta. L'attività sembra essere il consumo del pasto; non si rilevano segnali di instabilità o rischi immediati.
+[19:56] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[19:56] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
+[19:57] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[INTERVAL] 20s → 40s (stabile)
+[19:57] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
 
-[16:00] [SKIP] Stato invariato
-[16:01] [SKIP] Stato invariato
-[INTERVAL] 60s → 20s (movimento)
-[16:02] [SKIP] Stato invariato
-[16:03] [   ×1] La persona è presente, in posizione sdraiata (probabilmente sul divano) e rivolta verso l'obiettivo. L'attività consiste nell'uso di uno smartphone; la postura appare stabile e non si rilevano segnali di rischio o difficoltà motorie.
-[16:03] [   ×1] La persona è presente, in posizione sdraiata (probabilmente sul divano) e rivolta verso l'obiettivo. L'attività consiste nell'uso di uno smartphone; la postura appare stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[SINTESI 19:00] Ecco il riassunto clinico del periodo monitorato:
+
+Durante l'intervallo temporale considerato, la persona ha svolto attività domestiche e di routine, tra cui regolare le tende, sistemare un oggetto ingombrante e consumare il pasto. Il quadro motorio è apparso costante, caratterizzato da movimenti fluidi e una completa autonomia nelle attività sia in piedi che in posizione seduta. Non si sono rilevate variazioni significative nello stato di salute o nell'assetto ambientale, che è rimasto privo di ostacoli. Non sono emersi segnali di instabilità o criticità che richiedano attenzione immediata.
+
+[20:03] [SKIP] Stato invariato
+[20:08] [SKIP] Stato invariato
+[20:13] [SKIP] Stato invariato
+[INTERVAL] 300s → 20s (movimento)
+[20:17] [SKIP] Stato invariato
+[20:18] [SKIP] Stato invariato
+[20:18] [SKIP] Stato invariato
 [INTERVAL] 20s → 40s (stabile)
-[16:04] [SKIP] Stato invariato
-[INTERVAL] 40s → 60s (stabile)
-[16:05] [SKIP] Stato invariato
-[16:06] [SKIP] Stato invariato
-[INTERVAL] 60s → 10s (movimento)
-[16:07] [FAS×5] La persona è presente, in posizione eretta e si muove verso il centro della stanza. L'attività consiste nel sistemare o spostare un tessuto/coperta; il movimento appare fluido e la postura stabile, senza segni di difficoltà motorie o rischi immediati.
-[16:07] [   ×1] La persona è presente, in posizione eretta e semidistratta dall'uso di uno smartphone. Il movimento appare fluido e la postura stabile, senza segni di sonnolenza o rischi immediati rilevabili.
-[16:07] [   ×1] La persona è presente, in posizione eretta e semidistratta dall'uso di uno smartphone. Il movimento appare fluido, la postura è stabile e non si rilevano segnali di sonnolenza o rischi immediati.
-[16:08] [   ×1] La persona è presente, in posizione eretta e si muove verso l'area del tavolo. Il movimento appare fluido e la postura stabile, senza segni di sonnolenza o difficoltà motorie rilevabili.
-[16:08] [   ×1] La persona è presente, in posizione eretta e sembra muoversi verso l'area del tavolo. Il movimento appare fluido e la postura stabile, senza segni di sonnolenza o difficoltà motorie rilevabili.
-[16:08] [   ×1] La persona è presente, in posizione eretta e sembra essere impegnata nell'uso di uno smartphone. La postura appare stabile e i movimenti non mostrano segni di difficoltà o sonnolenza.
+[20:19] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[20:24] [SKIP] Stato invariato
+[20:26] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
+[20:29] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[20:29] ⚠ ALERT: La persona non è visibile da circa 33 minuti durante le ore diurne. Verificare se è uscita o se si trova fuori dall'inquadratura.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+[INTERVAL] 300s → 10s (movimento)
+[20:29] [   ×1] La persona è presente nell'inquadratura, in piedi e sta camminando verso l'interno della stanza. Il movimento appare stabile e non si rilevano segni di difficoltà motorie o necessità di assistenza.
+[20:30] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[20:30] [SKIP] Stato invariato
+[20:30] [SKIP] Stato invariato
+[20:30] [SKIP] Stato invariato
+[20:30] [SKIP] Stato invariato
+[20:31] [SKIP] Stato invariato
+[20:31] [SKIP] Stato invariato
+[20:31] [SKIP] Stato invariato
+[20:31] [SKIP] Stato invariato
+[20:32] [SKIP] Stato invariato
 [INTERVAL] 10s → 20s (stabile)
-[16:08] [   ×1] La persona è presente, in posizione seduta e sembra impegnata nell'uso di uno smartphone. La postura appare stabile e non si rilevano segni di sonnolenza o difficoltà motorie.
-[16:09] [   ×1] La persona è presente, in posizione seduta e sembra chinata verso il tavolo. La postura appare stabile e non si rilevano segni di sonnolenza o difficoltà motorie evidenti.
+[20:32] [SKIP] Stato invariato
+[20:32] [SKIP] Stato invariato
 [INTERVAL] 20s → 40s (stabile)
-[16:09] [SKIP] Stato invariato
-[INTERVAL] 40s → 60s (stabile)
-[16:11] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o stato di salute.
-[INTERVAL] 60s → 10s (movimento)
-[16:11] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o stato di salute.
-[16:11] [SKIP] Stato invariato
-[16:11] [SKIP] Stato invariato
-[16:11] [SKIP] Stato invariato
-[16:12] [SKIP] Stato invariato
-[16:12] [SKIP] Stato invariato
-[16:12] [SKIP] Stato invariato
+[20:33] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[INTERVAL] 300s → 10s (movimento)
+[20:36] [SKIP] Stato invariato
+[20:36] [SKIP] Stato invariato
+[20:36] [SKIP] Stato invariato
+[20:37] [SKIP] Stato invariato
+[20:37] [   ×1] La persona è presente nell'inquadratura, in piedi e sta camminando verso l'interno della stanza. Il movimento appare rapido ma stabile, senza segni evidenti di difficoltà motorie o necessità di assistenza.
+[20:37] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[20:37] [SKIP] Stato invariato
+[20:38] [   ×1] La persona è presente nell'inquadratura, seduta sul divano con la testa reclinata in avanti. La postura suggerisce un momento di riposo o possibile sonnolenza; non si rilevano movimenti o segni di assistenza in corso.
 [INTERVAL] 10s → 20s (stabile)
-[16:12] [SKIP] Stato invariato
-[16:13] [SKIP] Stato invariato
+[20:38] [SKIP] Stato invariato
+[20:38] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
 [INTERVAL] 20s → 40s (stabile)
-[16:14] [SKIP] Stato invariato
-[INTERVAL] 40s → 60s (stabile)
-[16:15] [SKIP] Stato invariato
-[16:16] [SKIP] Stato invariato
-[16:17] [SKIP] Stato invariato
-[16:18] [SKIP] Stato invariato
-[16:19] [SKIP] Stato invariato
-[16:20] [SKIP] Stato invariato
-[16:21] [SKIP] Stato invariato
-[16:22] [   ×1] La persona è presente, in posizione seduta. Non sono visibili attività specifiche o segnali di rischio immediato; la postura appare stabile.
-[16:23] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:24] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:25] [SKIP] Stato invariato
-[16:26] [SKIP] Stato invariato
-[16:27] [SKIP] Stato invariato
-[INTERVAL] 60s → 10s (movimento)
-[16:28] [FAS×5] La persona è presente, in piedi e si muove all'interno dell'ambiente. L'attività consiste nel camminare verso l'area del soggiorno; il movimento appare stabile e non si notano segni di difficoltà o rischio caduta immediato.
-[16:29] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:29] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:29] [SKIP] Stato invariato
-[16:29] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[16:30] [SKIP] Stato invariato
-[INTERVAL] 20s → 10s (movimento)
-[16:30] [   ×1] La persona è presente, in posizione seduta sul divano. L'attività consiste nel maneggiare un oggetto con le mani; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischio caduta.
-[16:30] [   ×1] La persona è presente, in posizione seduta sul divano. L'attività consiste nel maneggiare un oggetto con le mani; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischio caduta.
-[16:30] [SKIP] Stato invariato
-[16:31] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:31] [   ×1] La persona è presente e si trova in posizione eretta, in piedi. L'attività consiste nel camminare verso il lato sinistro dell'inquadratura; la postura e il movimento appaiono stabili, senza segni evidenti di difficoltà motorie o rischio caduta immediato.
-[INTERVAL] 10s → 20s (stabile)
-[16:31] [   ×1] La persona è presente e si trova in posizione eretta, in piedi. L'attività consiste nel camminare verso il lato sinistro dell'inquadratura; la postura e il movimento appaiono stabili, senza segni evidenti di difficoltà motorie o rischio caduta.
-[16:32] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[20:39] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[20:44] [SKIP] Stato invariato
+[20:49] [SKIP] Stato invariato
+[20:54] [SKIP] Stato invariato
+[20:56] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o oggetti che rappresentino rischi per la sicurezza rispetto all'inquadratura precedente.
+[INTERVAL] 300s → 20s (movimento)
+[20:59] [SEQ×4] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[20:59] [SKIP] Stato invariato
+[20:59] [SKIP] Stato invariato
+
+[SINTESI 20:00] Ecco un riassunto clinico del periodo monitorato:
+
+Durante l'intervallo temporale considerato, la persona ha mostrato una mobilità autonoma e stabile, alternando momenti di cammino all'interno dell'ambiente a una fase di riposo in posizione seduta sul divano alle ore 20:38. Non si sono rilevate variazioni nell'assetto dell'ambiente domestico né ostacoli alla sicurezza. Sebbene si sia verificata una temporanea assenza dall'inquadratura, i movimenti registrati non hanno evidenziato difficoltà motorie o segnali di rischio immediati. L'unico elemento di nota è la postura reclinata durante il riposo, compatibile con uno stato di sonnolenza.
+
 [INTERVAL] 20s → 40s (stabile)
-[16:32] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[INTERVAL] 40s → 60s (stabile)
-[16:33] [SKIP] Stato invariato
-[16:34] [SKIP] Stato invariato
-[16:35] [SKIP] Stato invariato
-[16:37] [   ×1] La persona è presente e si trova in posizione seduta sul divano. L'attività consiste nella lettura di un oggetto (probabilmente un libro o tablet); la postura appare stabile e non si rilevano segnali di rischio immediato.
-[16:38] [   ×1] La persona è presente, in posizione seduta sul divano. L'attività consiste nella lettura di un oggetto; la postura è stabile e non si rilevano segni di sonnolenza o difficoltà motorie.
-[16:39] [SKIP] Stato invariato
-[16:40] [SKIP] Stato invariato
-[16:41] [SKIP] Stato invariato
-[16:42] [SKIP] Stato invariato
-[16:43] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:44] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[INTERVAL] 60s → 10s (movimento)
-[16:45] [SKIP] Stato invariato
-[16:45] [SKIP] Stato invariato
-[16:45] [SKIP] Stato invariato
-[16:45] [SKIP] Stato invariato
-[16:46] [SKIP] Stato invariato
+[21:00] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 10s (movimento)
+[21:02] [SKIP] Stato invariato
+[21:02] [SKIP] Stato invariato
+[21:02] [SKIP] Stato invariato
+[21:02] [SKIP] Stato invariato
+[21:03] [SKIP] Stato invariato
+[21:03] [SKIP] Stato invariato
+[21:03] [SKIP] Stato invariato
+[21:03] [SKIP] Stato invariato
+[21:03] [SKIP] Stato invariato
 [INTERVAL] 10s → 20s (stabile)
-[16:46] [SKIP] Stato invariato
-[16:46] [   ×1] La persona è presente e si trova in posizione accovacciata/chinata verso il pavimento. L'attività consiste nel manipolare un oggetto a terra; la postura appare instabile e il movimento richiede uno sforzo fisico. Non sono presenti assistenti al momento dell'azione.
+[21:04] [SKIP] Stato invariato
+[21:04] [SKIP] Stato invariato
 [INTERVAL] 20s → 40s (stabile)
-[16:47] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[INTERVAL] 40s → 60s (stabile)
-[16:48] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[INTERVAL] 60s → 10s (movimento)
-[16:49] [FAS×5] La persona è visibile in piedi nell'area di passaggio tra la stanza e il corridoio. L'attività consiste nel muoversi verso l'interno dell'abitazione; la postura è eretta e il movimento appare regolare. Non si rilevano segnali di rischio o necessità di assistenza immediata.
-[16:49] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:50] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[16:50] [SKIP] Stato invariato
-[16:50] [SKIP] Stato invariato
+[21:05] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[INTERVAL] 300s → 10s (movimento)
+[21:10] [FAS×5] La persona è presente, in posizione sdraiata/accovacciata sul pavimento vicino al tavolo. L'attività sembra essere legata alla sistemazione di oggetti o al riordino del piano d'appoggio. Non si rilevano segni immediati di pericolo, ma la posizione richiede attenzione per il rischio di instabilità durante il movimento.
+[21:10] [SKIP] Stato invariato
+[21:10] [SKIP] Stato invariato
+[21:10] [SKIP] Stato invariato
+[21:11] [SKIP] Stato invariato
 [INTERVAL] 10s → 20s (stabile)
-[16:50] [SKIP] Stato invariato
-[16:51] [SKIP] Stato invariato
+[21:11] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+[21:11] [SKIP] Stato invariato
 [INTERVAL] 20s → 40s (stabile)
-[16:52] [SKIP] Stato invariato
-[INTERVAL] 40s → 60s (stabile)
-[16:53] [SKIP] Stato invariato
-[16:54] [SKIP] Stato invariato
-[16:55] [SKIP] Stato invariato
-[16:56] [SKIP] Stato invariato
-[16:57] [SKIP] Stato invariato
-[16:58] [SKIP] Stato invariato
+[21:12] [SKIP] Stato invariato
+[INTERVAL] 40s → 80s (stabile)
+[INTERVAL] 80s → 160s (stabile)
+[INTERVAL] 160s → 300s (stabile)
+[21:17] [SKIP] Stato invariato
 
 
 ============================================================
 [STOP] Interruzione manuale
 [DIARIO] Generazione diario finale...
 
-[SINTESI 16:00] Ecco un riassunto clinico del periodo monitorato:
+[SINTESI 21:00] Ecco un riassunto professionale delle osservazioni:
 
-Durante l'osservazione, la persona ha alternato momenti di attività sedentaria (uso dello smartphone e lettura sul divano) a brevi periodi di mobilità all'interno dell'ambiente. Il tono dell'umore e lo stato di vigilanza sono apparsi stabili, con movimenti generalmente fluidi e una postura corretta. Si è registrata una variazione nella dinamica alle ore 16:46, quando la persona si è accovacciata per manipolare un oggetto a terra, assumendo una postura potenzialmente instabile che ha richiesto uno sforzo fisico. Nonostante i momenti di assenza dall'inquadratura, non sono stati rilevati rischi immediati o segnali di criticità clinica.
+Durante il periodo monitorato, la persona è stata impegnata in attività di riordino o sistemazione di oggetti, assumendo una posizione accovacciata sul pavimento. Non sono stati rilevati pericoli immediati, sebbene la postura adottata suggerisca un potenziale rischio di instabilità durante i successivi movimenti. Nella parte finale dell'osservazione, la persona è uscita dal campo visivo, rendendo impossibile una valutazione continua del suo stato.
 
 
 ============================================================
 [DIARIO] Generazione diario giornaliero...
-  Osservazioni: 40
-  Riepiloghi orari: 2
+  Osservazioni: 67
+  Riepiloghi orari: 6
 ============================================================
 [DIARIO] Salvato in diari/2026/04/2026-04-28/diario.txt
 ============================================================

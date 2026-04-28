@@ -23,6 +23,7 @@ from Capture import CaptureManager
 from Vlm_calls import VLMClient
 from Observer import Observer
 from Diary_generator import DiaryGenerator
+import psutil
 
 
 class VLMMonitor:
@@ -148,6 +149,10 @@ class VLMMonitor:
                 self.observer.check_comparison(frame)
 
                 time.sleep(10)
+                # Monitor CPU (debug)
+                cpu_percent = psutil.cpu_percent(interval=0)
+                if cpu_percent > 50:  # stampa solo se alto
+                    print(f"[CPU] {cpu_percent}%")
 
         except KeyboardInterrupt:
             print(f"\n\n{'='*60}")
