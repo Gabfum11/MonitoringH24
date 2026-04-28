@@ -14,6 +14,8 @@ Uso:
     python vlm_monitor.py --interval 30
 """
 
+from calendar import month
+
 import cv2
 import time
 import mss
@@ -927,12 +929,11 @@ class VLMMonitor:
         print(f"\n{'='*60}")
         print(f"[ANNUALE] Generazione diario annuale: {year}")
         print(f"{'='*60}")
-
         # Cerca i report mensili
         monthly_reports = []
         for month in range(1, 13):
-            annual_dir = self._get_annual_dir(year)
-            path = annual_dir / f"annuale_{year}.txt"
+            month_dir = self._get_monthly_dir(year, month)
+            path = month_dir / f"mensile_{year}-{month:02d}.txt"
             if path.exists():
                 with open(path, 'r', encoding='utf-8') as f:
                     content = f.read()
