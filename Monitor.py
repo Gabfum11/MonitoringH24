@@ -4,8 +4,7 @@ VLM Daily Monitor — Monitoraggio h24 con Vision Language Model.
 Modulo principale (orchestratore). Compone i moduli:
   - capture.py: cattura frame, change detection, burst
   - vlm_client.py: chiamate al VLM (LM Studio)
-  - observer.py: logica di osservazione, ridondanza, intervalli
-  - absence_tracker.py: rilevamento assenza, confronto ambientale
+  - observer.py: osservazione, ridondanza, intervalli, assenza, confronto
   - diary_generator.py: sintesi orarie, diari giornalieri/settimanali/mensili/annuali
 
 Uso:
@@ -20,11 +19,10 @@ import time
 import argparse
 from datetime import datetime, date, timedelta
 
-from Capture import CaptureManager
-from Vlm_calls import VLMClient
-from Observer import Observer
-from Absence_tracker import AbsenceTracker
-from Diary_generator import DiaryGenerator
+from capture import CaptureManager
+from vlm_client import VLMClient
+from observer import Observer
+from diary_generator import DiaryGenerator
 
 
 class VLMMonitor:
@@ -49,17 +47,14 @@ class VLMMonitor:
             use_window_capture=False
         )
         self.vlm = VLMClient(model=model, lmstudio_url=lmstudio_url)
-        self.observer = Observer(
-            self.capture, self.vlm, self.observations,
-            capture_interval=capture_interval
-        )
         self.diary = DiaryGenerator(
             self.vlm, self.observations, self.hourly_summaries,
             output_dir=output_dir
         )
-        self.absence = AbsenceTracker(
+        self.observer = Observer(
             self.capture, self.vlm, self.observations,
-            save_callback=self.diary.save_data
+            save_callback=self.diary.save_data,
+            capture_interval=capture_interval
         )
 
         # Tracking orario
@@ -106,7 +101,7 @@ class VLMMonitor:
             self.hourly_summaries.clear()
             self.diary_generated = False
             self._last_hourly_summary = datetime.now().hour
-            self.absence.reset()
+            self.observer.reset()
             self.diary.load_existing_data()
             print(f"[INIT] Nuovo giorno: {self.today}")
 
@@ -144,16 +139,13 @@ class VLMMonitor:
                 # Aggiorna intervallo
                 self.observer.update_interval(changed, self.capture.last_diff)
 
-                # Decide se osservare
+                # Osservazione (include assenza tracking internamente)
                 obs_mode = self.observer.should_observe(changed, self.capture.last_diff)
                 if obs_mode:
-                    description = self.observer.observe(frame, mode=obs_mode)
-                    if description:
-                        self.diary.save_data()
-                        self.absence.track_absence(description)
+                    self.observer.observe(frame, mode=obs_mode)
 
                 # Confronto ambientale ogni ora
-                self.absence.check_comparison(frame)
+                self.observer.check_comparison(frame)
 
                 time.sleep(10)
 
@@ -184,8 +176,6 @@ def main():
                         help="Genera il report mensile e esci")
     parser.add_argument("--gen-annual", action="store_true",
                         help="Genera il report annuale e esci")
-    """
-    """
 
     args = parser.parse_args()
 
