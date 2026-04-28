@@ -19,10 +19,10 @@ import time
 import argparse
 from datetime import datetime, date, timedelta
 
-from capture import CaptureManager
-from vlm_client import VLMClient
-from observer import Observer
-from diary_generator import DiaryGenerator
+from Capture import CaptureManager
+from Vlm_calls import VLMClient
+from Observer import Observer
+from Diary_generator import DiaryGenerator
 
 
 class VLMMonitor:
