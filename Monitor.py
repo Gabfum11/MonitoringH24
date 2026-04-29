@@ -150,7 +150,8 @@ class VLMMonitor:
 
                 time.sleep(10)
                 # Monitor CPU (debug)
-                cpu_percent = psutil.cpu_percent(interval=0)
+                cpu_percent = psutil.cpu_percent(interval=None)
+
                 if cpu_percent > 50:  # stampa solo se alto
                     print(f"[CPU] {cpu_percent}%")
 
