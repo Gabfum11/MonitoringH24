@@ -1,6 +1,5 @@
 /Users/xiaomicamera/Documents/dev/MonitoringH24/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
   warnings.warn(
-[INIT] Caricati 40 osservazioni e 2 riepiloghi per 2026-04-28
 ============================================================
 VLM Daily Monitor — Monitoraggio h24
   Modello:      gemma-4-26b-a4b-it
@@ -12,224 +11,389 @@ VLM Daily Monitor — Monitoraggio h24
 ============================================================
 Premi Ctrl+C per fermare e generare il diario
 
-[18:26] [SKIP] Stato invariato
-[18:27] [SKIP] Stato invariato
-[INTERVAL] 30s → 60s (stabile)
-[18:28] [   ×1] La persona è presente, in piedi e chinata verso un divano. L'attività consiste nel sistemare o raccogliere oggetti sul divano; la postura è flessa e il movimento appare controllato. Non si rilevano segnali di rischio immediati o necessità di assistenza.
-[INTERVAL] 60s → 120s (stabile)
-[INTERVAL] 120s → 240s (stabile)
-[INTERVAL] 240s → 300s (stabile)
-[INTERVAL] 300s → 10s (movimento)
-[18:31] [FAS×5] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[18:31] [SKIP] Stato invariato
-[18:31] [SKIP] Stato invariato
-[18:31] [SKIP] Stato invariato
-[18:32] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[18:32] [SKIP] Stato invariato
-[18:32] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[18:33] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[18:38] [SKIP] Stato invariato
-[18:43] [SKIP] Stato invariato
-[18:48] [SKIP] Stato invariato
-[18:53] [SKIP] Stato invariato
-[18:58] [SKIP] Stato invariato
+[08:34] [EVT×4] La persona non è visibile nelle immagini fornite, in quanto il segnale video risulta bloccato o assente. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 104.02), ignoro...
+[08:34] [FIX×1] La persona non è visibile nelle immagini fornite, in quanto il segnale video risulta assente o bloccato. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[08:34] [FIX×1] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 75.30), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 84.43), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 84.57), ignoro...
+[08:39] [FIX×1] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[08:41] [EVT×7] La persona non è visibile nelle immagini fornite. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 200s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 220s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 240s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:43] [EVT×9] La persona è presente e si trova in piedi, con la schiena rivolta verso la telecamera. Si sta muovendo lentamente verso l'altra stanza, mantenendo una postura eretta senza segni evidenti di instabilità o assistenza.
+[08:43] [SKIP] Scena stabile (diff=0.8)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:43] [FIX×1] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[08:46] [EVT×7] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:46] [FIX×1] La persona è presente, in piedi e di spalle rispetto alla telecamera. Si sta muovendo verso l'uscita della stanza con postura eretta e movimento apparentemente stabile, senza necessità di assistenza visibile.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:48] [EVT×9] La persona è presente, in piedi e di spalle rispetto alla telecamera. Si sta muovendo verso l'uscita della stanza con postura eretta e movimento apparentemente stabile, senza necessità di assistenza visibile. Non si notano segni di instabilità o difficoltà motorie durante lo spostamento.
+[08:48] [SKIP] Scena stabile (diff=0.7)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:49] [EVT×9] La persona è presente, in piedi e di spalle nella stanza adiacente. Si sta muovendo verso la telecamera con postura eretta e movimento apparentemente stabile, senza segni di assistenza o difficoltà motorie evidenti.
+[08:49] [FIX×1] La persona è presente, in piedi e di spalle nella stanza adiacente. Il movimento appare stabile e autonomo, senza segni di difficoltà motorie o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:51] [EVT×9] La persona è presente, in piedi nella stanza adiacente. Si sta muovendo verso l'area principale con postura eretta e movimento autonomo, apparentemente stabile e senza segni di difficoltà motorie o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[08:52] [EVT×7] La persona è presente e si è spostata dalla posizione seduta in stanza adiacente alla posizione eretta nel soggiorno. Il movimento appare autonomo, con postura eretta e stabilità nel camminare; non si rilevano segni di difficoltà o rischio caduta.
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:53] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:53] [EVT×9] La persona è presente, in piedi e si sta muovendo verso il divano con postura eretta. Il movimento appare autonomo, fluido e stabile, senza segni di difficoltà motorie o necessità di assistenza.
+[08:53] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[08:56] [EVT×9] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel muoversi verso la finestra; la postura è eretta e il movimento appare autonomo, fluido e stabile. Non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[08:57] [EVT×7] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel muoversi verso la finestra; la postura è eretta e il movimento appare autonomo, fluido e stabile. Non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[08:58] [EVT×7] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel muoversi verso la finestra; la postura è eretta e il movimento appare autonomo, fluido e stabile. Non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:00] [EVT×9] La persona è presente, in piedi e si muove all'interno della stanza. Il movimento appare autonomo e la postura eretta, senza segni evidenti di instabilità o difficoltà motorie.
 
-[SINTESI 18:00] Durante il periodo monitorato, l'utente è stato osservato mentre si occupava di sistemare oggetti su un divano con movimenti controllati e postura flessa. Non sono state rilevate criticità o necessità di assistenza immediata, sebbene l'assenza temporanea dall'inquadratura alle 18:31 abbia impedito la valutazione continua. Nel complesso, l'attività è apparsa autonoma e priva di segnali di rischio rilevanti.
+[SINTESI 08:00] Ecco il riassunto clinico del periodo monitorato:
 
-[19:04] [SKIP] Stato invariato
-[19:09] [SKIP] Stato invariato
-[INTERVAL] 300s → 10s (movimento)
-[19:11] [SKIP] Stato invariato
-[19:11] [SKIP] Stato invariato
-[19:12] [SKIP] Stato invariato
-[19:12] [SKIP] Stato invariato
-[19:12] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[19:12] [SKIP] Stato invariato
-[19:13] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[19:14] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[19:19] [   ×1] La persona è presente, in piedi e si muove verso la finestra/apertura laterale. L'attività consiste nel regolare le tende; il movimento appare fluido e l'autonomia è completa, senza segni di instabilità o necessità di assistenza.
-[19:24] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[19:26] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o oggetti che possano rappresentare un rischio per la sicurezza.
-[19:29] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[19:34] [SKIP] Stato invariato
-[INTERVAL] 300s → 10s (movimento)
-[19:35] [FAS×5] La persona è presente e in piedi, intenta a spostare o sistemare un sacchetto/oggetto ingombrante. Il movimento appare fluido e autonomo, senza segni evidenti di instabilità o difficoltà motorie.
-[19:35] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[19:35] [SKIP] Stato invariato
-[19:35] [SKIP] Stato invariato
-[19:35] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[19:36] [SKIP] Stato invariato
-[19:36] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[19:37] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[INTERVAL] 300s → 10s (movimento)
-[19:40] [FAS×5] La persona è parzialmente visibile in primo piano, seduta al tavolo. L'attività in corso sembra essere la preparazione o il consumo del pasto; i movimenti non mostrano segni evidenti di instabilità o difficoltà motorie.
-[19:41] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[19:41] [SKIP] Stato invariato
-[19:41] [SKIP] Stato invariato
-[19:41] [SKIP] Stato invariato
-[19:41] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[19:42] [SKIP] Stato invariato
-[19:42] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[19:43] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[19:48] [SKIP] Stato invariato
-[19:53] [SKIP] Stato invariato
-[INTERVAL] 300s → 20s (movimento)
-[19:56] [SEQ×4] La persona è parzialmente visibile in primo piano, in posizione seduta. L'attività sembra essere il consumo del pasto; non si rilevano segnali di instabilità o rischi immediati.
-[19:56] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[19:56] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
-[19:57] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[INTERVAL] 20s → 40s (stabile)
-[19:57] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
+Dopo un'iniziale assenza di segnale video che ha impedito la valutazione fino alle 08:41, il paziente è apparso nell'ambiente con movimenti autonomi e fluidi. La persona si è spostata tra le stanze, passando dalla posizione seduta a quella eretta, mantenendo sempre una postura stabile e un cammino sicuro senza necessità di assistenza. Non si sono rilevate variazioni nel tono motorio o segni di instabilità, con un quadro clinico che appare costante e privo di rischi immediati per la sicurezza.
 
-[SINTESI 19:00] Ecco il riassunto clinico del periodo monitorato:
+[09:00] [SKIP] Scena stabile (diff=0.6)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:01] [EVT×9] La persona è presente, in piedi e si sta allontanando verso la stanza adiacente. Il movimento appare autonomo, fluido e con postura eretta, senza segni di instabilità o necessità di assistenza.
+[09:01] [FIX×1] La persona non è visibile nell'inquadratura attuale. Non è possibile valutare la postura o la mobilità in questo momento.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:02] [EVT×9] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel camminare verso la zona finestra; il movimento appare autonomo, fluido e la postura è eretta. Non si rilevano segni di instabilità o rischi di caduta.
+[09:02] [FIX×1] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel camminare verso la zona finestra con postura eretta e movimenti autonomi. Non si rilevano segni di instabilità o rischi di caduta; il movimento appare fluido e sicuro.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:03] [EVT×9] Presenza di due persone: un uomo e una donna. L'uomo è in piedi e si muove autonomamente verso il lato sinistro dell'inquadratura; la donna è in piedi sul divano, impegnata in un'attività manuale. Entrambi mostrano una postura eretta e movimenti che appaiono stabili, fluidi e senza segni di difficoltà motorie o rischio caduta.
+[09:04] [FIX×1] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel camminare verso la zona finestra con postura eretta e movimenti autonomi, fluidi e stabili. Non si rilevano segni di instabilità o rischi di caduta.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 93.05), ignoro...
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
+[09:09] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[09:14] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[09:19] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[ROTAZIONE] Movimento camera rilevato (Diff: 85.17), ignoro...
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:23] [EVT×9] Presenza di una persona anziana. La persona è passata dalla posizione seduta a quella in piedi, muovendosi con autonomia verso la zona cucina/lavabo. Il cammino appare fluido e stabile, senza segni di difficoltà motorie o rischio caduta.
+[09:23] [SKIP] Scena stabile (diff=0.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:24] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[09:24] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:25] [EVT×9] La persona è presente ed è in piedi, intenta a camminare verso la zona lavabo. Il movimento appare autonomo e il passo sembra stabile, senza segni evidenti di difficoltà motorie o rischio caduta.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:26] [EVT×9] La persona è presente ed è in piedi, intenta a camminare attraverso la stanza. Il movimento appare autonomo e il passo sembra stabile, nonostante l'effetto mosso dovuto alla velocità del movimento. Non si rilevano segni di instabilità o rischi immediati per la sicurezza.
+[09:26] [SKIP] Scena stabile (diff=0.4)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:28] [EVT×9] La persona è presente ed è in piedi, intenta a camminare attraverso la stanza. Il movimento appare autonomo e il passo sembra stabile, nonostante l'effetto mosso dovuto alla velocità del movimento. Non si rilevano segni di instabilità o rischi immediati per la sicurezza.
+[09:28] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
+[09:33] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[09:33] [CMP] Ambiente invariato. Non si rilevano ostacoli, oggetti caduti o cambiamenti nella disposizione degli arredi che possano rappresentare nuovi rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:36] [EVT×9] La persona è presente ed è in piedi, intenta a camminare attraverso la stanza. Il movimento appare autonomo e il passo sembra stabile, nonostante l'effetto mosso dovuto alla velocità del movimento. Non si rilevano segni di instabilità o rischi immediati per la sicurezza.
+[09:37] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:38] [EVT×9] La persona è presente ed è in posizione eretta, intenta a camminare verso l'interno della stanza. Il movimento appare autonomo e fluido; non si rilevano segni di instabilità o rischi immediati per la sicurezza.
+[09:38] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:39] [EVT×9] La persona è presente, in piedi e sta camminando attraverso la stanza. Il movimento appare autonomo, fluido e con passo stabile; non si rilevano segni di difficoltà o rischi di caduta.
+[09:39] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
+[09:44] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[09:49] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[09:51] [EVT×9] La persona è presente, in piedi e sta camminando attraverso la stanza. Il movimento appare autonomo e fluido; non si rilevano segni di instabilità, difficoltà motorie o rischi immediati per la sicurezza.
+[09:51] [SKIP] Scena stabile (diff=1.4)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
+[09:56] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[09:57] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[09:59] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
 
-Durante l'intervallo temporale considerato, la persona ha svolto attività domestiche e di routine, tra cui regolare le tende, sistemare un oggetto ingombrante e consumare il pasto. Il quadro motorio è apparso costante, caratterizzato da movimenti fluidi e una completa autonomia nelle attività sia in piedi che in posizione seduta. Non si sono rilevate variazioni significative nello stato di salute o nell'assetto ambientale, che è rimasto privo di ostacoli. Non sono emersi segnali di instabilità o criticità che richiedano attenzione immediata.
+[SINTESI 09:00] Ecco il riassunto clinico del periodo monitorato:
 
-[20:03] [SKIP] Stato invariato
-[20:08] [SKIP] Stato invariato
-[20:13] [SKIP] Stato invariato
-[INTERVAL] 300s → 20s (movimento)
-[20:17] [SKIP] Stato invariato
-[20:18] [SKIP] Stato invariato
-[20:18] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[20:19] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[20:24] [SKIP] Stato invariato
-[20:26] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
-[20:29] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
+Durante l'intervallo temporale considerato, la persona ha mantenuto un livello di attività basato principalmente sulla deambulazione autonoma tra le diverse aree dell'abitazione. Il quadro motorio è risultato costante, caratterizzato da movimenti fluidi, postura eretta e un passo stabile, senza evidenza di instabilità o rischi di caduta. Non si sono rilevate variazioni significative nello stato funzionale o segnali di allarme clinico. L'ambiente è rimasto privo di ostacoli, garantendo la sicurezza durante gli spostamenti.
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-[20:29] ⚠ ALERT: La persona non è visibile da circa 33 minuti durante le ore diurne. Verificare se è uscita o se si trova fuori dall'inquadratura.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-[INTERVAL] 300s → 10s (movimento)
-[20:29] [   ×1] La persona è presente nell'inquadratura, in piedi e sta camminando verso l'interno della stanza. Il movimento appare stabile e non si rilevano segni di difficoltà motorie o necessità di assistenza.
-[20:30] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[20:30] [SKIP] Stato invariato
-[20:30] [SKIP] Stato invariato
-[20:30] [SKIP] Stato invariato
-[20:30] [SKIP] Stato invariato
-[20:31] [SKIP] Stato invariato
-[20:31] [SKIP] Stato invariato
-[20:31] [SKIP] Stato invariato
-[20:31] [SKIP] Stato invariato
-[20:32] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[20:32] [SKIP] Stato invariato
-[20:32] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[20:33] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[INTERVAL] 300s → 10s (movimento)
-[20:36] [SKIP] Stato invariato
-[20:36] [SKIP] Stato invariato
-[20:36] [SKIP] Stato invariato
-[20:37] [SKIP] Stato invariato
-[20:37] [   ×1] La persona è presente nell'inquadratura, in piedi e sta camminando verso l'interno della stanza. Il movimento appare rapido ma stabile, senza segni evidenti di difficoltà motorie o necessità di assistenza.
-[20:37] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[20:37] [SKIP] Stato invariato
-[20:38] [   ×1] La persona è presente nell'inquadratura, seduta sul divano con la testa reclinata in avanti. La postura suggerisce un momento di riposo o possibile sonnolenza; non si rilevano movimenti o segni di assistenza in corso.
-[INTERVAL] 10s → 20s (stabile)
-[20:38] [SKIP] Stato invariato
-[20:38] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[INTERVAL] 20s → 40s (stabile)
-[20:39] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[20:44] [SKIP] Stato invariato
-[20:49] [SKIP] Stato invariato
-[20:54] [SKIP] Stato invariato
-[20:56] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli o oggetti che rappresentino rischi per la sicurezza rispetto all'inquadratura precedente.
-[INTERVAL] 300s → 20s (movimento)
-[20:59] [SEQ×4] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[20:59] [SKIP] Stato invariato
-[20:59] [SKIP] Stato invariato
-
-[SINTESI 20:00] Ecco un riassunto clinico del periodo monitorato:
-
-Durante l'intervallo temporale considerato, la persona ha mostrato una mobilità autonoma e stabile, alternando momenti di cammino all'interno dell'ambiente a una fase di riposo in posizione seduta sul divano alle ore 20:38. Non si sono rilevate variazioni nell'assetto dell'ambiente domestico né ostacoli alla sicurezza. Sebbene si sia verificata una temporanea assenza dall'inquadratura, i movimenti registrati non hanno evidenziato difficoltà motorie o segnali di rischio immediati. L'unico elemento di nota è la postura reclinata durante il riposo, compatibile con uno stato di sonnolenza.
-
-[INTERVAL] 20s → 40s (stabile)
-[21:00] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 10s (movimento)
-[21:02] [SKIP] Stato invariato
-[21:02] [SKIP] Stato invariato
-[21:02] [SKIP] Stato invariato
-[21:02] [SKIP] Stato invariato
-[21:03] [SKIP] Stato invariato
-[21:03] [SKIP] Stato invariato
-[21:03] [SKIP] Stato invariato
-[21:03] [SKIP] Stato invariato
-[21:03] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[21:04] [SKIP] Stato invariato
-[21:04] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[21:05] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[INTERVAL] 300s → 10s (movimento)
-[21:10] [FAS×5] La persona è presente, in posizione sdraiata/accovacciata sul pavimento vicino al tavolo. L'attività sembra essere legata alla sistemazione di oggetti o al riordino del piano d'appoggio. Non si rilevano segni immediati di pericolo, ma la posizione richiede attenzione per il rischio di instabilità durante il movimento.
-[21:10] [SKIP] Stato invariato
-[21:10] [SKIP] Stato invariato
-[21:10] [SKIP] Stato invariato
-[21:11] [SKIP] Stato invariato
-[INTERVAL] 10s → 20s (stabile)
-[21:11] [   ×1] La persona non è visibile nell'inquadratura. Non è possibile valutare postura, attività o segnali di rischio.
-[21:11] [SKIP] Stato invariato
-[INTERVAL] 20s → 40s (stabile)
-[21:12] [SKIP] Stato invariato
-[INTERVAL] 40s → 80s (stabile)
-[INTERVAL] 80s → 160s (stabile)
-[INTERVAL] 160s → 300s (stabile)
-[21:17] [SKIP] Stato invariato
-
-
-============================================================
-[STOP] Interruzione manuale
-[DIARIO] Generazione diario finale...
-
-[SINTESI 21:00] Ecco un riassunto professionale delle osservazioni:
-
-Durante il periodo monitorato, la persona è stata impegnata in attività di riordino o sistemazione di oggetti, assumendo una posizione accovacciata sul pavimento. Non sono stati rilevati pericoli immediati, sebbene la postura adottata suggerisca un potenziale rischio di instabilità durante i successivi movimenti. Nella parte finale dell'osservazione, la persona è uscita dal campo visivo, rendendo impossibile una valutazione continua del suo stato.
-
-
-============================================================
-[DIARIO] Generazione diario giornaliero...
-  Osservazioni: 67
-  Riepiloghi orari: 6
-============================================================
-[DIARIO] Salvato in diari/2026/04/2026-04-28/diario.txt
-============================================================
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 200s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:02] [EVT×9] La persona è presente, in piedi e sta camminando verso l'interno della stanza. Il movimento appare autonomo e fluido, senza segni di instabilità o difficoltà motorie rilevabili nonostante l'effetto mosso dell'immagine.
+[10:02] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:02] [EVT×9] La persona è presente, in piedi e sta camminando all'interno della stanza. Il movimento appare fluido e autonomo, senza segni di instabilità o difficoltà motorie rilevabili.
+[10:03] [SKIP] Scena stabile (diff=1.3)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[10:04] [EVT×7] La persona è presente, in piedi e sta camminando attraverso la stanza. Il movimento appare autonomo ma rapido, con un'andatura che risulta incerta a causa dell'effetto mosso nelle immagini. Non si rilevano segni di assistenza esterna o ostacoli evidenti durante lo spostamento.
+[10:04] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli, oggetti a terra o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:04] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:05] [EVT×9] La persona è presente, in piedi e sta camminando all'interno dell'ambiente. Il movimento appare autonomo ma rapido, con un'andatura che risulta incerta a causa dell'effetto mosso nelle immagini. Non si rilevano segni di assistenza o difficoltà motorie evidenti, sebbene la velocità suggerisca un movimento dinamico.
+[10:06] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:07] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[10:07] [SKIP] Scena stabile (diff=0.7)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:08] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[10:08] [SKIP] Scena stabile (diff=0.5)
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[10:13] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 200s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 220s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
+[10:15] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[10:15] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)

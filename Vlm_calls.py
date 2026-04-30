@@ -94,7 +94,9 @@ class VLMClient:
         time_ctx = self.get_time_context()
 
         # Costruisci il contenuto con una o più immagini
-        if isinstance(images_b64, list):
+        current_max=max_tokens
+        if isinstance(images_b64, list) and len(images_b64) > 1:
+            current_max=350
             if prompt_text is None:
                 prompt_text = (
                     f"Ore {now}. {time_ctx} "
@@ -125,10 +127,10 @@ class VLMClient:
                 json={
                     "model": self.model,
                     "messages": messages,
-                    "max_tokens": max_tokens,
+                    "max_tokens": current_max,
                     "temperature": 0.3
                 },
-                timeout=60
+                timeout=60 
             )
             if response.status_code == 200:
                 data = response.json()

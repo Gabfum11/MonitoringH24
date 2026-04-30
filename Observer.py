@@ -63,32 +63,35 @@ class Observer:
     # INTERVALLO ADATTIVO
     # =========================================
     def update_interval(self, scene_changed, last_diff):
-        """Adatta l'intervallo in base al livello di movimento.
-        
-        Molto movimento (diff > 15): controlla ogni 10s
-        Movimento moderato (diff > 5): controlla ogni 20s
-        Scena stabile: intervallo cresce fino a 5min max
+        """
+        Adatta l'intervallo di osservazione VLM.
+        Il loop principale gira ogni 2s, qui decidiamo ogni quanto analizzare.
         """
         if scene_changed:
             self._no_change_streak = 0
-            if last_diff > 10:
-                self._current_interval = 10
+            # Se c'è movimento importante, vogliamo essere pronti a scattare spesso
+            if last_diff > 15:
+                self._current_interval = 20  # Check ogni 10s se il movimento persiste
             elif last_diff > 5:
-                self._current_interval = 20
+                self._current_interval = 30
             else:
-                self._current_interval = self._min_interval
+                self._current_interval = self._min_interval # Default (es. 30s)
         else:
+            # La scena è ferma. Aumentiamo l'attesa per risparmiare risorse.
             self._no_change_streak += 1
+            
+            # Ogni 5 cicli di stabilità (ovvero ogni 10 secondi reali)
+            # aumentiamo l'intervallo di controllo.
             if self._no_change_streak % 5 == 0:
                 self._current_interval = min(
-                    self._current_interval * 2,
-                    300  # max 5 minuti
+                    self._current_interval + 20, # Saliamo gradualmente
+                    180  # Max  3 minuti tra un check e l'altro se non succede nulla
                 )
 
-        # Log cambio intervallo
+        # Log critico per capire se il "cervello" sta accelerando o rallentando
         if self._current_interval != self._prev_logged_interval:
-            print(f"[INTERVAL] {self._prev_logged_interval}s → {self._current_interval}s "
-                  f"({'movimento' if scene_changed else 'stabile'})")
+            print(f"[IA-STRATEGY] Prossimo check tra {self._current_interval}s "
+                f"({'REATTIVO' if scene_changed else 'RISPARMIO'})")
             self._prev_logged_interval = self._current_interval
 
     # =========================================
@@ -162,24 +165,20 @@ class Observer:
         Returns:
             bool: True se l'osservazione è stata salvata, False se skippata/errore
         """
-        if (self.capture.last_diff < 3 and 
+        
+        if (self.capture.last_diff < 1.5 and 
             len(self.observations) > 0 and
-            time.time() - self._prev_observation_time < 60):
+            time.time() - self._prev_observation_time < 30):
             self._prev_observation_time = time.time()
             print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Scena stabile (diff={self.capture.last_diff:.1f})")
             return False
         context = self._build_context()
-
-        if mode == 'burst_fast':
-            images = self.capture.capture_burst(n_frames=5, interval=0.3)
-            description = self.vlm.call_with_images(images, context, max_tokens=250)
-            obs_type = "sequenza_rapida"
-            n_frames = 5
-        elif mode == 'burst':
-            images = self.capture.capture_burst(n_frames=4, interval=0.5)
-            description = self.vlm.call_with_images(images, context, max_tokens=250)
+        if isinstance(frame, list):
+            # Riceviamo la sequenza dal Monitor (Buffer + Burst)
+            images = frame
             obs_type = "sequenza"
-            n_frames = 4
+            n_frames = len(images)
+            description = self.vlm.call_with_images(images, context)
         else:
             image_b64 = self.capture.frame_to_base64(frame)
             description = self.vlm.call_with_images(image_b64, context)
@@ -187,8 +186,6 @@ class Observer:
             n_frames = 1
 
         if description:
-            # Filtro ridondanza
-            
             obs = {
                 "time": datetime.now().strftime("%H:%M"),
                 "timestamp": datetime.now().isoformat(),
@@ -199,19 +196,9 @@ class Observer:
             self.observations.append(obs)
             self._prev_observation_time = time.time()
             self._save()
-
-            # Tag con numero di frame per il log
-            if mode == 'burst_fast':
-                tag = f"FAS×{n_frames}"
-            elif mode == 'burst':
-                tag = f"SEQ×{n_frames}"
-            else:
-                tag = f"   ×{n_frames}"
-            print(f"[{obs['time']}] [{tag}] {description}")
-
-            # Traccia assenza internamente
+            tag = "EVT" if obs_type == "sequenza" else "FIX"
+            print(f"[{obs['time']}] [{tag}×{n_frames}] {description}")
             self._track_absence(description)
-
             return True
         else:
             print(f"[{datetime.now().strftime('%H:%M')}] Nessuna risposta dal VLM")

@@ -37,6 +37,7 @@ class VLMMonitor:
         # Dati condivisi (passati per riferimento a tutti i moduli)
         self.observations = []
         self.hourly_summaries = []
+        self._last_hourly_text = None
 
         # Stato giornata
         self.today = date.today().isoformat()
@@ -112,6 +113,11 @@ class VLMMonitor:
         if current_hour != self._last_hourly_summary:
             self.diary.generate_hourly_summary(self._last_hourly_summary)
             self._last_hourly_summary = current_hour
+            # Passa l'ultima sintesi all'observer per il contesto
+            if self.hourly_summaries:
+                self.observer._last_hourly_text = self.hourly_summaries[-1]['summary']
+        
+            self._last_hourly_summary = current_hour
 
     # =========================================
     # LOOP PRINCIPALE
@@ -143,18 +149,26 @@ class VLMMonitor:
                 # Osservazione (include assenza tracking internamente)
                 obs_mode = self.observer.should_observe(changed, self.capture.last_diff)
                 if obs_mode:
-                    self.observer.observe(frame, mode=obs_mode)
+                    if obs_mode in ['burst', 'burst_fast']:
+                        history= self.capture.get_strategic_frames()
+                        now=self.capture.capture_burst(n_frames=3 if obs_mode == 'burst' else 5)
+                        self.observer.observe(history+now, mode=obs_mode)
+                    else:
+                        self.observer.observe(frame, mode='single')
 
                 # Confronto ambientale ogni ora
                 self.observer.check_comparison(frame)
 
-                time.sleep(10)
+                time.sleep(2)
                 # Monitor CPU (debug)
-                cpu_percent = psutil.cpu_percent(interval=None)
+                #cpu_percent = psutil.cpu_percent(interval=None)
 
-                if cpu_percent > 50:  # stampa solo se alto
-                    print(f"[CPU] {cpu_percent}%")
+                # debug (all’inizio tienilo sempre attivo)
+                #print(f"[CPU] {cpu_percent}%")
 
+                # soglia realistica per il tuo caso
+                #if cpu_percent > 15:
+                    #print(f"[CPU ALTA] {cpu_percent}%")
         except KeyboardInterrupt:
             print(f"\n\n{'='*60}")
             print("[STOP] Interruzione manuale")

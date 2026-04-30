@@ -36,7 +36,7 @@ class CaptureManager:
         """
         self.sct = mss.mss()
         self.monitor = monitor_area or {"top": 270, "left": 10, "width": 900, "height": 520}
-
+        self.frame_buffer = deque(maxlen=10)  # Buffer per burst capture
         # Cattura finestra Xiaomi Home (macOS)
         self._xiaomi_window_id = None
         self._use_window_capture = use_window_capture
@@ -49,7 +49,7 @@ class CaptureManager:
 
         # Change detection
         self._prev_frame_gray = None
-        self._diff_history = deque(maxlen=20)
+        self._diff_history = deque(maxlen=10)
         self._change_streak = 0
         self.last_diff = 0
 
@@ -119,11 +119,11 @@ class CaptureManager:
     def frame_to_base64(self, frame):
         """Ridimensiona e converte un frame in JPEG base64."""
         h, w = frame.shape[:2]
-        max_size = 512
+        max_size = 768
         if max(h, w) > max_size:
             scale = max_size / max(h, w)
             frame = cv2.resize(frame, (int(w * scale), int(h * scale)))
-        _, jpg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
+        _, jpg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 75])
         return base64.b64encode(jpg.tobytes()).decode('utf-8')
 
     # =========================================
@@ -137,37 +137,47 @@ class CaptureManager:
         """
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.resize(gray, (160, 120))
+        self.frame_buffer.append(frame.copy())
 
         if self._prev_frame_gray is None:
             self._prev_frame_gray = gray
             return True
 
         diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float)))
-        #print(f"[DIFF] {diff:.2f}", end=' | ')
         self._prev_frame_gray = gray
         self.last_diff = diff
+        if diff > 70:
+            self._change_streak = 0
+            print(f"[ROTAZIONE] Movimento camera rilevato (Diff: {diff:.2f}), ignoro...")
+            return False
 
         # Soglia adattiva
         self._diff_history.append(diff)
         if len(self._diff_history) >= 5:
             mean_diff = np.mean(list(self._diff_history))
             std_diff = np.std(list(self._diff_history))
-            threshold = max(5, mean_diff + 2 * std_diff)
+            threshold = max(2.5, mean_diff + 1.0 * std_diff)
         else:
-            threshold = 5
+            threshold = 2.5
+            """
+        con la deviaizione standard il sistema diventa più tollerante ai cambiamenti normali (es. luce)
+        es. se la stanza è stabile basta un diff leggermente più alto per scattare l'osservazione, mentre se la stanza è più "rumorosa" (es. luce che cambia spesso) la soglia si alza automaticamente per evitare falsi positivi.
+            """
 
         # Mini-storia: 2 frame consecutivi sopra soglia
         if diff > threshold:
             self._change_streak += 1
         else:
             self._change_streak = 0
+        #print(f"[DEBUG] Diff: {diff:.2f} | Soglia: {threshold:.2f} | Streak: {self._change_streak}")
 
         return self._change_streak >= 2
-
+    
+   
     # =========================================
     # BURST CAPTURE
     # =========================================
-    def capture_burst(self, n_frames=4, interval=0.5):
+    def capture_burst(self, n_frames=3, interval=2):
         """Cattura una sequenza rapida di frame per analizzare un'azione.
         
         Args:
@@ -181,6 +191,28 @@ class CaptureManager:
             if i < n_frames - 1:
                 time.sleep(interval)
         return frames
+    def get_strategic_frames(self):
+        """
+        Sostituisce get_buffered_sequence.
+        Recupera 4 frame distribuiti su 30 secondi di memoria.
+        """
+        # Trasforma la deque in lista per accedere agli indici
+        buffer_list = list(self.frame_buffer)
+        n = len(buffer_list)
+        
+        # Se il buffer è quasi vuoto, prendi quello che c'è
+        if n < 4:
+            return [self.frame_to_base64(f) for f in buffer_list]
+            
+        # Indici strategici per maxlen=15 (intervallo 2s = 30s totali)
+        # 0: il più vecchio (T-30s)
+        # 4: intermedio (T-22s)
+        # 8: metà strada (T-14s)
+        # 12: passato prossimo (T-6s)
+        # n-1: l'ultimo prima del burst (T-2s)
+        indices = [0, n // 3, (2 * n) // 3, n - 1]
+        
+        return [self.frame_to_base64(buffer_list[i]) for i in indices]
 
     # =========================================
     # ANTEPRIMA
