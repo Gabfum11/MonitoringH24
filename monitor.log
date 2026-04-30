@@ -1,5 +1,6 @@
 /Users/xiaomicamera/Documents/dev/MonitoringH24/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
   warnings.warn(
+[INIT] Caricati 163 osservazioni e 8 riepiloghi per 2026-04-30
 ============================================================
 VLM Daily Monitor — Monitoraggio h24
   Modello:      gemma-4-26b-a4b-it
@@ -11,13 +12,7 @@ VLM Daily Monitor — Monitoraggio h24
 ============================================================
 Premi Ctrl+C per fermare e generare il diario
 
-[08:34] [EVT×4] La persona non è visibile nelle immagini fornite, in quanto il segnale video risulta bloccato o assente. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[ROTAZIONE] Movimento camera rilevato (Diff: 104.02), ignoro...
-[08:34] [FIX×1] La persona non è visibile nelle immagini fornite, in quanto il segnale video risulta assente o bloccato. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
-[08:34] [FIX×1] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[ROTAZIONE] Movimento camera rilevato (Diff: 75.30), ignoro...
+[15:18] [EVT×4] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di rischio.
 [IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
@@ -25,18 +20,22 @@ Premi Ctrl+C per fermare e generare il diario
 [IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
-[ROTAZIONE] Movimento camera rilevato (Diff: 84.43), ignoro...
-[ROTAZIONE] Movimento camera rilevato (Diff: 84.57), ignoro...
-[08:39] [FIX×1] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[15:21] [FIX×1] La persona è presente, in posizione sdraiata sul divano con il capo coperto da un cuscino. Non si rilevano movimenti o attività in corso; la postura suggerisce riposo o sonnolenza.
+[15:24] [FIX×1] Ore 15:24:30. La persona è presente, in posizione sdraiata sul divano con il capo coperto da un cuscino. Non si rilevano movimenti o attività in corso; la postura suggerisce riposo o sonnolenza.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:25] [EVT×7] La persona è presente, in posizione sdraiata sul divano con il capo coperto da un cuscino. Non si rilevano movimenti o attività in corso; la postura suggerisce riposo o sonnolenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:28] [EVT×7] La persona è presente ed è passata dalla posizione sdraiata a una posizione semiseduta sul divano. L'attività in corso mostra il soggetto che si sposta autonomamente, indicando una buona capacità di movimento e assenza di paralisi o eccessiva debolezza. Non si rilevano segnali di rischio immediati; la transizione posturale appare fluida e controllata.
 [IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
-[08:41] [EVT×7] La persona non è visibile nelle immagini fornite. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
 [IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
@@ -45,259 +44,189 @@ Premi Ctrl+C per fermare e generare il diario
 [IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 200s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 220s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 240s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:43] [EVT×9] La persona è presente e si trova in piedi, con la schiena rivolta verso la telecamera. Si sta muovendo lentamente verso l'altra stanza, mantenendo una postura eretta senza segni evidenti di instabilità o assistenza.
-[08:43] [SKIP] Scena stabile (diff=0.8)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:43] [FIX×1] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
+[15:31] [FIX×1] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di rischio.
 [IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
-[08:46] [EVT×7] La persona non è visibile nell'immagine. Impossibile effettuare valutazioni cliniche su postura, movimento o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:46] [FIX×1] La persona è presente, in piedi e di spalle rispetto alla telecamera. Si sta muovendo verso l'uscita della stanza con postura eretta e movimento apparentemente stabile, senza necessità di assistenza visibile.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[15:32] [EVT×7] La persona è presente, in posizione eretta. L'attività consiste nel piegare un indumento vicino al divano; il movimento appare autonomo e coordinato. Non si rilevano segni di instabilità o rischi immediati.
 [IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:48] [EVT×9] La persona è presente, in piedi e di spalle rispetto alla telecamera. Si sta muovendo verso l'uscita della stanza con postura eretta e movimento apparentemente stabile, senza necessità di assistenza visibile. Non si notano segni di instabilità o difficoltà motorie durante lo spostamento.
-[08:48] [SKIP] Scena stabile (diff=0.7)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:49] [EVT×9] La persona è presente, in piedi e di spalle nella stanza adiacente. Si sta muovendo verso la telecamera con postura eretta e movimento apparentemente stabile, senza segni di assistenza o difficoltà motorie evidenti.
-[08:49] [FIX×1] La persona è presente, in piedi e di spalle nella stanza adiacente. Il movimento appare stabile e autonomo, senza segni di difficoltà motorie o necessità di assistenza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:51] [EVT×9] La persona è presente, in piedi nella stanza adiacente. Si sta muovendo verso l'area principale con postura eretta e movimento autonomo, apparentemente stabile e senza segni di difficoltà motorie o necessità di assistenza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
-[08:52] [EVT×7] La persona è presente e si è spostata dalla posizione seduta in stanza adiacente alla posizione eretta nel soggiorno. Il movimento appare autonomo, con postura eretta e stabilità nel camminare; non si rilevano segni di difficoltà o rischio caduta.
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:53] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:53] [EVT×9] La persona è presente, in piedi e si sta muovendo verso il divano con postura eretta. Il movimento appare autonomo, fluido e stabile, senza segni di difficoltà motorie o necessità di assistenza.
-[08:53] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[08:56] [EVT×9] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel muoversi verso la finestra; la postura è eretta e il movimento appare autonomo, fluido e stabile. Non si rilevano segni di difficoltà motorie o rischi immediati.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
-[08:57] [EVT×7] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel muoversi verso la finestra; la postura è eretta e il movimento appare autonomo, fluido e stabile. Non si rilevano segni di difficoltà motorie o rischi immediati.
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
-[08:58] [EVT×7] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel muoversi verso la finestra; la postura è eretta e il movimento appare autonomo, fluido e stabile. Non si rilevano segni di difficoltà motorie o rischi immediati.
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:00] [EVT×9] La persona è presente, in piedi e si muove all'interno della stanza. Il movimento appare autonomo e la postura eretta, senza segni evidenti di instabilità o difficoltà motorie.
-
-[SINTESI 08:00] Ecco il riassunto clinico del periodo monitorato:
-
-Dopo un'iniziale assenza di segnale video che ha impedito la valutazione fino alle 08:41, il paziente è apparso nell'ambiente con movimenti autonomi e fluidi. La persona si è spostata tra le stanze, passando dalla posizione seduta a quella eretta, mantenendo sempre una postura stabile e un cammino sicuro senza necessità di assistenza. Non si sono rilevate variazioni nel tono motorio o segni di instabilità, con un quadro clinico che appare costante e privo di rischi immediati per la sicurezza.
-
-[09:00] [SKIP] Scena stabile (diff=0.6)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:01] [EVT×9] La persona è presente, in piedi e si sta allontanando verso la stanza adiacente. Il movimento appare autonomo, fluido e con postura eretta, senza segni di instabilità o necessità di assistenza.
-[09:01] [FIX×1] La persona non è visibile nell'inquadratura attuale. Non è possibile valutare la postura o la mobilità in questo momento.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:02] [EVT×9] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel camminare verso la zona finestra; il movimento appare autonomo, fluido e la postura è eretta. Non si rilevano segni di instabilità o rischi di caduta.
-[09:02] [FIX×1] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel camminare verso la zona finestra con postura eretta e movimenti autonomi. Non si rilevano segni di instabilità o rischi di caduta; il movimento appare fluido e sicuro.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:03] [EVT×9] Presenza di due persone: un uomo e una donna. L'uomo è in piedi e si muove autonomamente verso il lato sinistro dell'inquadratura; la donna è in piedi sul divano, impegnata in un'attività manuale. Entrambi mostrano una postura eretta e movimenti che appaiono stabili, fluidi e senza segni di difficoltà motorie o rischio caduta.
-[09:04] [FIX×1] La persona è presente, in piedi e di spalle nella stanza adiacente. L'attività consiste nel camminare verso la zona finestra con postura eretta e movimenti autonomi, fluidi e stabili. Non si rilevano segni di instabilità o rischi di caduta.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[ROTAZIONE] Movimento camera rilevato (Diff: 93.05), ignoro...
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
-[09:09] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[09:14] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[09:19] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[ROTAZIONE] Movimento camera rilevato (Diff: 85.17), ignoro...
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:23] [EVT×9] Presenza di una persona anziana. La persona è passata dalla posizione seduta a quella in piedi, muovendosi con autonomia verso la zona cucina/lavabo. Il cammino appare fluido e stabile, senza segni di difficoltà motorie o rischio caduta.
-[09:23] [SKIP] Scena stabile (diff=0.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:24] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[09:24] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:25] [EVT×9] La persona è presente ed è in piedi, intenta a camminare verso la zona lavabo. Il movimento appare autonomo e il passo sembra stabile, senza segni evidenti di difficoltà motorie o rischio caduta.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:26] [EVT×9] La persona è presente ed è in piedi, intenta a camminare attraverso la stanza. Il movimento appare autonomo e il passo sembra stabile, nonostante l'effetto mosso dovuto alla velocità del movimento. Non si rilevano segni di instabilità o rischi immediati per la sicurezza.
-[09:26] [SKIP] Scena stabile (diff=0.4)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:28] [EVT×9] La persona è presente ed è in piedi, intenta a camminare attraverso la stanza. Il movimento appare autonomo e il passo sembra stabile, nonostante l'effetto mosso dovuto alla velocità del movimento. Non si rilevano segni di instabilità o rischi immediati per la sicurezza.
-[09:28] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
-[09:33] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[09:33] [CMP] Ambiente invariato. Non si rilevano ostacoli, oggetti caduti o cambiamenti nella disposizione degli arredi che possano rappresentare nuovi rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:36] [EVT×9] La persona è presente ed è in piedi, intenta a camminare attraverso la stanza. Il movimento appare autonomo e il passo sembra stabile, nonostante l'effetto mosso dovuto alla velocità del movimento. Non si rilevano segni di instabilità o rischi immediati per la sicurezza.
-[09:37] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:38] [EVT×9] La persona è presente ed è in posizione eretta, intenta a camminare verso l'interno della stanza. Il movimento appare autonomo e fluido; non si rilevano segni di instabilità o rischi immediati per la sicurezza.
-[09:38] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:39] [EVT×9] La persona è presente, in piedi e sta camminando attraverso la stanza. Il movimento appare autonomo, fluido e con passo stabile; non si rilevano segni di difficoltà o rischi di caduta.
-[09:39] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
-[09:44] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[09:49] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[09:51] [EVT×9] La persona è presente, in piedi e sta camminando attraverso la stanza. Il movimento appare autonomo e fluido; non si rilevano segni di instabilità, difficoltà motorie o rischi immediati per la sicurezza.
-[09:51] [SKIP] Scena stabile (diff=1.4)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
-[09:56] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
 [IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
-[09:57] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[15:33] [EVT×9] La persona è presente, in posizione eretta. L'attività consiste nel sistemare o piegare dei tessuti sul divano; il movimento appare autonomo, coordinato e con una postura stabile. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 81.45), ignoro...
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[15:34] [EVT×9] La persona è presente, in posizione eretta. L'attività consiste nel chinarsi per sistemare dei tessuti sul divano; il movimento appare autonomo, coordinato e con una postura stabile. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:35] [EVT×7] La persona è presente, in posizione eretta. L'attività consiste nel chinarsi sul divano per sistemare dei tessuti; il movimento appare autonomo, coordinato e con una postura stabile. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 78.25), ignoro...
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:36] [EVT×7] La persona è presente, in posizione eretta. L'attività consiste nel camminare verso l'interno della stanza; il movimento appare autonomo, con passo regolare e postura stabile. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[15:39] [FIX×1] La persona è presente, in posizione eretta e parzialmente visibile nello stipite della porta. L'attività consiste nel chinarsi verso il basso; il movimento appare autonomo, sebbene la postura sia inclinata. Non si rilevano segnali di rischio immediati o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:40] [EVT×7] La persona è presente e si trova in posizione eretta, chinata in avanti verso il tavolo. Il movimento appare autonomo e coordinato; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:41] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel guardare verso il basso; la postura appare stabile e i movimenti non mostrano segni di difficoltà o instabilità.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:42] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel portare la mano al viso; il movimento appare autonomo e coordinato, con postura stabile. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:44] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel consultare un dispositivo mobile; la postura è stabile e i movimenti appaiono autonomi, coordinati e senza segni di difficoltà o instabilità.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[15:47] [FIX×1] La persona è presente, in posizione seduta. L'attività consiste nel consultare un dispositivo mobile; la postura appare stabile e i movimenti sembrano autonomi e coordinati. Non si rilevano segnali di rischio o difficoltà motorie evidenti.
+[15:50] [FIX×1] La persona è presente e si trova in posizione seduta. L'attività consiste nel consultare un dispositivo mobile; la postura appare stabile e i movimenti sembrano autonomi e coordinati, senza segni di sonnolenza o difficoltà motorie.
+[15:53] [FIX×1] La persona è presente, in posizione seduta su una poltrona. L'attività consiste nel consultare un dispositivo mobile; la postura appare stabile e i movimenti sono autonomi, senza segni di sonnolenza o difficoltà motorie.
+[15:56] [FIX×1] La persona è presente, in posizione seduta a terra con il busto flesso in avanti. L'attività consiste nel consultare un dispositivo mobile; la postura appare stabile, ma il cambio di posizione rispetto alle osservazioni precedenti (da seduta su poltrona a terra) richiede monitoraggio per prevenire rischi di caduta o difficoltà nell'alzarsi.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[15:59] [EVT×7] La persona è presente, in posizione seduta con il busto flesso in avanti. L'attività consiste nel consultare un dispositivo mobile; la postura appare stabile e i movimenti sembrano autonomi, senza segni di sonnolenza o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:00] [EVT×7] La persona è presente e si trova in posizione eretta, in fase di movimento. L'attività consiste nel camminare verso il centro della stanza; la postura e l'andatura appaiono stabili e i movimenti sembrano autonomi. Non si rilevano segnali di rischio immediato o difficoltà motorie evidenti.
+[ROTAZIONE] Movimento camera rilevato (Diff: 74.83), ignoro...
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:02] [EVT×7] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di sicurezza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:04] [EVT×7] La persona è presente, in posizione eretta e in movimento (camminata). L'attività consiste nel trasportare una borsa bianca; l'andatura appare stabile e i movimenti sembrano autonomi, senza segni di instabilità o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:04] [EVT×7] La persona è presente, in posizione eretta e in movimento (camminata) verso l'interno della stanza. L'andatura appare stabile e i movimenti sembrano autonomi, senza segni di instabilità o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:05] [EVT×7] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di sicurezza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:06] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare verso il centro della stanza; l'andatura appare stabile, autonoma e priva di segni di instabilità o difficoltà motorie.
+[ROTAZIONE] Movimento camera rilevato (Diff: 70.76), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 75.87), ignoro...
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:09] [EVT×7] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di sicurezza.
+[ROTAZIONE] Movimento camera rilevato (Diff: 72.72), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 78.13), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:10] [EVT×7] La persona è presente, in posizione eretta e in movimento (camminata). L'attività consiste nel camminare verso il divano; l'andatura appare stabile, autonoma e priva di segni di instabilità o difficoltà motorie evidenti.
+[ROTAZIONE] Movimento camera rilevato (Diff: 76.10), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:11] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel sistemarsi la camicia; l'andatura appare stabile e i movimenti sono autonomi, senza segni di difficoltà motorie o instabilità.
+[ROTAZIONE] Movimento camera rilevato (Diff: 72.56), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:12] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel chinarsi leggermente in avanti; l'andatura e il movimento appaiono stabili, autonomi e privi di segni di instabilità o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[16:13] [EVT×9] La persona non è visibile nell'ambiente. Non è possibile effettuare alcuna valutazione clinica o di sicurezza.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:16] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare verso l'uscio; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie evidenti.
+[ROTAZIONE] Movimento camera rilevato (Diff: 75.43), ignoro...
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 76.81), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 87.30), ignoro...
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 73.57), ignoro...
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 72.65), ignoro...
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:18] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel chinarsi verso il divano; l'andatura e i movimenti appaiono stabili, autonomi e privi di segnali di rischio o difficoltà motorie.
+[16:18] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli, oggetti caduti o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
+[ROTAZIONE] Movimento camera rilevato (Diff: 75.26), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:19] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare verso l'ingresso; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o instabilità.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 75.31), ignoro...
 [IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
@@ -307,62 +236,11 @@ Dopo un'iniziale assenza di segnale video che ha impedito la valutazione fino al
 [IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
-[09:59] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[16:22] [EVT×9] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel chinarsi verso il divano; i movimenti appaiono stabili, autonomi e privi di segni di instabilità o rischio caduta.
 [IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
-
-[SINTESI 09:00] Ecco il riassunto clinico del periodo monitorato:
-
-Durante l'intervallo temporale considerato, la persona ha mantenuto un livello di attività basato principalmente sulla deambulazione autonoma tra le diverse aree dell'abitazione. Il quadro motorio è risultato costante, caratterizzato da movimenti fluidi, postura eretta e un passo stabile, senza evidenza di instabilità o rischi di caduta. Non si sono rilevate variazioni significative nello stato funzionale o segnali di allarme clinico. L'ambiente è rimasto privo di ostacoli, garantendo la sicurezza durante gli spostamenti.
-
-[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 200s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:02] [EVT×9] La persona è presente, in piedi e sta camminando verso l'interno della stanza. Il movimento appare autonomo e fluido, senza segni di instabilità o difficoltà motorie rilevabili nonostante l'effetto mosso dell'immagine.
-[10:02] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:02] [EVT×9] La persona è presente, in piedi e sta camminando all'interno della stanza. Il movimento appare fluido e autonomo, senza segni di instabilità o difficoltà motorie rilevabili.
-[10:03] [SKIP] Scena stabile (diff=1.3)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
-[10:04] [EVT×7] La persona è presente, in piedi e sta camminando attraverso la stanza. Il movimento appare autonomo ma rapido, con un'andatura che risulta incerta a causa dell'effetto mosso nelle immagini. Non si rilevano segni di assistenza esterna o ostacoli evidenti durante lo spostamento.
-[10:04] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli, oggetti a terra o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:04] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:05] [EVT×9] La persona è presente, in piedi e sta camminando all'interno dell'ambiente. Il movimento appare autonomo ma rapido, con un'andatura che risulta incerta a causa dell'effetto mosso nelle immagini. Non si rilevano segni di assistenza o difficoltà motorie evidenti, sebbene la velocità suggerisca un movimento dinamico.
-[10:06] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:07] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[10:07] [SKIP] Scena stabile (diff=0.7)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:08] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[10:08] [SKIP] Scena stabile (diff=0.5)
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:23] [EVT×7] La persona è presente, in posizione eretta e in movimento nel corridoio. L'attività consiste nel camminare verso l'area living; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
 [IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
@@ -370,15 +248,8 @@ Durante l'intervallo temporale considerato, la persona ha mantenuto un livello d
 [IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 190s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 210s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 230s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 250s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 270s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 290s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 300s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
-[10:13] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
+[16:24] [EVT×9] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare verso la finestra; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
 [IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
@@ -387,13 +258,1486 @@ Durante l'intervallo temporale considerato, la persona ha mantenuto un livello d
 [IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 200s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 220s (RISPARMIO)
-[IA-STRATEGY] Prossimo check tra 10s (REATTIVO)
-[10:15] [EVT×9] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[10:15] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile effettuare alcuna valutazione clinica su postura, mobilità o rischi per la sicurezza.
-[IA-STRATEGY] Prossimo check tra 30s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 76.27), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 76.83), ignoro...
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:27] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare all'interno del soggiorno; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[ROTAZIONE] Movimento camera rilevato (Diff: 78.23), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 79.62), ignoro...
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[16:27] [EVT×9] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare all'interno del soggiorno; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:28] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare all'interno del soggiorno; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:29] [EVT×7] La persona è presente, seduta in posizione eretta. L'attività consiste nel sistemarsi la giacca; i movimenti appaiono normali, stabili e senza segni di difficoltà motorie o rischio caduta.
 [IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
 [IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:31] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare all'interno della stanza; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[ROTAZIONE] Movimento camera rilevato (Diff: 74.90), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 71.59), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 72.64), ignoro...
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 75.88), ignoro...
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:33] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare all'interno del soggiorno; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[ROTAZIONE] Movimento camera rilevato (Diff: 77.86), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:35] [EVT×7] Presenza di due persone: una donna seduta sul divano e un uomo in piedi. L'uomo è in posizione eretta, con movimenti lenti mentre si sistema la giacca; la donna è seduta e sembra intenta a sistemarsi i vestiti. L'andatura e la postura appaiono stabili, senza segni immediati di rischio caduta o difficoltà motorie.
+[ROTAZIONE] Movimento camera rilevato (Diff: 78.76), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:36] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare verso l'uscio; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 81.13), ignoro...
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:37] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel camminare verso il centro della stanza; l'andatura appare stabile, autonoma e senza segni di difficoltà motorie o rischio caduta.
+[ROTAZIONE] Movimento camera rilevato (Diff: 80.54), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:38] [EVT×7] La persona è presente, in posizione eretta e in movimento. L'attività consiste nel passaggio dalla posizione eretta alla posizione seduta sul divano; il movimento appare fluido e l'andatura stabile. Non si rilevano segni di instabilità, difficoltà motorie o rischi immediati di caduta.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:39] [EVT×7] La persona è presente, in posizione seduta sul divano. L'attività consiste nel passaggio dalla posizione eretta a quella seduta, completata con movimenti lenti ma stabili. Non si rilevano segni di instabilità o rischi immediati di caduta.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:40] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel chinare il capo verso il basso; la postura appare stabile e non si rilevano segni di instabilità o rischi immediati di caduta.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[16:43] [FIX×1] La persona è presente, in posizione seduta con il capo chino verso il basso. La postura appare stabile e non si rilevano segni di difficoltà motorie o rischi immediati di caduta.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:43] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel chinare il capo verso il basso; la postura appare stabile e non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:46] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel chinare il capo verso il basso; la postura appare stabile e non si rilevano segni di instabilità o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:47] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel chinare il capo verso il basso; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[16:48] [CMP] Ambiente invariato. Non si rilevano nuovi ostacoli, oggetti a terra o cambiamenti nella disposizione degli arredi che possano rappresentare rischi per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:49] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel chinare il capo verso il basso; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[16:52] [FIX×1] La persona è presente, in posizione seduta. L'attività consiste nel chinare il capo verso il basso; la postura appare stabile e non si rilevano segni di rischio immediato o difficoltà motorie.
+[16:55] [FIX×1] La persona è presente e in posizione seduta. L'attività consiste nel chinare il capo verso il basso, suggerendo possibile sonnolenza o affaticamento. La postura appare stabile e non si rilevano rischi immediati di caduta.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:56] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di inclinazione del capo verso il basso, suggerendo possibile sonnolenza o affaticamento. La postura appare stabile e non si rilevano segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[16:57] [EVT×7] La persona è presente e si trova in posizione eretta, passata da seduta a in piedi. L'attività consiste nel procedere verso il tavolo; i movimenti appaiono stabili e non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+
+[SINTESI 16:00] Durante il periodo monitorato, la persona ha svolto diverse attività di movimento all'interno dell'abitazione, tra cui camminate autonome e il trasporto di piccoli oggetti, mantenendo sempre un'andatura stabile e una postura corretta. Nella seconda parte dell'osservazione, si è passati da una fase di attività dinamica a momenti di riposo sul divano, con la comparsa di una postura con il capo chino che suggeriva possibile affaticamento o sonnolenza. Nonostante queste variazioni nel livello di energia, non sono stati rilevati rischi di caduta, instabilità motoria o cambiamenti nell'ambiente che possano compromettere la sicurezza. In sintesi, il quadro clinico appare stabile e i movimenti sono rimasti autonomi per tutta la durata del monitoraggio.
+
+[17:00] [FIX×1] La persona non è visibile nell'inquadratura. L'ambiente appare privo di ostacoli immediati, ma non è possibile valutare la posizione o lo stato clinico del soggetto.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:02] [EVT×7] La persona è presente e si trova in posizione eretta, in movimento all'interno della stanza. L'andatura appare autonoma e stabile durante la camminata; non si rilevano segni di instabilità o rischi di caduta.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[17:03] [EVT×9] La persona è presente e in posizione eretta, impegnata in una camminata all'interno della stanza. Il movimento appare autonomo e l'andatura è stabile, senza segni di instabilità o rischi di caduta.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 76.90), ignoro...
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[17:04] [EVT×9] La persona è presente e si trova in posizione eretta, impegnata in una camminata all'interno della stanza. Il movimento appare autonomo e l'andatura è stabile, senza segni di instabilità o rischi di caduta.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 70.01), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 71.47), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 77.33), ignoro...
+[17:07] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile valutare la posizione, l'attività o lo stato clinico del soggetto.
+[17:10] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile valutare la posizione, l'attività o lo stato clinico del soggetto.
+[17:13] [FIX×1] La persona non è visibile nell'inquadratura. Non è possibile valutare la posizione, l'attività o lo stato clinico del soggetto.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 82.68), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 74.04), ignoro...
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:15] [EVT×7] La persona non è visibile nell'inquadratura. Non è possibile fornire alcuna valutazione clinica o rilevare segnali di rischio.
+[ROTAZIONE] Movimento camera rilevato (Diff: 72.73), ignoro...
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[17:16] [FIX×1] La persona è presente e si trova in posizione seduta. L'attività consiste nell'uso di uno smartphone; la postura è leggermente flessa in avanti, ma non si rilevano segni di difficoltà motoria o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:16] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nell'uso di uno smartphone; si osserva un leggero movimento del capo verso il basso, compatibile con l'uso del dispositivo. Non si rilevano segni di instabilità o rischi clinici immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:17] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nell'uso di uno smartphone; si osserva un movimento del capo verso la mano, suggerendo l'atto di mangiare o asciugarsi il viso. Non si rilevano segni di instabilità, difficoltà motorie o rischi clinici immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[17:18] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:20] [EVT×7] La persona è presente e si muove in piedi all'interno dell'ambiente. Si osserva il passaggio da una posizione seduta a un movimento di alzarsi e chinarsi in avanti, probabilmente per raccogliere qualcosa o sistemare un oggetto. L'andatura e il movimento appaiono autonomi, sebbene il chinarsi in modo repentino richieda attenzione per il rischio di instabilità.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[17:22] [EVT×9] La persona è presente e si trova in posizione eretta, in piedi. L'attività consiste nel camminare verso l'interno dell'abitazione; il movimento appare autonomo e l'andatura sembra stabile. Non si rilevano segnali di rischio immediato o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:24] [EVT×7] La persona è presente e si trova in posizione eretta, in piedi. L'attività consiste nel camminare verso l'osservatore; il movimento appare autonomo, ma si nota un leggero chinamento del capo in avanti. L'andatura sembra stabile e non si rilevano segni di caduta o difficoltà motorie immediate.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[17:24] [FIX×1] La persona non è visibile nell'inquadratura. L'ambiente risulta vuoto rispetto alle osservazioni precedenti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[17:25] [EVT×9] La persona è presente e si trova in posizione seduta su una sedia. L'attività consiste nel chinare il capo verso il basso, in un movimento che suggerisce sonnolenza o affaticamento. Non si rilevano segni di instabilità motoria, ma la postura con il capo chino richiede monitoraggio per prevenire possibili scivolamenti dalla sedia.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:26] [EVT×7] La persona è presente ed è passata dalla posizione seduta a quella in piedi. Si osserva un movimento di chinamento del busto e della testa verso il basso, probabilmente per raccogliere o sistemare un oggetto. L'andatura e la postura appaiono autonome, ma il movimento repentino di flessione del tronco richiede attenzione per il rischio di instabilità.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[17:29] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con il capo leggermente chino, suggerendo persistente sonnolenza o affaticamento. Non si rilevano rischi di caduta immediati, ma la postura richiede monitoraggio per il rischio di scivolamento dalla sedia.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:31] [EVT×7] La persona è presente, in posizione seduta sul divano. L'attività consiste nel rimanere ferma con il capo chino, suggerendo sonnolenza o affaticamento. Non si rilevano rischi di caduta immediati, ma la postura richiede monitoraggio per il rischio di scivolamento.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:32] [EVT×7] La persona è presente, in posizione seduta sul divano. L'attività consiste nel rimanere ferma con il capo chino, suggerendo sonnolenza o affaticamento. Non si rilevano rischi di caduta immediati, ma la postura richiede monitoraggio per il rischio di scivolamento.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:33] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel passaggio dalla posizione seduta a quella in piedi, con un movimento di flessione del busto e della testa verso il basso. Il movimento appare autonomo, ma la postura inclinata suggerisce un possibile affaticamento o rischio di instabilità durante il cambio di posizione.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:34] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento del capo verso l'alto e all'indietro, seguito da una posizione con il braccio sollevato verso la testa, indicando un gesto di sistemazione o di possibile fastidio/sonnolenza. Non si rilevano segni di instabilità o rischi immediati; la postura è autonoma.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[17:37] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con il braccio sollevato verso la testa, suggerendo un gesto di sistemazione o possibile fastidio/sonnolenza. Non si rilevano rischi di caduta immediati; la postura appare autonoma.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:38] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel rimanere ferma con il capo leggermente inclinato, suggerendo uno stato di riposo o possibile sonnolenza. Non si rilevano segni di instabilità o rischi immediati; la postura è autonoma e stabile.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:39] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con la mano appoggiata al mento, in uno stato di riposo o riflessione. Non si rilevano segni di instabilità, difficoltà motorie o rischi di caduta; la postura è stabile e autonoma.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:41] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento autonomo del capo e del busto che suggerisce il passaggio da una posizione di riposo a un tentativo di alzarsi o di sistemarsi sulla sedia. Non si rilevano segni di instabilità critica, ma la postura inclinata indica un possibile affaticamento o sonnolenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[17:44] [FIX×1] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento del capo e della mano verso il viso, suggerendo uno stato di riposo o possibile sonnolenza. La postura è autonoma e non si rilevano segnali di rischio immediato o instabilità.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:45] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con il braccio sollevato verso la testa, suggerendo un gesto di sistemazione o possibile sonnolenza. Non si rilevano rischi di caduta; la postura appare autonoma e stabile.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[17:48] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con il capo leggermente inclinato, suggerendo uno stato di riposo o possibile sonnolenza. La postura è autonoma e stabile, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:48] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento autonomo del capo e della mano verso il viso, suggerendo uno stato di riposo o possibile sonnolenza. La postura è stabile e non si rilevano segnali di rischio immediato o instabilità motoria.
+[17:48] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:49] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con le braccia incrociate e il capo leggermente inclinato, suggerendo uno stato di riposo o possibile sonnolenza. La postura è autonoma e stabile, senza segnali di rischio immediato o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:50] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con le braccia incrociate e il capo leggermente inclinato, suggerendo uno stato di riposo o possibile sonnolenza. La postura è autonoma e stabile, senza segnali di rischio immediato o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:52] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con le braccia incrociate, mostrando una postura stabile e autonoma. Non si rilevano segnali di rischio o difficoltà motorie; il soggetto appare in uno stato di riposo.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:53] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento del braccio e della mano verso il volto, indicando uno stato di riposo o possibile sonnolenza. La postura è stabile e autonoma, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[17:55] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento della mano verso il volto e un cambio di postura, suggerendo uno stato di possibile sonnolenza o disagio. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[17:58] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con la mano appoggiata al capo, suggerendo uno stato di possibile sonnolenza o affaticamento. La postura è autonoma e stabile, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:00] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento della mano verso il capo e un cambio di postura, suggerendo possibile sonnolenza o affaticamento. La stabilità è normale e i movimenti appaiono autonomi, senza segnali di rischio immediato.
+
+[SINTESI 17:00] Durante il periodo monitorato, la persona ha alternato momenti di attività motoria autonoma, come la camminata all'interno dell'ambiente, a lunghi periodi di riposo in posizione seduta. L'andatura è risultata sempre stabile e i movimenti di transizione (alzarsi/sedersi) sono stati eseguiti in autonomia, sebbene talvolta con movimenti repentini del tronco. Si è osservata una progressiva transizione verso uno stato di marcata sonnolenza o affaticamento, caratterizzato da posture con il capo chino e movimenti di sistemazione del viso. Non sono stati rilevati rischi di caduta immediati o criticità cliniche, ma la persistente postura flessa e il possibile affaticamento suggeriscono di monitorare lo stato di vigilanza del soggetto.
+
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:01] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel rimanere ferma con le braccia incrociate, mostrando una postura stabile e autonoma. Non si rilevano segnali di rischio o difficoltà motorie; il soggetto appare in uno stato di riposo.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:03] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere ferma con le braccia incrociate, mostrando una postura stabile e autonoma. Non si rilevano segnali di rischio o difficoltà motorie; il soggetto appare in uno stato di riposo.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:05] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento del capo e delle braccia che suggerisce il passaggio da una posizione di riposo a un movimento per sistemarsi o alzarsi. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:06] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel rimanere ferma con le braccia incrociate e la mano al mento, suggerendo uno stato di riposo o riflessione. La postura è stabile e i movimenti appaiono autonomi, senza segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:08] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel rimanere ferma con le braccia incrociate, mostrando una postura stabile e autonoma. Non si rilevano segnali di rischio o difficoltà motorie; il soggetto appare in uno stato di riposo.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:10] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel rimanere ferma con le braccia incrociate, mostrando una postura stabile e autonoma. Non si rilevano segnali di rischio o difficoltà motorie; il soggetto appare in uno stato di riposo.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:13] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel rimanere ferma con le braccia incrociate e la mano al mento, in uno stato di riposo o riflessione. La postura è stabile e i movimenti appaiono autonomi, senza segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:14] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di spostamento del busto e delle braccia, indicativo di un cambio di postura o della volontà di alzarsi. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:15] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di spostamento del busto e delle braccia, indicativo di un cambio di postura o della volontà di alzarsi. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:16] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio dalla posizione con braccia incrociate a una postura più rilassata, con le mani appoggiate in grembo. La stabilità e i movimenti di transizione appaiono normali, autonomi e privi di segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:18] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di rotazione del busto e del capo verso la telecamera, indicativo di uno spostamento dell'attenzione o della posizione. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio o difficoltà.
+[18:18] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:20] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate a un movimento di sistemazione del capo e della mano sul viso. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio o difficoltà.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:23] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di sistemazione del capo e delle braccia verso il viso, indicativo di un possibile affaticamento o disagio. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:23] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di sistemazione del capo e delle braccia verso il viso, indicativo di un possibile affaticamento o disagio. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:24] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate a un movimento di sistemazione del capo e della mano sul viso, suggerendo possibile affaticamento. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:25] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate a un movimento di sistemazione del capo e della mano sul viso, suggerendo possibile affaticamento. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:26] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di sistemazione del capo e delle braccia verso il viso, indicativo di possibile affaticamento o disagio. La stabilità e l'autonomia motoria appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:28] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate all'uso di uno smartphone. La stabilità e i movimenti appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:29] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate all'uso di uno smartphone. La stabilità e i movimenti appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:30] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate all'uso di uno smartphone. La stabilità e i movimenti appaiono normali, senza segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:31] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di inclinazione del capo e del tronco verso il basso, suggerendo un possibile episodio di sonnolenza o affaticamento. La stabilità appare normale, senza segni di caduta immediata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:32] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di inclinazione del capo e del tronco verso il basso, che evolve in una posizione con la testa chinata sul petto. L'attività suggerisce un episodio di improvvisa sonnolenza o affaticamento; non si rilevano segni di instabilità motoria, ma la postura indica una possibile perdita temporanea di vigilanza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:33] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel passaggio da una postura con braccia incrociate a un movimento di inclinazione del capo verso il basso, suggerendo un possibile episodio di sonnolenza o affaticamento. Non si rilevano rischi di caduta immediati, ma la postura indica una possibile riduzione della vigilanza.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[18:34] [EVT×9] La persona è presente e si trova in piedi, impegnata nell'azione di alzarsi da una sedia. Il movimento appare fluido e autonomo, senza segni di instabilità o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:35] [EVT×7] La persona non è visibile nell'ambiente. Nessun cambiamento di postura o attività rilevabile per la persona anziana.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:36] [EVT×7] La persona è presente e si trova in piedi. Il soggetto è impegnato nel movimento di abbassarsi verso una sedia, con un'andatura che appare incerta e movimenti del tronco inclinati in avanti. Non si rilevano segni di assistenza esterna, ma la postura suggerisce un possibile rischio di instabilità o perdita di equilibrio durante il cambio di posizione.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:37] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di inclinazione del capo e del tronco verso il basso, suggerendo un improvviso episodio di sonnolenza o affaticamento. Non si rilevano rischi di caduta immediati, ma la postura indica una possibile riduzione della vigilanza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:38] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di inclinazione del capo e del tronco verso il basso, suggerendo un improvviso episodio di sonnolenza o affaticamento. Non si rilevano rischi di caduta immediati, ma la postura indica una possibile riduzione della vigilanza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:39] [EVT×7] La persona è presente e si trova in posizione seduta. La sequenza mostra un movimento di transizione da seduto a quasi in piedi, con una postura del tronco inclinata in avanti e un movimento repentino che suggerisce l'inizio di un'azione motoria autonoma. Non si rilevano segni di assistenza esterna, ma la rapidità del movimento richiede attenzione per il rischio di instabilità.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:42] [EVT×7] La persona è presente e si trova in posizione seduta. La sequenza mostra un movimento di torsione del tronco e del capo, indicativo di una ricerca di orientamento o di un cambio di posizione. Non si rilevano segni di assistenza, ma la rapidità dei movimenti suggerisce una transizione motoria autonoma.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:43] [EVT×7] La persona è presente, in posizione seduta. La sequenza mostra un movimento di torsione del tronco e del capo verso destra, indicativo di un cambio di posizione o di orientamento. Non si rilevano segni di assistenza o rischi immediati, ma la rapidità del movimento suggerisce una transizione motoria autonoma.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:44] [EVT×7] La persona è presente, in posizione seduta. La sequenza mostra un movimento di torsione del capo e del tronco verso destra, indicativo di un cambio di orientamento o di posizione. Non si rilevano segni di assistenza o rischi immediati; la stabilità appare conservata durante il movimento.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:45] [EVT×7] La persona è presente, in posizione seduta. La sequenza mostra una transizione da un movimento di torsione del capo a una postura con il mento appoggiato alla mano, indicando un cambio di attenzione o un momento di stasi. Non si rilevano rischi di caduta o necessità di assistenza; la stabilità appare conservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:46] [EVT×7] La persona è presente, in posizione seduta. La sequenza mostra un movimento di distensione del tronco e delle braccia verso il retro, indicativo di un cambio di postura per comfort o rilassamento. Non si rilevano segni di assistenza, instabilità o rischi clinici immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:48] [EVT×7] La persona è presente, in posizione seduta su una sedia. La sequenza mostra un movimento di torsione del capo e del tronco verso l'alto/indietro, seguito da una postura con il mento appoggiato alla mano. Non si rilevano segni di assistenza o rischi immediati; la stabilità appare conservata durante il cambio di posizione.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[18:48] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[18:51] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel riposo con il mento appoggiato alla mano; non si rilevano segni di assistenza o rischi di caduta immediati. La stabilità appare conservata durante la postura statica.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:52] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel riposo con il mento appoggiato alla mano; non si rilevano segni di assistenza o rischi di caduta immediati. La stabilità appare conservata durante la postura statica.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:54] [EVT×7] La persona è presente, in posizione seduta. La sequenza mostra movimenti del tronco e delle braccia che indicano un cambio di postura o gestualità durante la conversazione/attività. Non si rilevano segni di assistenza, instabilità o rischi clinici immediati; la stabilità appare conservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:55] [EVT×7] La persona è presente, in posizione seduta su una sedia. Non si rilevano movimenti o cambiamenti di postura significativi tra i frame, indicando uno stato di riposo statico. Non si notano segni di assistenza o rischi immediati per la sicurezza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:56] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi la postura e il capo, con movimenti del tronco che indicano un cambio di posizione durante il riposo. Non si rilevano segni di assistenza, instabilità o rischi clinici immediati; la stabilità appare conservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[18:57] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi la postura e il capo, con movimenti del tronco che indicano un cambio di posizione durante il riposo. Non si rilevano segni di assistenza, instabilità o rischi clinici immediati; la stabilità appare conservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:00] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi la postura e il capo, con movimenti del tronco che indicano un cambio di posizione durante il riposo. Non si rilevano segni di assistenza, instabilità o rischi clinici immediati; la stabilità appare conservata.
+
+[SINTESI 18:00] Durante il periodo monitorato, la persona ha trascorso la maggior parte del tempo in posizione seduta, alternando momenti di riposo e riflessione all'uso dello smartphone. Si sono osservati episodi intermittenti di marcata sonnolenza o affaticamento, caratterizzati da inclinazioni del capo e del tronco verso il basso. Nonostante i cambiamenti posturali e alcuni movimenti di transizione (come alzarsi o sedersi), l'autonomia motoria è rimasta preservata e non sono stati rilevati rischi di caduta immediati. In sintesi, il quadro clinico suggerisce uno stato di generale stabilità fisica, pur con segnali di possibile spossatezza o riduzione temporanea della vigilanza.
+
+[19:00] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel sistemarsi la postura e il capo; i movimenti appaiono stabili e l'autonomia motoria è preservata. Non si rilevano segnali di rischio o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[19:03] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi la postura e il capo; i movimenti appaiono stabili, l'autonomia motoria è preservata e non si rilevano rischi di caduta o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:05] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi la postura e il capo; i movimenti appaiono stabili, l'autonomia motoria è preservata e non si rilevano rischi di caduta o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:07] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento di passaggio dalla posizione seduta a quella in piedi, con lo spostamento del peso e l'allungamento delle gambe. L'autonomia motoria appare preservata, senza segni di instabilità o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:08] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi la postura e il capo; i movimenti appaiono stabili, l'autonomia motoria è preservata e non si rilevano segnali di rischio o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:09] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel sistemarsi la postura e il capo; i movimenti appaiono stabili, l'autonomia motoria è preservata e non si rilevano segnali di rischio o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:10] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel sistemarsi la postura e il capo; i movimenti appaiono stabili, l'autonomia motoria è preservata e non si rilevano segnali di rischio o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:11] [EVT×7] La persona è presente e si è alzata dalla sedia. Si osserva un movimento di flessione del tronco in avanti durante la fase di transizione dalla posizione seduta a quella eretta. L'autonomia motoria è preservata, ma il movimento appare lento e richiede uno sforzo per mantenere l'equilibrio.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:12] [EVT×7] La persona è presente e si trova in posizione seduta. Si osserva una transizione dalla posizione seduta a quella eretta, con un movimento di allungamento del tronco e delle gambe. L'autonomia motoria è preservata, sebbene il movimento appaia lento e richieda uno sforzo per mantenere l'equilibrio.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:13] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento di transizione dalla posizione seduta a quella eretta, con una flessione del tronco in avanti. L'autonomia motoria è preservata, sebbene il movimento appaia lento e con una leggera instabilità posturale durante il cambio di posizione.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:15] [EVT×7] La persona è presente e si trova in posizione seduta. Si osserva un movimento di transizione dalla posizione seduta a quella eretta, con una flessione del tronco in avanti. L'autonomia motoria è preservata, sebbene il movimento appaia lento e con una leggera instabilità posturale durante il cambio di posizione.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:17] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di transizione dalla posizione seduta a quella eretta, con una flessione del tronco in avanti. L'autonomia motoria è preservata, sebbene il movimento appaia lento e con una leggera instabilità posturale durante il cambio di posizione.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:18] [EVT×7] La persona è presente e si trova in posizione eretta. Si osserva un movimento di transizione da in piedi a seduta sulla poltrona, con una flessione del tronco verso il basso. Il movimento appare lento e con un leggero segno di instabilità durante la discesa, ma l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[19:18] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:21] [EVT×7] La persona è presente, in posizione seduta su una sedia. Non si osservano cambiamenti posturali o attività in corso tra i frame; la postura e la stabilità appaiono costanti. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:24] [EVT×7] La persona è presente, in posizione seduta su una sedia. Non si rilevano cambiamenti posturali o attività significative tra i frame; la postura appare stabile e l'autonomia motoria è preservata. Nessun segnale di rischio o difficoltà rilevate.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:24] [EVT×7] La persona è presente, in posizione seduta su una sedia con le braccia incrociate. Non si rilevano cambiamenti posturali o movimenti significativi tra i frame; la postura appare stabile e l'autonomia motoria è preservata. Nessun segnale di rischio o difficoltà rilevate.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:27] [EVT×7] La persona è presente, in posizione seduta su una sedia. Non si rilevano cambiamenti posturali o movimenti significativi tra i frame; la postura appare stabile e l'autonomia motoria è preservata. Nessun segnale di rischio o difficoltà rilevate.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:29] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento di inclinazione del capo e del tronco verso la mano destra, suggerendo un momento di stanchezza o assenza di vigilanza. Non si rilevano rischi di caduta immediati, ma la postura appare meno stabile rispetto ai frame precedenti.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:30] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel rimanere in posizione con il capo appoggiato alla mano, suggerendo uno stato di stanchezza o riposo. Non si rilevano cambiamenti posturali significativi, rischi di caduta o difficoltà motorie tra i frame.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[19:33] [FIX×1] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi gli occhiali o toccarsi il capo; la postura è stabile e l'autonomia motoria appare preservata. Non si rilevano segnali di rischio o cambiamenti rispetto alle osservazioni precedenti.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:35] [EVT×7] La persona è presente e si sta alzando dalla sedia. Il movimento appare lento e richiede un'inclinazione del tronco in avanti, con l'uso della mano per sostenersi o bilanciarsi. Non si rilevano assistenze esterne, ma la postura suggerisce una transizione motoria che richiede attenzione per il rischio di instabilità.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 80.92), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 76.90), ignoro...
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:37] [EVT×7] La persona è presente e si trova in posizione eretta, in fase di deambulazione verso l'area del tavolo. Il movimento appare lento e il tronco è inclinato in avanti, suggerendo una possibile instabilità o difficoltà nel mantenere l'equilibrio durante il passaggio dalla posizione seduta a quella eretta. Non si nota assistenza esterna, ma la postura indica un rischio di instabilità motoria.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 73.60), ignoro...
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 82.37), ignoro...
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 91.49), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 83.97), ignoro...
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:39] [EVT×7] La persona è presente e si trova in posizione eretta, impegnata nella transizione dalla stazione eretta al movimento. Si osserva un'azione di allacciamento o sistemazione dei pantaloni, con una postura inclinata in avanti che suggerisce un possibile momento di instabilità o difficoltà motoria. Non è presente assistenza esterna, ma il movimento appare incerto e richiede attenzione per il rischio di perdita di equilibrio.
+[ROTAZIONE] Movimento camera rilevato (Diff: 85.34), ignoro...
+[19:40] [EVT×7] La persona è presente e si trova in posizione eretta. È impegnata nella transizione dal movimento alla posizione seduta sul divano, con un movimento che appare lento e incerto a causa dell'inclinazione del tronco. Non è presente assistenza esterna, ma la manovra suggerisce un rischio di instabilità durante il passaggio posturale.
+[ROTAZIONE] Movimento camera rilevato (Diff: 87.65), ignoro...
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:42] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi gli occhiali o toccarsi il capo; la postura è stabile e l'autonomia motoria appare preservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:43] [EVT×7] La persona è presente e si trova in posizione seduta. Si osserva una transizione posturale: la persona sta passando dalla posizione seduta a quella eretta, con un movimento che appare lento e richiede l'uso delle braccia per il bilanciamento. La postura inclinata in avanti durante lo sforzo suggerisce un possibile rischio di instabilità motoria.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:44] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi gli occhiali o il capo; la postura appare stabile e l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[19:47] [FIX×1] La persona è presente e si trova in posizione seduta su una sedia. L'attività consiste nel sistemarsi gli occhiali o il capo; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[19:49] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi gli occhiali o il capo; la postura appare stabile e l'autonomia motoria è preservata.
+[19:49] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:50] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sistemarsi il capo con la mano; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:52] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel sistemarsi gli occhiali o il capo; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:54] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel sistemarsi gli occhiali o il capo con la mano; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:56] [EVT×7] La persona è presente e si trova in posizione seduta. Si osserva un movimento rapido di torsione del busto e del capo, probabilmente per cambiare posizione o reagire a uno stimolo, con un'apparente perdita momentanea di controllo posturale. Non si rilevano segni di assistenza esterna, ma il movimento brusco richiede monitoraggio per escludere instabilità o vertigini.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:57] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di torsione del capo e del busto verso sinistra, probabilmente per cambiare posizione o orientarsi. La postura appare stabile e l'autonomia motoria è preservata; non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[19:58] [EVT×9] La persona è presente, in posizione seduta. Si osserva un movimento di torsione del capo e del busto verso sinistra, probabilmente per cambiare posizione o orientarsi. La postura appare stabile e l'autonomia motoria è preservata; non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[19:59] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel sistemarsi gli occhiali o il capo con la mano; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+
+[SINTESI 19:00] Durante il periodo monitorato, la persona ha alternato momenti di riposo in posizione seduta a transizioni posturali (alzarsi e sedersi) e brevi deambulazioni. Sebbene l'autonomia motoria sia costantemente preservata, si sono osservati movimenti lenti e una marcata inclinazione del tronco in avanti durante i passaggi dalla posizione seduta a quella eretta, indicando uno sforzo per mantenere l'equilibrio. In alcuni momenti sono stati rilevati segni di stanchezza, instabilità posturale e movimenti bruschi del capo/busto che richiedono attenzione. Nonostante la gestione autonoma delle attività, il rischio di caduta o perdita di equilibrio durante le fasi di transizione rimane un elemento critico da monitorare.
+
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:00] [EVT×7] La persona è presente, in posizione seduta. Si osserva un movimento di torsione del capo e del busto verso sinistra, probabilmente per cambiare posizione o orientarsi. La postura appare stabile e l'autonomia motoria è preservata; non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:01] [EVT×7] La persona è presente e si trova in posizione seduta. Si osserva un movimento di torsione del capo e del busto, probabilmente per cambiare posizione o orientarsi. La postura appare stabile e l'autonomia motoria è preservata; non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:03] [EVT×7] La persona è presente e si trova in posizione seduta. Non si osservano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:04] [EVT×7] La persona è presente, in posizione seduta. Non si rilevano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:05] [EVT×7] La persona è presente, in posizione seduta. Non si osservano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata. Non si rilevano segnali di rischio immediati.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:07] [EVT×7] La persona è presente, in posizione seduta. Non si rilevano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:08] [EVT×7] La persona è presente, in posizione seduta. Non si rilevano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:08] [EVT×7] La persona è presente, in posizione seduta. Non si rilevano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[20:12] [EVT×9] La persona è presente, in posizione seduta. Non si rilevano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[20:13] [EVT×9] La persona è presente, in posizione seduta. Non si rilevano cambiamenti posturali o attività significative rispetto ai frame precedenti; la postura appare stabile e l'autonomia motoria è preservata.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:14] [EVT×7] La persona è presente e si trova in posizione seduta su una sedia. Si osserva un movimento di flessione del tronco in avanti e dell'assetto posturale, indicativo di un cambio di attività o di una ricerca di equilibrio. Non si rilevano segni di assistenza esterna, ma il movimento appare lento e con una marcata inclinazione del busto.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[20:17] [FIX×1] La persona non è visibile nell'ambiente. L'area appare vuota e non si rilevano attività o cambiamenti posturali in corso.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:19] [EVT×7] La persona non è visibile nell'ambiente. L'area appare vuota e non si rilevano attività o segnali di rischio.
+[20:19] [CMP] Ambiente invariato.
+[20:19] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:20] [EVT×7] La persona è presente e sta camminando verso l'uscita della stanza. Il movimento appare fluido, con velocità normale e senza segni evidenti di instabilità o necessità di assistenza.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:24] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[20:27] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[20:30] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[20:33] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:35] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:36] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[20:39] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[20:42] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[20:45] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:47] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[20:49] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:50] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[20:53] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[20:56] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[20:56] ⚠ ALERT: La persona non è visibile da circa 33 minuti durante le ore diurne. Verificare se è uscita o se si trova fuori dall'inquadratura.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[20:59] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+
+[SINTESI 20:00] Durante il periodo monitorato, la persona è stata inizialmente osservata in posizione seduta con autonomia motoria preservata, sebbene con alcuni movimenti posturali lenti e marcate inclinazioni del tronco. Alle 20:20, il soggetto si è spostato autonomamente verso l'uscita della stanza con una deambulazione fluida e stabile. Successivamente, la persona non è più risultata visibile nell'area di monitoraggio per un intervallo prolungato di circa 37 minuti. Tale assenza richiede una verifica per accertare se il soggetto si sia spostato in un'altra stanza o sia uscito dall'ambiente.
+
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:00] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:01] [EVT×7] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano attività o segnali di rischio clinico.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[21:05] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano segnali di rischio clinico immediato.
+[21:08] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano segnali di rischio clinico o cambiamenti rispetto alle osservazioni precedenti.
+[ROTAZIONE] Movimento camera rilevato (Diff: 108.77), ignoro...
+[ROTAZIONE] Movimento camera rilevato (Diff: 108.81), ignoro...
+[21:11] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano segnali di rischio clinico o cambiamenti rispetto alle osservazioni precedenti.
+[21:14] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano segnali di rischio clinico o cambiamenti rispetto alle osservazioni precedenti.
+[21:17] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano segnali di rischio clinico o cambiamenti rispetto alle osservazioni precedenti.
+[21:19] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:20] [EVT×9] La persona è presente e in movimento, intenta a camminare verso l'uscita della stanza. La deambulazione appare autonoma e il movimento, sebbene sfocato per la velocità dello scatto, non mostra segni evidenti di instabilità o cadute.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[21:23] [FIX×1] La persona non è visibile nell'ambiente. L'area risulta vuota e non si rilevano segnali di rischio clinico o cambiamenti rispetto alle osservazioni precedenti.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:23] [SKIP] Scena stabile (diff=1.0)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:25] [EVT×7] La persona è presente ed è in fase di movimento. Si osserva un passaggio dalla posizione eretta a una flessione del tronco verso il basso, con la persona che si china per sedersi su una sedia. Il movimento appare autonomo ma rapido, senza segni evidenti di perdita di equilibrio o cadute.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:26] [EVT×9] La persona è presente e si trova in posizione seduta. Il soggetto appare stabile, con movimenti lenti e autonomi mentre si sistema sulla sedia; non si rilevano segnali di rischio o difficoltà motorie immediate.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:27] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto appare stabile e mantiene la stessa postura durante l'intera sequenza, senza segni di difficoltà motorie o instabilità.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:28] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto appare stabile e mantiene la stessa postura durante l'intera sequenza, senza segni di difficoltà motorie o instabilità.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:30] [EVT×9] La persona è presente, in posizione seduta. Si osserva un movimento di torsione e inclinazione del tronco verso l'alto, con la persona che solleva le braccia in modo rapido e incerto. Non si rilevano cadute, ma il movimento appare brusco rispetto alla postura precedente.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:31] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto appare stabile e mantiene la stessa postura durante l'intera sequenza, senza segni di difficoltà motorie o instabilità.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:31] [EVT×9] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento di torsione del tronco e della testa con l'azione di portarsi la mano alla nuca, indicando un cambio di postura autonomo. La stabilità appare preservata e non si rilevano segnali di rischio o difficoltà motorie immediate.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:33] [EVT×9] La persona è presente, in posizione seduta su una sedia. Il soggetto appare stabile e mantiene la stessa postura durante l'intera sequenza, senza segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:34] [EVT×9] La persona è presente, in posizione seduta su una sedia. La postura e l'attività rimangono costanti durante la sequenza, con movimenti minimi e stabilità preservata. Non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:35] [EVT×9] La persona è presente, in posizione seduta su una sedia. La postura rimane stabile e i movimenti sono minimi, senza segni di instabilità o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:36] [EVT×9] La persona è presente, in posizione seduta su una sedia. Il soggetto appare stabile e mantiene la stessa postura durante l'intera sequenza, senza segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:36] [SKIP] Scena stabile (diff=1.5)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:38] [EVT×9] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento di torsione del tronco e della testa mentre il soggetto si porta la mano alla nuca; l'attività appare autonoma e i movimenti, seppur lenti, non mostrano segni di instabilità o rischio di caduta.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:40] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto mantiene la stessa postura durante l'intera sequenza, con movimenti minimi e stabilità preservata; non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:41] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto mantiene la stessa postura durante l'intera sequenza, con movimenti minimi e stabilità preservata; non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:41] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto mantiene la stessa postura durante l'intera sequenza, con movimenti minimi e stabilità preservata; non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:43] [EVT×7] La persona è presente, in posizione seduta su una sedia. Il soggetto mantiene la stessa postura durante l'intera sequenza, con movimenti minimi e stabilità preservata; non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:44] [EVT×9] La persona è presente, in posizione seduta. Il soggetto compie movimenti lenti e autonomi del tronco e della testa, mantenendo una postura stabile senza segni di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 160s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:45] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti minimi e lenti del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:47] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti minimi e lenti del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:48] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:49] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[21:49] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:50] [EVT×9] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:50] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:52] [EVT×9] La persona è presente, inizialmente seduta e poi in piedi mentre si sposta verso l'ingresso. La deambulazione appare autonoma, sebbene il movimento di una seconda persona in secondo piano possa richiedere attenzione per evitare collisioni. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:53] [EVT×9] La persona è presente, inizialmente seduta e poi in piedi mentre si sposta verso l'ingresso. La deambulazione appare autonoma, sebbene il movimento di una seconda persona in secondo piano possa richiedere attenzione per evitare collisioni. Non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:54] [EVT×9] La persona è presente e si trova in posizione seduta. La postura appare stabile, con movimenti lenti del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:55] [EVT×7] La persona è presente, in posizione seduta. La postura appare stabile e l'attività consiste nel mantenimento di una posizione rilassata con movimenti lenti del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[21:56] [EVT×9] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:57] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[21:59] [EVT×7] La persona è presente, in posizione seduta con le braccia incrociate. La postura appare stabile e l'attività consiste nel mantenimento di una posizione ferma con movimenti minimi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:00] [EVT×7] La persona è presente, in posizione seduta. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+
+[SINTESI 21:00] Durante il periodo di osservazione, la persona è stata assente per la prima parte della sessione, per poi rientrare nell'ambiente e stabilizzarsi in posizione seduta su una sedia. L'attività è stata caratterizzata da movimenti autonomi, tra cui la deambulazione e il passaggio dalla posizione eretta a quella seduta, mantenendo sempre una buona stabilità posturale. Non si sono registrati eventi critici o cadute, sebbene siano stati rilevati alcuni movimenti bruschi o torsioni del tronco e della testa (come alle ore 21:30 e 21:38) che hanno rappresentato le uniche variazioni rispetto alla postura stabile. Nel complesso, il quadro clinico appare stabile e privo di segnali di rischio immediato.
+
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:01] [EVT×7] La persona è presente, in posizione seduta con le braccia incrociate. La postura appare stabile e l'attività consiste nel mantenimento di una posizione ferma con movimenti minimi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:03] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:04] [EVT×9] La persona è presente e rimane in posizione seduta per tutta la sequenza. La postura appare stabile, con movimenti lenti e autonomi del capo che indicano un atteggiamento di riposo o riflessione. Non si rilevano segni di instabilità, difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:05] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel mantenimento di una postura stabile con movimenti lenti e autonomi del capo; non si rilevano segni di instabilità o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:05] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento autonomo del capo e delle braccia verso l'alto, indicativo di un cambio di postura o di un gesto di comfort. La stabilità appare normale e non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:06] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sollevare le braccia verso il capo con movimenti autonomi e fluidi. La postura appare stabile, senza segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 180s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:09] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sollevare le braccia verso il capo con movimenti autonomi e fluidi; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:10] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sollevare le braccia verso il capo con movimenti autonomi e fluidi; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:11] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste nel sollevare le braccia verso il volto con movimenti autonomi e fluidi; la postura appare stabile e non si rilevano segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:12] [EVT×7] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento autonomo e rapido del capo all'indietro con la bocca aperta, indicativo di un gesto spontaneo o di uno sbadiglio. La stabilità posturale appare mantenuta, senza segni di difficoltà motorie o rischi immediati.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:13] [FIX×1] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento autonomo del capo all'indietro con la bocca aperta, compatibile con uno sbadiglio. La stabilità posturale è mantenuta e non si rilevano segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:13] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in movimenti autonomi del capo e delle braccia, compatibili con uno sbadiglio o un gesto spontaneo. La postura appare stabile e non si rilevano segnali di rischio immediato.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:14] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in movimenti autonomi e fluidi delle braccia e del capo, compatibili con uno sbadiglio o un gesto di assestamento. La postura è stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:15] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in movimenti autonomi e fluidi delle braccia e del capo, compatibili con uno sbadiglio o un gesto di assestamento. La postura è stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 170s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:17] [EVT×9] La persona è presente, in posizione seduta su una sedia. Si osserva un movimento autonomo e fluido del capo e delle braccia, compatibile con uno sbadiglio o un gesto di assestamento. La postura appare stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:18] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in movimenti autonomi e fluidi del capo e delle braccia, compatibili con uno sbadiglio o un gesto di assestamento. La postura appare stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:19] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in movimenti autonomi e fluidi del capo e delle braccia, compatibili con uno sbadiglio o un gesto di assestamento. La postura appare stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:19] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in movimenti autonomi e fluidi del capo e delle braccia, compatibili con uno sbadiglio o un gesto di assestamento. La postura appare stabile e non si rilevano segnali di rischio o difficoltà motorie.
+[22:19] [CMP] Ambiente invariato.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:20] [EVT×9] La persona è presente e passa dalla posizione seduta alla posizione eretta per iniziare la deambulazione. Il movimento appare autonomo e fluido, senza segni di instabilità o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:21] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:22] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 50s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 70s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 90s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 110s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 130s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 150s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:24] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:24] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:26] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:27] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:28] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un assestamento posturale con movimento delle braccia e del capo; la stabilità appare normale. Non si rilevano segnali di rischio o difficoltà motorie.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:29] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un movimento autonomo del capo e delle braccia, compatibile con uno sbadiglio o un assestamento posturale. La stabilità appare normale, senza segnali di rischio o difficoltà motorie rilevanti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+[22:30] [EVT×7] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un assestamento posturale con movimenti del capo e delle braccia; la stabilità appare normale. Non si rilevano segnali di rischio o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:31] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un assestamento posturale con movimenti del capo e delle braccia; la stabilità appare normale. Non si rilevano segnali di rischio o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[ROTAZIONE] Movimento camera rilevato (Diff: 77.79), ignoro...
+[IA-STRATEGY] Prossimo check tra 140s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 20s (REATTIVO)
+[22:33] [EVT×9] La persona è presente, in posizione seduta su una sedia. L'attività consiste in un assestamento posturale con movimenti del capo e delle braccia; la stabilità appare normale. Non si rilevano segnali di rischio o difficoltà motorie evidenti.
+[IA-STRATEGY] Prossimo check tra 40s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 60s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 80s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 100s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 120s (RISPARMIO)
+[IA-STRATEGY] Prossimo check tra 30s (REATTIVO)
+
+
+============================================================
+[STOP] Interruzione manuale
+[DIARIO] Generazione diario finale...
+
+[SINTESI 22:00] Durante il periodo monitorato, la persona è rimasta prevalentemente in posizione seduta, alternando momenti di riposo e riflessione a gesti spontanei come sbadigli o assestamenti posturali. Si è osservata una breve transizione alla posizione eretta per l'inizio di una deambulazione alle 22:20, seguita dal ritorno alla posizione seduta. Il tono dell'attività è apparso stabile e fluido, con movimenti autonomi del capo e delle braccia che non hanno evidenziato difficoltà motorie. Non si sono rilevati segnali di instabilità, rischi immediati o variazioni critiche nel comportamento.
+
+
+============================================================
+[DIARIO] Generazione diario giornaliero...
+  Osservazioni: 450
+  Riepiloghi orari: 15
+============================================================
+[DIARIO] Salvato in diari/2026/04/2026-04-30/diario.txt
+============================================================

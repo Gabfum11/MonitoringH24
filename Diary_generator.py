@@ -191,8 +191,9 @@ class DiaryGenerator:
             f"SERA/NOTTE (18:00-6:00): cena, preparazione al sonno, qualità del riposo.\n\n"
             f"PATTERN E SEGNALAZIONI: periodi di inattività prolungata, "
             f"difficoltà motorie ricorrenti, cambiamenti rispetto ai giorni precedenti.\n\n"
-            f"VALUTAZIONE CLINICA: impressione complessiva e raccomandazioni.\n\n"
-            f"Scrivi in modo professionale ma comprensibile per un medico o un caregiver."
+            "OSSERVAZIONI RILEVANTI: eventuali elementi che meritano attenzione "
+"(posture anomale, difficoltà nei movimenti, periodi di inattività prolungata, "
+"assenze dall'inquadratura)."
         )
 
         diary = self.vlm.call_text(
@@ -268,8 +269,8 @@ class DiaryGenerator:
             f"PATTERN SETTIMANALI: pattern ricorrenti, orari di maggiore attività, "
             f"momenti di difficoltà, evoluzione della mobilità.\n\n"
             f"CONFRONTO E TREND: miglioramento, peggioramento o stabilità?\n\n"
-            f"RACCOMANDAZIONI CLINICHE: suggerimenti basati sui pattern osservati.\n\n"
-            f"Scrivi in modo professionale, per un medico di base o un caregiver."
+            "ELEMENTI DI ATTENZIONE: variazioni rispetto ai giorni precedenti, "
+"eventi ricorrenti, cambiamenti nel livello di attività o autonomia."
         )
 
         diary = self.vlm.call_text(
@@ -382,8 +383,8 @@ class DiaryGenerator:
             f"EVOLUZIONE DELLA MOBILITÀ: autonomia rispetto all'inizio del mese?\n\n"
             f"PATTERN MENSILI: orari ricorrenti, giorni migliori/peggiori, eventi critici.\n\n"
             f"CONFRONTO CON IL MESE PRECEDENTE: miglioramenti o peggioramenti.\n\n"
-            f"VALUTAZIONE CLINICA E RACCOMANDAZIONI: impressione e suggerimenti.\n\n"
-            f"Scrivi in modo professionale, per un medico o un geriatra."
+            "SINTESI DELLE VARIAZIONI: cambiamenti osservati nel periodo, "
+"trend nell'attività e nella mobilità, eventi significativi registrati."
         )
 
         diary = self.vlm.call_text(

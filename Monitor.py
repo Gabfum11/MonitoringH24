@@ -117,7 +117,6 @@ class VLMMonitor:
             if self.hourly_summaries:
                 self.observer._last_hourly_text = self.hourly_summaries[-1]['summary']
         
-            self._last_hourly_summary = current_hour
 
     # =========================================
     # LOOP PRINCIPALE

@@ -89,9 +89,9 @@ class Observer:
                 )
 
         # Log critico per capire se il "cervello" sta accelerando o rallentando
-        if self._current_interval != self._prev_logged_interval:
-            print(f"[IA-STRATEGY] Prossimo check tra {self._current_interval}s "
-                f"({'REATTIVO' if scene_changed else 'RISPARMIO'})")
+        #if self._current_interval != self._prev_logged_interval:
+            #print(f"[IA-STRATEGY] Prossimo check tra {self._current_interval}s "
+                #f"({'REATTIVO' if scene_changed else 'RISPARMIO'})")
             self._prev_logged_interval = self._current_interval
 
     # =========================================
