@@ -24,22 +24,25 @@ e la struttura delle cartelle:
 import json
 from datetime import date, timedelta
 from pathlib import Path
+from Database_manager import DatabaseManager
 
 
 class DiaryGenerator:
-    def __init__(self, vlm_client, observations, hourly_summaries, output_dir="diari"):
+    def __init__(self, vlm_client, observations, hourly_summaries, output_dir="diari", db=None):
         """
         Args:
             vlm_client: istanza di VLMClient
             observations: lista condivisa delle osservazioni
             hourly_summaries: lista condivisa dei riepiloghi orari
             output_dir: cartella base per i file
+            db: istanza di DatabaseManager (opzionale, ne crea una se None)
         """
         self.vlm = vlm_client
         self.observations = observations
         self.hourly_summaries = hourly_summaries
         self.output_dir = Path(output_dir)
         self.today = date.today().isoformat()
+        self.db = db or DatabaseManager()
 
     # =========================================
     # GESTIONE CARTELLE
@@ -64,6 +67,45 @@ class DiaryGenerator:
         path = self.output_dir / str(year)
         path.mkdir(parents=True, exist_ok=True)
         return path
+
+    # =========================================
+    # TEST CLINICI
+    # =========================================
+    def _format_test_data(self, start_date_str, end_date_str):
+        """Costruisce un blocco testo con i test clinici nel periodo, pronto per il prompt."""
+        tug = self.db.get_tug_results(start_date_str, end_date_str)
+        sts = self.db.get_sts_results(start_date_str, end_date_str)
+        if not tug and not sts:
+            return ""
+
+        lines = [f"\nTEST CLINICI ({start_date_str} → {end_date_str}):"]
+
+        if tug:
+            lines.append("\nTUG (Timed Up and Go — alzarsi, camminare 3m, tornare):")
+            for r in tug:
+                lines.append(
+                    f"  {r['date']}: {r['total_time']:.1f}s | "
+                    f"{r['total_distance_px']:.0f}px | {r['avg_speed_px_s']:.1f}px/s"
+                )
+            if len(tug) >= 2:
+                delta = tug[-1]['total_time'] - tug[0]['total_time']
+                if delta > 1:
+                    lines.append(f"  → trend: peggioramento (+{delta:.1f}s rispetto al primo test)")
+                elif delta < -1:
+                    lines.append(f"  → trend: miglioramento ({delta:.1f}s rispetto al primo test)")
+                else:
+                    lines.append("  → trend: stabile")
+
+        if sts:
+            lines.append("\nSTS (5 Sit-to-Stand):")
+            for r in sts:
+                knee = f" | ginocchio {r['avg_knee_angle']:.0f}°" if r['avg_knee_angle'] else ""
+                lines.append(
+                    f"  {r['date']}: {r['total_time']:.1f}s | "
+                    f"{r['reps_completed']} rip. | {r['avg_rep_time']:.1f}s/rip{knee}"
+                )
+
+        return "\n".join(lines) + "\n"
 
     # =========================================
     # PERSISTENZA DATI GIORNALIERI
@@ -179,21 +221,29 @@ class DiaryGenerator:
         first_time = self.observations[0]['time'] if self.observations else "N/D"
         last_time = self.observations[-1]['time'] if self.observations else "N/D"
 
+        week_ago = (date.fromisoformat(self.today) - timedelta(days=7)).isoformat()
+        test_block = self._format_test_data(week_ago, self.today) #in text, ma contiene i risultati dei test clinici della settimana, se presenti
+
         prompt = (
             f"Oggi {self.today}, il sistema ha monitorato la persona dalle {first_time} alle {last_time}.\n"
             f"Totale osservazioni: {len(self.observations)}.\n\n"
             f"Ecco i {source} della giornata:\n\n"
-            f"{content}{alert_text}\n\n"
+            f"{content}{alert_text}"
+            f"{test_block}\n\n"
             f"Scrivi un DIARIO GIORNALIERO completo in italiano (2-3 pagine). Struttura:\n\n"
             f"RIEPILOGO GENERALE: 3-4 frasi sullo stato complessivo della persona.\n\n"
             f"MATTINA (6:00-12:00): cosa ha fatto, come stava, eventuali difficoltà.\n\n"
             f"POMERIGGIO (12:00-18:00): attività, riposo, cambiamenti.\n\n"
             f"SERA/NOTTE (18:00-6:00): cena, preparazione al sonno, qualità del riposo.\n\n"
+            f"Se ci sono test clinici (TUG, STS) o eventi particolari, descrivili in una sezione dedicata.\n\n"
             f"PATTERN E SEGNALAZIONI: periodi di inattività prolungata, "
             f"difficoltà motorie ricorrenti, cambiamenti rispetto ai giorni precedenti.\n\n"
             "OSSERVAZIONI RILEVANTI: eventuali elementi che meritano attenzione "
 "(posture anomale, difficoltà nei movimenti, periodi di inattività prolungata, "
-"assenze dall'inquadratura)."
+"assenze dall'inquadratura).\n\n" 
+"assenze dall'inquadratura).\n\n"
+"NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
+"Scrivi in modo professionale ma comprensibile per un medico o un caregiver."
         )
 
         diary = self.vlm.call_text(
@@ -224,6 +274,7 @@ class DiaryGenerator:
             f"  Singole: {types.get('singolo', 0)}\n"
             f"  Sequenze: {types.get('sequenza', 0) + types.get('sequenza_rapida', 0)}\n"
             f"  Confronti: {types.get('confronto', 0)}\n"
+            f"  Test clinici: {types.get('test', 0)}\n"
             f"  Alert: {types.get('alert', 0)}\n"
             f"Riepiloghi orari: {len(self.hourly_summaries)}\n"
             f"{'='*50}\n\n"
@@ -258,19 +309,23 @@ class DiaryGenerator:
             for entry in daily_diaries
         )
 
+        test_block = self._format_test_data(start_date.isoformat(), end_date.isoformat())
+
         prompt = (
             f"Sei un geriatra. Ecco i diari giornalieri di monitoraggio domiciliare "
             f"dal {start_date.isoformat()} al {end_date.isoformat()} "
             f"({len(daily_diaries)} giorni su 7 con dati disponibili).\n\n"
-            f"{content}\n\n"
+            f"{content}"
+            f"{test_block}\n\n"
             f"Scrivi un REPORT SETTIMANALE completo in italiano (2-3 pagine). Struttura:\n\n"
             f"RIEPILOGO SETTIMANALE: stato complessivo della persona durante la settimana.\n\n"
             f"ANDAMENTO GIORNALIERO: per ogni giorno, una sintesi di 2-3 frasi.\n\n"
             f"PATTERN SETTIMANALI: pattern ricorrenti, orari di maggiore attività, "
             f"momenti di difficoltà, evoluzione della mobilità.\n\n"
-            f"CONFRONTO E TREND: miglioramento, peggioramento o stabilità?\n\n"
+            f"CONFRONTO E TREND: miglioramento, peggioramento o stabilità? "
+            f"Se ci sono test clinici (TUG, STS), commentane i valori e il trend.\n\n"
             "ELEMENTI DI ATTENZIONE: variazioni rispetto ai giorni precedenti, "
-"eventi ricorrenti, cambiamenti nel livello di attività o autonomia."
+            "eventi ricorrenti, cambiamenti nel livello di attività o autonomia."
         )
 
         diary = self.vlm.call_text(
@@ -373,18 +428,23 @@ class DiaryGenerator:
                 for entry in daily_diaries
             )
 
+        test_block = self._format_test_data(start_date.isoformat(), end_date.isoformat())
+
         prompt = (
             f"Sei un geriatra. Ecco i dati di monitoraggio domiciliare per {month_name} "
             f"(fonte: {source}).\n\n"
-            f"{content}\n\n"
+            f"{content}"
+            f"{test_block}\n\n"
             f"Scrivi un REPORT MENSILE completo in italiano (3-4 pagine). Struttura:\n\n"
             f"RIEPILOGO DEL MESE: stato complessivo della persona.\n\n"
             f"ANDAMENTO SETTIMANALE: per ogni settimana, 3-4 frasi.\n\n"
             f"EVOLUZIONE DELLA MOBILITÀ: autonomia rispetto all'inizio del mese?\n\n"
             f"PATTERN MENSILI: orari ricorrenti, giorni migliori/peggiori, eventi critici.\n\n"
+            f"TEST CLINICI: se presenti, commenta i valori TUG/STS, il trend nel mese "
+            f"e il confronto con il mese precedente.\n\n"
             f"CONFRONTO CON IL MESE PRECEDENTE: miglioramenti o peggioramenti.\n\n"
             "SINTESI DELLE VARIAZIONI: cambiamenti osservati nel periodo, "
-"trend nell'attività e nella mobilità, eventi significativi registrati."
+            "trend nell'attività e nella mobilità, eventi significativi registrati."
         )
 
         diary = self.vlm.call_text(
@@ -459,9 +519,9 @@ class DiaryGenerator:
             f"MOBILITÀ E AUTONOMIA: come è cambiata nel corso dell'anno.\n\n"
             f"PATTERN STAGIONALI: differenze tra estate e inverno, periodi migliori e peggiori.\n\n"
             f"EVENTI SIGNIFICATIVI: cadute, ospedalizzazioni, cambiamenti improvvisi.\n\n"
-            f"VALUTAZIONE CLINICA COMPLESSIVA: impressione generale, "
-            f"prognosi, suggerimenti per il piano di cura annuale.\n\n"
-            f"Scrivi in modo professionale, per un geriatra o un medico di base."
+            f"SINTESI DELLE VARIAZIONI: cambiamenti osservati nell'anno, "
+f"trend nell'attività e nella mobilità, eventi significativi registrati.\n\n"
+f"NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
         )
 
         diary = self.vlm.call_text(

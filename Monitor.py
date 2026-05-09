@@ -17,14 +17,19 @@ Uso:
 
 import time
 import argparse
+import threading
+import os
 from datetime import datetime, date, timedelta
 
 from Capture import CaptureManager
 from Vlm_calls import VLMClient
 from Observer import Observer
 from Diary_generator import DiaryGenerator
-import psutil
-
+from Telegram import MonitorBot
+import asyncio
+from dotenv import load_dotenv
+load_dotenv()
+from TestRunner import TestRunner
 
 class VLMMonitor:
     def __init__(self,
@@ -132,6 +137,23 @@ class VLMMonitor:
         print(f"  Output:       {self.diary.output_dir}")
         print(f"{'='*60}")
         print("Premi Ctrl+C per fermare e generare il diario\n")
+        token = os.environ.get("TELEGRAM_BOT_TOKEN")
+        if token:
+            test_runner = TestRunner(
+                monitor_area=self.capture.monitor,
+                observations=self.observations,
+                save_callback=self.diary.save_data
+            )
+            def run_bot():
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir), test_runner=test_runner)
+                bot.run()
+            bot_thread = threading.Thread(target=run_bot, daemon=True)
+            bot_thread.start()
+            print("[TELEGRAM] Bot avviato in background")
+        else:
+            print("[TELEGRAM] Token non trovato, bot non avviato")
 
         try:
             while True:
@@ -157,7 +179,7 @@ class VLMMonitor:
 
                 # Confronto ambientale ogni ora
                 self.observer.check_comparison(frame)
-
+                
                 time.sleep(2)
                 # Monitor CPU (debug)
                 #cpu_percent = psutil.cpu_percent(interval=None)
@@ -195,6 +217,7 @@ def main():
                         help="Genera il report mensile e esci")
     parser.add_argument("--gen-annual", action="store_true",
                         help="Genera il report annuale e esci")
+   
 
     args = parser.parse_args()
 
@@ -221,6 +244,7 @@ def main():
     if args.preview:
         monitor.capture.preview()
 
+    
     monitor.run()
 
 
