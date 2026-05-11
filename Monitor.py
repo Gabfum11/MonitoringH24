@@ -19,6 +19,7 @@ import time
 import argparse
 import threading
 import os
+import json
 from datetime import datetime, date, timedelta
 
 from Capture import CaptureManager
@@ -26,7 +27,6 @@ from Vlm_calls import VLMClient
 from Observer import Observer
 from Diary_generator import DiaryGenerator
 from Telegram import MonitorBot
-import asyncio
 from dotenv import load_dotenv
 load_dotenv()
 from TestRunner import TestRunner
@@ -137,19 +137,24 @@ class VLMMonitor:
         print(f"  Output:       {self.diary.output_dir}")
         print(f"{'='*60}")
         print("Premi Ctrl+C per fermare e generare il diario\n")
-        token = os.environ.get("TELEGRAM_BOT_TOKEN")
+        local_cfg = {}
+        cfg_path = os.path.join(os.path.dirname(__file__), "config.local.json")
+        if os.path.exists(cfg_path):
+            with open(cfg_path, "r") as f:
+                local_cfg = json.load(f)
+
+        token = os.environ.get("TELEGRAM_BOT_TOKEN") or local_cfg.get("telegram_token")
         if token:
             test_runner = TestRunner(
                 monitor_area=self.capture.monitor,
                 observations=self.observations,
-                save_callback=self.diary.save_data
+                save_callback=self.diary.save_data 
             )
             def run_bot():
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir), test_runner=test_runner)
+                bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir),
+                                 test_runner=test_runner, allowed_ids=local_cfg.get("allowed_ids"))
                 bot.run()
-            bot_thread = threading.Thread(target=run_bot, daemon=True)
+            bot_thread = threading.Thread(target=run_bot, daemon=True) 
             bot_thread.start()
             print("[TELEGRAM] Bot avviato in background")
         else:
@@ -179,7 +184,7 @@ class VLMMonitor:
 
                 # Confronto ambientale ogni ora
                 self.observer.check_comparison(frame)
-                
+
                 time.sleep(2)
                 # Monitor CPU (debug)
                 #cpu_percent = psutil.cpu_percent(interval=None)

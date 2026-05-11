@@ -82,11 +82,11 @@ class DiaryGenerator:
 
         if tug:
             lines.append("\nTUG (Timed Up and Go — alzarsi, camminare 3m, tornare):")
+            tug = [r for r in tug if r['total_time'] is not None]
             for r in tug:
-                lines.append(
-                    f"  {r['date']}: {r['total_time']:.1f}s | "
-                    f"{r['total_distance_px']:.0f}px | {r['avg_speed_px_s']:.1f}px/s"
-                )
+                dist = f"{r['total_distance_px']:.0f}px" if r['total_distance_px'] is not None else "N/A"
+                spd = f"{r['avg_speed_px_s']:.1f}px/s" if r['avg_speed_px_s'] is not None else "N/A"
+                lines.append(f"  {r['date']}: {r['total_time']:.1f}s | {dist} | {spd}")
             if len(tug) >= 2:
                 delta = tug[-1]['total_time'] - tug[0]['total_time']
                 if delta > 1:
@@ -98,12 +98,11 @@ class DiaryGenerator:
 
         if sts:
             lines.append("\nSTS (5 Sit-to-Stand):")
+            sts = [r for r in sts if r['total_time'] is not None]
             for r in sts:
-                knee = f" | ginocchio {r['avg_knee_angle']:.0f}°" if r['avg_knee_angle'] else ""
-                lines.append(
-                    f"  {r['date']}: {r['total_time']:.1f}s | "
-                    f"{r['reps_completed']} rip. | {r['avg_rep_time']:.1f}s/rip{knee}"
-                )
+                knee = f" | ginocchio {r['avg_knee_angle']:.0f}°" if r['avg_knee_angle'] is not None else ""
+                avg_rep = f"{r['avg_rep_time']:.1f}s/rip" if r['avg_rep_time'] is not None else "N/A"
+                lines.append(f"  {r['date']}: {r['total_time']:.1f}s | {r['reps_completed']} rip. | {avg_rep}{knee}")
 
         return "\n".join(lines) + "\n"
 

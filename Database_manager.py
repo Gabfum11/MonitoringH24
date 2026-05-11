@@ -20,24 +20,6 @@ class DatabaseManager:
         cursor = self.connect()
 
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS daily_summary (
-                date TEXT PRIMARY KEY,
-                total_monitoring_min REAL,
-                time_sitting_min REAL,
-                time_standing_min REAL,
-                time_walking_min REAL,
-                num_walkings INTEGER,
-                num_sit_to_stand INTEGER,
-                num_stand_to_sit INTEGER,
-                avg_sit_to_stand_time REAL,
-                max_sit_to_stand_time REAL,
-                num_slow_transitions INTEGER,
-                longest_inactivity_min REAL,
-                independence_score REAL
-            )
-        ''')
-
-        cursor.execute('''
             CREATE TABLE IF NOT EXISTS test_session (
                 test_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 summary_date TEXT,
@@ -45,8 +27,7 @@ class DatabaseManager:
                 start_time TEXT,
                 end_time TEXT,
                 completed INTEGER,
-                video_source TEXT,
-                FOREIGN KEY(summary_date) REFERENCES daily_summary(date)
+                video_source TEXT
             )
         ''')
 
@@ -59,11 +40,6 @@ class DatabaseManager:
                 FOREIGN KEY(test_id) REFERENCES test_session(test_id)
             )
         ''')
-        # migrazione: aggiunge avg_speed_px_s se la tabella esiste già senza
-        try:
-            cursor.execute('ALTER TABLE tug_result ADD COLUMN avg_speed_px_s REAL')
-        except Exception:
-            pass
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS sts_result (
@@ -76,67 +52,15 @@ class DatabaseManager:
             )
         ''')
 
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS walking_episode (
-                episode_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                summary_date TEXT,
-                start_time TEXT,
-                end_time TEXT,
-                duration_sec REAL,
-                distance_m REAL,
-                avg_speed_ms REAL,
-                cadence REAL,
-                symmetry REAL,
-                regularity REAL,
-                total_steps INTEGER,
-                reliability_score INTEGER,
-                signal_used TEXT,
-                FOREIGN KEY(summary_date) REFERENCES daily_summary(date)
-            )
-        ''')
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS activity_event (
-                event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                summary_date TEXT,
-                event_time TEXT,
-                event_type TEXT,
-                duration_sec REAL,
-                details TEXT,
-                FOREIGN KEY(summary_date) REFERENCES daily_summary(date)
-            )
-        ''')
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS time_slot (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                summary_date TEXT,
-                slot_start TEXT,
-                slot_end TEXT,
-                time_sitting_sec REAL,
-                time_standing_sec REAL,
-                time_walking_sec REAL,
-                num_sit_to_stand INTEGER,
-                FOREIGN KEY(summary_date) REFERENCES daily_summary(date)
-            )
-        ''')
-
+        self._migrate()
         self.close()
 
-    # === DAILY SUMMARY ===
-    def save_daily_summary(self, summary_data):
-        cursor = self.connect()
-        cursor.execute('''
-            INSERT OR REPLACE INTO daily_summary VALUES (
-                :date, :total_monitoring_min,
-                :time_sitting_min, :time_standing_min, :time_walking_min,
-                :num_walkings, :num_sit_to_stand, :num_stand_to_sit,
-                :avg_sit_to_stand_time, :max_sit_to_stand_time,
-                :num_slow_transitions,
-                :longest_inactivity_min, :independence_score
-            )
-        ''', summary_data)
-        self.close()
+    def _migrate(self):
+        """Aggiunge colonne mancanti per retrocompatibilità con DB esistenti."""
+        cursor = self.conn.cursor()
+        existing = {row[1] for row in cursor.execute("PRAGMA table_info(tug_result)")}
+        if 'avg_speed_px_s' not in existing:
+            cursor.execute("ALTER TABLE tug_result ADD COLUMN avg_speed_px_s REAL")
 
     # === TEST SESSION ===
     def create_test_session(self, summary_date, test_type, start_time, video_source=None):
@@ -165,7 +89,6 @@ class DatabaseManager:
         ''', {**tug_data, 'test_id': test_id})
         self.close()
 
-    # === QUERY TEST RESULTS ===
     def get_tug_results(self, start_date, end_date):
         """Restituisce i risultati TUG completati in un range di date (YYYY-MM-DD)."""
         cursor = self.connect()
@@ -176,10 +99,20 @@ class DatabaseManager:
             WHERE ts.summary_date BETWEEN ? AND ? AND ts.completed = 1
             ORDER BY ts.start_time
         ''', (start_date, end_date))
-        rows = cursor.fetchall() 
+        rows = cursor.fetchall()
         self.close()
         return [{'date': r[0], 'total_time': r[1],
                  'total_distance_px': r[2], 'avg_speed_px_s': r[3]} for r in rows]
+
+    # === STS RESULT ===
+    def save_sts_result(self, test_id, sts_data):
+        cursor = self.connect()
+        cursor.execute('''
+            INSERT INTO sts_result VALUES (
+                :test_id, :total_time, :reps_completed, :avg_rep_time, :avg_knee_angle
+            )
+        ''', {**sts_data, 'test_id': test_id})
+        self.close()
 
     def get_sts_results(self, start_date, end_date):
         """Restituisce i risultati STS completati in un range di date (YYYY-MM-DD)."""
@@ -195,47 +128,3 @@ class DatabaseManager:
         self.close()
         return [{'date': r[0], 'total_time': r[1], 'reps_completed': r[2],
                  'avg_rep_time': r[3], 'avg_knee_angle': r[4]} for r in rows]
-
-    # === STS RESULT ===
-    def save_sts_result(self, test_id, sts_data):
-        cursor = self.connect()
-        cursor.execute('''
-            INSERT INTO sts_result VALUES (
-                :test_id, :total_time, :reps_completed, :avg_rep_time, :avg_knee_angle
-            )
-        ''', {**sts_data, 'test_id': test_id})
-        self.close()
-
-    # === WALKING EPISODE ===
-    def save_walking_episode(self, episode_data):
-        cursor = self.connect()
-        cursor.execute('''
-            INSERT INTO walking_episode
-            (summary_date, start_time, end_time, duration_sec, distance_m, avg_speed_ms,
-             cadence, symmetry, regularity, total_steps)
-            VALUES (:date, :start_time, :end_time, :duration_sec, :distance_m, :avg_speed_ms,
-                    :cadence, :symmetry, :regularity, :total_steps)
-        ''', episode_data)
-        self.close()
-
-    # === ACTIVITY EVENT ===
-    def save_activity_event(self, event_data):
-        cursor = self.connect()
-        cursor.execute('''
-            INSERT INTO activity_event
-            (summary_date, event_time, event_type, duration_sec, details)
-            VALUES (:date, :event_time, :event_type, :duration_sec, :details)
-        ''', event_data)
-        self.close()
-
-    # === TIME SLOT ===
-    def save_time_slot(self, slot_data):
-        cursor = self.connect()
-        cursor.execute('''
-            INSERT INTO time_slot
-            (summary_date, slot_start, slot_end, time_sitting_sec, time_standing_sec,
-             time_walking_sec, num_sit_to_stand)
-            VALUES (:date, :slot_start, :slot_end, :time_sitting_sec, :time_standing_sec,
-                    :time_walking_sec, :num_sit_to_stand)
-        ''', slot_data)
-        self.close()

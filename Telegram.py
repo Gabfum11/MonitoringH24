@@ -14,18 +14,19 @@ Uso:
 
 Richiede:
     pip install python-telegram-bot
-    
+
 Configurazione:
     Crea un bot con @BotFather su Telegram e ottieni il token.
     Imposta il token come variabile d'ambiente:
         export TELEGRAM_BOT_TOKEN="il_tuo_token"
-    
+
     Oppure passalo come argomento:
         python telegram_bot.py --token "il_tuo_token"
 """
 
 import os
 import json
+import asyncio
 import argparse
 from datetime import date, timedelta
 from pathlib import Path
@@ -37,11 +38,20 @@ from Vlm_calls import VLMClient
 
 
 class MonitorBot:
-    def __init__(self, token, vlm_client, data_dir="diari", test_runner=None):
+    def __init__(self, token, vlm_client, data_dir="diari", test_runner=None, allowed_ids=None):
         self.token = token
         self.vlm = vlm_client
         self.data_dir = Path(data_dir)
         self.test_runner = test_runner
+        self.allowed_ids = set(allowed_ids) if allowed_ids else set()
+
+    async def _check_auth(self, update: Update) -> bool:
+        if not self.allowed_ids:
+            return True
+        if update.effective_user.id not in self.allowed_ids:
+            await update.message.reply_text("Non sei autorizzato ad usare questo bot.")
+            return False
+        return True
 
     # =========================================
     # LETTURA DATI
@@ -138,6 +148,8 @@ class MonitorBot:
     # =========================================
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Messaggio di benvenuto."""
+        if not await self._check_auth(update):
+            return
         await update.message.reply_text(
             "Ciao! Sono il bot di monitoraggio domiciliare.\n\n"
             "Puoi chiedermi cose come:\n"
@@ -149,11 +161,15 @@ class MonitorBot:
             "/stato - Stato attuale\n"
             "/diario - Diario di oggi\n"
             "/ieri - Diario di ieri\n"
-            "/alert - Alert della giornata"
+            "/alert - Alert della giornata\n"
+            "/tug - Avvia test TUG\n"
+            "/sts - Avvia test STS"
         )
 
     async def cmd_stato(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Stato attuale basato sulle ultime osservazioni."""
+        if not await self._check_auth(update):
+            return
         observations, _ = self._get_today_observations()
         if not observations:
             await update.message.reply_text("Nessuna osservazione disponibile per oggi.")
@@ -174,6 +190,8 @@ class MonitorBot:
 
     async def cmd_diario(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Invia il diario di oggi."""
+        if not await self._check_auth(update):
+            return
         diary = self._get_diary()
         if diary:
             # Telegram ha un limite di 4096 caratteri per messaggio
@@ -191,6 +209,8 @@ class MonitorBot:
 
     async def cmd_ieri(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Invia il diario di ieri."""
+        if not await self._check_auth(update):
+            return
         diary = self._get_diary(date.today() - timedelta(days=1))
         if diary:
             if len(diary) > 4000:
@@ -204,6 +224,8 @@ class MonitorBot:
 
     async def cmd_alert(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostra gli alert della giornata."""
+        if not await self._check_auth(update):
+            return
         observations, _ = self._get_today_observations()
         if not observations:
             await update.message.reply_text("Nessun dato per oggi.")
@@ -217,59 +239,55 @@ class MonitorBot:
             for a in alerts:
                 msg += f"• {a['time']}: {a['description']}\n\n"
             await update.message.reply_text(msg)
+
     async def cmd_tug(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Avvia un test TUG."""
+        if not await self._check_auth(update):
+            return
+        if not self.test_runner:
+            await update.message.reply_text("Test runner non disponibile.")
+            return
         await update.message.reply_text("Avvio test TUG... La persona deve essere visibile.")
-        
-        import threading
-        def run_test():
-            result = self.test_runner.run_tug()
-            # Salva il risultato per inviarlo dopo
-            self._last_test_result = result
-        
-        t = threading.Thread(target=run_test)
-        t.start()
-        t.join(timeout=130)
-        
-        if hasattr(self, '_last_test_result') and self._last_test_result:
-            r = self._last_test_result
+
+        result = await asyncio.to_thread(self.test_runner.run_tug)
+
+        if result:
             await update.message.reply_text(
-                f" TUG completato!\n"
-                f"Tempo: {r['total_time']:.1f}s\n"
-               
+                f"TUG completato!\n"
+                f"Tempo: {result['total_time']:.1f}s"
             )
         else:
-            await update.message.reply_text(" Test non completato.")
+            await update.message.reply_text("Test non completato.")
 
     async def cmd_sts(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Avvia un test STS."""
+        if not await self._check_auth(update):
+            return
+        if not self.test_runner:
+            await update.message.reply_text("Test runner non disponibile.")
+            return
         await update.message.reply_text("Avvio test STS... La persona deve essere visibile.")
-        
-        import threading
-        def run_test():
-            result = self.test_runner.run_sts()
-            self._last_test_result = result
-        
-        t = threading.Thread(target=run_test)
-        t.start()
-        t.join(timeout=130)
-        
-        if hasattr(self, '_last_test_result') and self._last_test_result:
-            r = self._last_test_result
+
+        result = await asyncio.to_thread(self.test_runner.run_sts)
+
+        if result:
             await update.message.reply_text(
                 f"STS completato!\n"
-                f"Ripetizioni: {r['reps_completed']}\n"
-                f"Tempo: {r['total_time']:.1f}s"
+                f"Ripetizioni: {result['reps_completed']}\n"
+                f"Tempo: {result['total_time']:.1f}s"
             )
         else:
             await update.message.reply_text("Test non completato.")
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Gestisce messaggi liberi — interroga Gemma."""
+        if not await self._check_auth(update):
+            return
         query = update.message.text
         await update.message.reply_text("Cerco nei dati...")
 
-        response = self._answer_query(query)
+        # Eseguito in un thread separato per non bloccare il loop asyncio
+        response = await asyncio.to_thread(self._answer_query, query)
         await update.message.reply_text(response)
 
     # =========================================
@@ -277,8 +295,6 @@ class MonitorBot:
     # =========================================
     def run(self):
         """Avvia il bot Telegram."""
-        import asyncio
-
         async def start():
             app = ApplicationBuilder().token(self.token).build()
 
@@ -287,9 +303,9 @@ class MonitorBot:
             app.add_handler(CommandHandler("diario", self.cmd_diario))
             app.add_handler(CommandHandler("ieri", self.cmd_ieri))
             app.add_handler(CommandHandler("alert", self.cmd_alert))
-            app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
             app.add_handler(CommandHandler("tug", self.cmd_tug))
             app.add_handler(CommandHandler("sts", self.cmd_sts))
+            app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
 
             print(f"{'='*60}")
             print(f"Telegram Bot — Monitoraggio Domiciliare")
@@ -303,9 +319,13 @@ class MonitorBot:
             await app.start()
             await app.updater.start_polling()
 
-            # Resta attivo finché il thread non viene ucciso
-            while True:
-                await asyncio.sleep(1)
+            try:
+                while True:
+                    await asyncio.sleep(1)
+            finally:
+                await app.updater.stop()
+                await app.stop()
+                await app.shutdown()
 
         asyncio.run(start())
 
@@ -317,6 +337,8 @@ def main():
     parser.add_argument("--model", default="gemma-4-26b-a4b-it")
     parser.add_argument("--url", default="http://localhost:1234")
     parser.add_argument("--data-dir", default="diari")
+    parser.add_argument("--allowed-ids", nargs="*", type=int, default=None,
+                        help="User ID Telegram autorizzati (es. --allowed-ids 123456 789012)")
     args = parser.parse_args()
 
     if not args.token:
@@ -326,9 +348,10 @@ def main():
         return
 
     vlm = VLMClient(model=args.model, lmstudio_url=args.url)
-    bot = MonitorBot(token=args.token, vlm_client=vlm, data_dir=args.data_dir)
+    bot = MonitorBot(token=args.token, vlm_client=vlm, data_dir=args.data_dir,
+                     allowed_ids=args.allowed_ids)
     bot.run()
-    
+
 
 if __name__ == "__main__":
     main()

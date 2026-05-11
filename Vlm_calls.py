@@ -7,6 +7,8 @@ Gestisce le chiamate a LM Studio (API compatibile OpenAI):
 - Contesto orario per guidare l'analisi clinica
 """
 
+import time
+import json
 import requests
 from datetime import datetime
 
@@ -74,17 +76,58 @@ class VLMClient:
         return ""
 
     # =========================================
+    # STREAMING INTERNO
+    # =========================================
+    def _stream_request(self, messages, max_tokens, temperature, timeout=120):
+        """Esegue la chiamata in streaming, logga TTFT/TTLT e restituisce il testo."""
+        t_start = time.perf_counter()
+        try:
+            response = requests.post(
+                f"{self.lmstudio_url}/v1/chat/completions",
+                json={
+                    "model": self.model,
+                    "messages": messages,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "stream": True
+                },
+                stream=True,
+                timeout=timeout
+            )
+        except Exception as e:
+            print(f"[VLM] Errore connessione: {e}")
+            return None
+
+        if response.status_code != 200:
+            print(f"[VLM] Errore: {response.status_code}")
+            return None
+
+        t_first = None
+        parts = []
+        for line in response.iter_lines():
+            if not line or line == b"data: [DONE]":
+                continue
+            try:
+                data = json.loads(line.removeprefix(b"data: "))
+                delta = data["choices"][0]["delta"].get("content") or ""
+                if delta:
+                    if t_first is None:
+                        t_first = time.perf_counter()
+                    parts.append(delta)
+            except Exception:
+                continue
+
+        t_end = time.perf_counter()
+        ttft = round(t_first - t_start, 3) if t_first else None
+        ttlt = round(t_end - t_start, 3)
+        print(f"[VLM] TTFT={ttft}s  TTLT={ttlt}s")
+        return "".join(parts).strip() or None
+
+    # =========================================
     # CHIAMATA CON IMMAGINI
     # =========================================
     def call_with_images(self, images_b64, context_messages=None, max_tokens=200, prompt_text=None):
-        """Invia una o più immagini a LM Studio con contesto.
-        
-        Args:
-            images_b64: stringa base64 (singola) o lista di stringhe (sequenza)
-            context_messages: contesto conversazionale (lista di messaggi)
-            max_tokens: token massimi per la risposta
-            prompt_text: testo personalizzato (default: genera automaticamente)
-        """
+        """Invia una o più immagini a LM Studio con contesto."""
         messages = [{"role": "system", "content": self.system_prompt}]
 
         if context_messages:
@@ -93,10 +136,9 @@ class VLMClient:
         now = datetime.now().strftime("%H:%M:%S")
         time_ctx = self.get_time_context()
 
-        # Costruisci il contenuto con una o più immagini
-        current_max=max_tokens
+        current_max = max_tokens
         if isinstance(images_b64, list) and len(images_b64) > 1:
-            current_max=350
+            current_max = 350
             if prompt_text is None:
                 prompt_text = (
                     f"Ore {now}. {time_ctx} "
@@ -120,61 +162,15 @@ class VLMClient:
             ]
 
         messages.append({"role": "user", "content": content})
-
-        try:
-            response = requests.post(
-                f"{self.lmstudio_url}/v1/chat/completions",
-                json={
-                    "model": self.model,
-                    "messages": messages,
-                    "max_tokens": current_max,
-                    "temperature": 0.3
-                },
-                timeout=60 
-            )
-            if response.status_code == 200:
-                data = response.json()
-                return data["choices"][0]["message"]["content"].strip()
-            else:
-                print(f"[VLM] Errore: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"[VLM] Errore connessione: {e}")
-            return None
+        return self._stream_request(messages, current_max, temperature=0.3, timeout=60)
 
     # =========================================
     # CHIAMATA SOLO TESTO
     # =========================================
     def call_text(self, prompt, system=None, max_tokens=800):
-        """Chiamata solo testo per sintesi orarie, diari e report.
-        
-        Args:
-            prompt: testo del prompt
-            system: prompt di sistema (opzionale, override del default)
-            max_tokens: token massimi per la risposta
-        """
+        """Chiamata solo testo per sintesi orarie, diari e report."""
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
-
-        try:
-            response = requests.post(
-                f"{self.lmstudio_url}/v1/chat/completions",
-                json={
-                    "model": self.model,
-                    "messages": messages,
-                    "max_tokens": max_tokens,
-                    "temperature": 0.4
-                },
-                timeout=120
-            )
-            if response.status_code == 200:
-                data = response.json()
-                return data["choices"][0]["message"]["content"].strip()
-            else:
-                print(f"[VLM] Errore: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"[VLM] Errore: {e}")
-            return None
+        return self._stream_request(messages, max_tokens, temperature=0.4, timeout=120)
