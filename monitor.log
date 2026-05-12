@@ -1161,3 +1161,97 @@ Durante l'intero intervallo temporale considerato, non è stato possibile effett
 [09:21] [FIX×1] La persona non è visibile. L'immagine mostra un blocco totale dell'obiettivo della videocamera, rendendo impossibile qualsiasi valutazione clinica, posturale o di rischio.
 [VLM] TTFT=2.207s  TTLT=2.685s
 [09:24] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.179s  TTLT=2.684s
+[09:27] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.18s  TTLT=2.664s
+[09:30] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.222s  TTLT=2.705s
+[09:33] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.758s  TTLT=3.355s
+[09:33] [CMP] La persona non è visibile. L'immagine mostra un blocco totale dell'obiettivo della videocamera, rendendo impossibile qualsiasi valutazione clinica o di rischio. Ambiente non analizzabile.
+[VLM] TTFT=2.219s  TTLT=2.7s
+[09:36] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.238s  TTLT=2.718s
+[09:39] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.225s  TTLT=2.706s
+[09:42] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.225s  TTLT=2.846s
+[09:45] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio. Non è possibile rilevare attività o movimenti.
+[VLM] TTFT=2.256s  TTLT=2.736s
+[09:48] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.198s  TTLT=2.678s
+[09:51] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.185s  TTLT=2.665s
+[09:54] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.187s  TTLT=2.668s
+[09:57] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.209s  TTLT=4.192s
+
+[SINTESI 09:00] Durante l'intervallo temporale considerato (09:00-09:59), non è stato possibile effettuare alcuna valutazione clinica, posturale o di rischio in quanto l'obiettivo della videocamera risulta completamente ostruito. La persona non è visibile e, di conseguenza, non è stato possibile rilevare attività, movimenti o cambiamenti nello stato di salute. Non si riscontrano variazioni cliniche poiché l'ambiente risulta del tutto inanalizzabile. Si segnala la criticità tecnica dell'ostruzione persistente, che impedisce il monitoraggio e richiede un intervento per ripristinare la visibilità.
+
+[VLM] TTFT=2.136s  TTLT=2.615s
+[10:00] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.674s  TTLT=3.117s
+[10:03] [CMP] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica o di rischio.
+[VLM] TTFT=2.172s  TTLT=2.653s
+[10:03] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.156s  TTLT=2.638s
+[10:06] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.184s  TTLT=2.668s
+[10:09] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.17s  TTLT=2.652s
+[10:12] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.16s  TTLT=2.641s
+[10:15] [FIX×1] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=10.515s  TTLT=11.009s
+[10:19] [EVT×7] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=10.497s  TTLT=11.027s
+[10:20] [EVT×7] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=12.984s  TTLT=13.487s
+[10:21] [EVT×9] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.986s  TTLT=3.65s
+[10:24] [FIX×1] La persona non è visibile; l'obiettivo della videocamera risulta completamente ostruito da documenti e interfacce digitali. Non è possibile effettuare alcuna valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.185s  TTLT=2.772s
+[10:27] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.253s  TTLT=2.905s
+[10:30] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.253s  TTLT=2.902s
+[10:33] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=4.269s  TTLT=4.817s
+[10:33] [CMP] La persona non è visibile. L'obiettivo della videocamera risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica o ambientale.
+[VLM] TTFT=2.302s  TTLT=2.958s
+[10:36] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.275s  TTLT=2.866s
+[10:39] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=3.07s  TTLT=3.729s
+[10:42] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.278s  TTLT=2.929s
+[10:45] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.332s  TTLT=2.983s
+[10:48] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.255s  TTLT=2.906s
+[10:51] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.255s  TTLT=2.844s
+[10:54] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.262s  TTLT=2.85s
+[10:57] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.466s  TTLT=4.506s
+
+[SINTESI 10:00] **Riepilogo del monitoraggio (10:00 - 10:59)**
+
+Durante l'intero arco temporale considerato, non è stato possibile effettuare alcuna valutazione clinica, posturale o di rischio in quanto il soggetto non è visibile. L'obiettivo della videocamera risulta costantemente ostruito da documenti e interfacce digitali, impedendo il monitoraggio della persona. Non si rilevano variazioni o cambiamenti di stato, poiché la mancanza di visibilità è persistente e totale. Si segnala l'impossibilità di garantire la sicurezza del monitoraggio domiciliare a causa dell'ostruzione tecnica.
+
+[VLM] TTFT=2.243s  TTLT=2.831s
+[11:00] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=4.392s  TTLT=4.898s
+[11:03] [CMP] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da interfacce digitali e documenti, impedendo qualsiasi valutazione clinica.
+[VLM] TTFT=2.295s  TTLT=2.947s
+[11:03] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo della videocamera risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.304s  TTLT=2.893s
+[11:06] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.274s  TTLT=2.864s
+[11:09] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=2.302s  TTLT=2.894s
+[11:13] [FIX×1] La persona non è visibile nell'immagine. L'obiettivo risulta completamente ostruito da documenti e interfacce digitali, impedendo qualsiasi valutazione clinica, posturale o di rischio.
+[VLM] TTFT=13.036s  TTLT=13.406s
+[11:14] [EVT×9] La persona non è visibile nell'immagine. Non è possibile effettuare alcuna valutazione clinica, posturale o di rischio.

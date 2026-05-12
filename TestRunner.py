@@ -84,6 +84,9 @@ class TestRunner:
         )
 
         start_time = time.time()
+        tracking_lost_since = None
+        tracking_lost_phases = []
+
         while self._running and (time.time() - start_time < timeout):
             frame = self._grab_frame(sct)
             frame = detector.findPose(frame, draw=False)
@@ -91,6 +94,12 @@ class TestRunner:
             self._update_fps(detector)
 
             if detector.tracking_quality >= 0.75 and len(lmList) > 0:
+                if tracking_lost_since is not None:
+                    lost_duration = time.time() - tracking_lost_since
+                    tracking_lost_phases.append((tug.phase, round(lost_duration, 1)))
+                    print(f"[TEST] Tracking recuperato dopo {lost_duration:.1f}s (fase: {tug.phase})")
+                    tracking_lost_since = None
+
                 state = detector.detect_posture("TUG")
                 knee_angle = detector.last_knee_angle
                 movement = detector.last_movement
@@ -102,15 +111,35 @@ class TestRunner:
                         self.db.complete_test_session(test_id, datetime.now().isoformat())
                         self.db.save_tug_result(test_id, result)
                         t = result['total_time']
-                        dist = result['total_distance_px']
-                        speed = result['avg_speed_px_s']
-                        print(f"[TEST] TUG completato: {t:.1f}s, {dist:.0f}px, {speed:.1f}px/s")
-                        self._add_observation(
-                            f"Test TUG completato: {t:.1f}s, "
-                            f"distanza {dist:.0f}px, velocità media {speed:.1f}px/s"
-                        )
+                        if t < 12:
+                            giudizio = "mobilità nella norma"
+                        elif t < 20:
+                            giudizio = "rischio moderato di caduta"
+                        else:
+                            giudizio = "rischio elevato di caduta"
+
+                        obs_text = f"Test TUG completato: {t:.1f}s — {giudizio}"
+                        if tracking_lost_phases:
+                            fasi = ", ".join(f"{fase} ({dur}s)" for fase, dur in tracking_lost_phases)
+                            obs_text += f" [tracking perso durante: {fasi}]"
+
+                        print(f"[TEST] TUG completato: {t:.1f}s ({giudizio})")
+                        if tracking_lost_phases:
+                            print(f"[TEST] Perdite tracking: {tracking_lost_phases}")
+                        self._add_observation(obs_text)
                     self._running = False
                     return result
+
+            else:
+                if tracking_lost_since is None:
+                    tracking_lost_since = time.time()
+                elif time.time() - tracking_lost_since > 2.0:
+                    print(f"[TEST] Tracking perso da più di 2s in fase {tug.phase}, test annullato")
+                    self._add_observation(
+                        f"Test TUG annullato: tracking perso per più di 2 secondi durante la fase {tug.phase}"
+                    )
+                    self._running = False
+                    return None
 
             time.sleep(0.03)
 
@@ -156,15 +185,30 @@ class TestRunner:
         )
 
         start_time = time.time()
+        tracking_lost_since = None
+        last_rep_count = 0
+        last_rep_time = time.time()
+        inactivity_timeout = 20
+
         while self._running and (time.time() - start_time < timeout):
             frame = self._grab_frame(sct)
             frame = detector.findPose(frame, draw=False)
             lmList = detector.findPosition(frame, draw=False)
 
             if detector.tracking_quality >= 0.75 and len(lmList) > 0:
+                tracking_lost_since = None
                 state = detector.detect_posture("STS")
                 knee_angle = detector.last_knee_angle
                 sts.update(state, knee_angle)
+
+                if sts.reps > last_rep_count:
+                    last_rep_count = sts.reps
+                    last_rep_time = time.time()
+                elif sts.reps < 5 and time.time() - last_rep_time > inactivity_timeout:
+                    print(f"[TEST] STS interrotto per inattività ({sts.reps}/5 rep)")
+                    self._add_observation(f"Test STS interrotto: {sts.reps}/5 ripetizioni completate")
+                    self._running = False
+                    return None
 
                 if sts.reps >= 5:
                     result = sts.get_result()
@@ -181,6 +225,17 @@ class TestRunner:
                         )
                     self._running = False
                     return result
+
+            else:
+                if tracking_lost_since is None:
+                    tracking_lost_since = time.time()
+                elif time.time() - tracking_lost_since > 1.0:
+                    print(f"[TEST] Tracking perso da più di 1s, test STS annullato (rep {sts.reps}/5)")
+                    self._add_observation(
+                        f"Test STS annullato: persona non visibile per più di 1 secondo (completate {sts.reps}/5 ripetizioni)"
+                    )
+                    self._running = False
+                    return None
 
             time.sleep(0.03)
 

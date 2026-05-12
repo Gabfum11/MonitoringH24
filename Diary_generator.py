@@ -324,7 +324,8 @@ class DiaryGenerator:
             f"CONFRONTO E TREND: miglioramento, peggioramento o stabilità? "
             f"Se ci sono test clinici (TUG, STS), commentane i valori e il trend.\n\n"
             "ELEMENTI DI ATTENZIONE: variazioni rispetto ai giorni precedenti, "
-            "eventi ricorrenti, cambiamenti nel livello di attività o autonomia."
+            "eventi ricorrenti, cambiamenti nel livello di attività o autonomia.\n\n"
+            "Non aggiungere firme, intestazioni mediche o formule di chiusura."
         )
 
         diary = self.vlm.call_text(

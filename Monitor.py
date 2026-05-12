@@ -23,12 +23,10 @@ import json
 from datetime import datetime, date, timedelta
 
 from Capture import CaptureManager
-from Vlm_calls import VLMClient
+from Vlm_calls import VLMCalls
 from Observer import Observer
 from Diary_generator import DiaryGenerator
 from Telegram import MonitorBot
-from dotenv import load_dotenv
-load_dotenv()
 from TestRunner import TestRunner
 
 class VLMMonitor:
@@ -42,18 +40,15 @@ class VLMMonitor:
         # Dati condivisi (passati per riferimento a tutti i moduli)
         self.observations = []
         self.hourly_summaries = []
-        self._last_hourly_text = None
+        self._last_hourly_text = None # Ultima sintesi oraria, passata all'observer per contesto
 
         # Stato giornata
         self.today = date.today().isoformat()
         self.diary_generated = False
 
         # Inizializza i moduli
-        self.capture = CaptureManager(
-            monitor_area=monitor_area,
-            use_window_capture=False
-        )
-        self.vlm = VLMClient(model=model, lmstudio_url=lmstudio_url)
+        self.capture = CaptureManager(monitor_area=monitor_area)
+        self.vlm = VLMCalls(model=model, lmstudio_url=lmstudio_url)
         self.diary = DiaryGenerator(
             self.vlm, self.observations, self.hourly_summaries,
             output_dir=output_dir
@@ -75,7 +70,7 @@ class VLMMonitor:
     # =========================================
     def _check_new_day(self):
         today = date.today()
-        today_str = today.isoformat()
+        today_str = today.isoformat() #"YYYY-MM-DD"
         if today_str != self.today:
             # Genera la sintesi dell'ultima ora prima del diario
             self.diary.generate_hourly_summary(self._last_hourly_summary)
@@ -137,15 +132,15 @@ class VLMMonitor:
         print(f"  Output:       {self.diary.output_dir}")
         print(f"{'='*60}")
         print("Premi Ctrl+C per fermare e generare il diario\n")
-        local_cfg = {}
+        local_cfg = {} #serve per leggere il token del bot da config.local.json, se presente
         cfg_path = os.path.join(os.path.dirname(__file__), "config.local.json")
         if os.path.exists(cfg_path):
             with open(cfg_path, "r") as f:
-                local_cfg = json.load(f)
+                local_cfg = json.load(f) #lettura del token da config.local.json, se presente, per evitare di esporlo in chiaro nel codice o nelle variabili d'ambiente
 
-        token = os.environ.get("TELEGRAM_BOT_TOKEN") or local_cfg.get("telegram_token")
-        if token:
-            test_runner = TestRunner(
+        token = local_cfg.get("telegram_token")
+        if token:  #se il token è presente, avvia il bot Telegram in un thread separato
+            test_runner = TestRunner( #test runner per eseguire i test TUG e STS su richiesta dal bot Telegram, con callback per salvare i risultati nel diario
                 monitor_area=self.capture.monitor,
                 observations=self.observations,
                 save_callback=self.diary.save_data 
@@ -154,8 +149,8 @@ class VLMMonitor:
                 bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir),
                                  test_runner=test_runner, allowed_ids=local_cfg.get("allowed_ids"))
                 bot.run()
-            bot_thread = threading.Thread(target=run_bot, daemon=True) 
-            bot_thread.start()
+            bot_thread = threading.Thread(target=run_bot, daemon=True) #indica la creazione di un sottoprocesso in cui la funzione run_bot viene avviata senza bloccare il processo principale del monitoraggio. Il bot Telegram funzionerà in background, permettendo al monitoraggio di continuare senza interruzioni.
+            bot_thread.start() #avvia il thread del bot Telegram
             print("[TELEGRAM] Bot avviato in background")
         else:
             print("[TELEGRAM] Token non trovato, bot non avviato")
@@ -173,12 +168,13 @@ class VLMMonitor:
                 self.observer.update_interval(changed, self.capture.last_diff)
 
                 # Osservazione (include assenza tracking internamente)
-                obs_mode = self.observer.should_observe(changed, self.capture.last_diff)
+                obs_mode = self.observer.should_observe(changed, self.capture.last_diff, self.capture._change_streak)
                 if obs_mode:
                     if obs_mode in ['burst', 'burst_fast']:
-                        history= self.capture.get_strategic_frames()
-                        now=self.capture.capture_burst(n_frames=3 if obs_mode == 'burst' else 5)
-                        self.observer.observe(history+now, mode=obs_mode)
+                        history = self.capture.get_strategic_frames()
+                        interval = 2 if obs_mode == 'burst' else 0.5
+                        now = self.capture.capture_burst(n_frames=3 if obs_mode == 'burst' else 5, interval=interval)
+                        self.observer.observe(history + now, mode=obs_mode)
                     else:
                         self.observer.observe(frame, mode='single')
 
@@ -231,7 +227,7 @@ def main():
         lmstudio_url=args.url,
         capture_interval=args.interval,
         monitor_area={
-            "top": args.top, "left": args.left,
+            "top": args.top, "left": args.left, 
             "width": args.width, "height": args.height
         },
         output_dir=args.output

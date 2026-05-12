@@ -49,7 +49,10 @@ class Observer:
         self._comparison_frame = None
         self._comparison_frame_time = None
 
-    @property
+        # Contesto orario (impostato da Monitor ad ogni nuova sintesi oraria)
+        self._last_hourly_text = None
+
+    @property 
     def current_interval(self):
         return self._current_interval
 
@@ -97,20 +100,18 @@ class Observer:
     # =========================================
     # DECISIONE: CHIAMARE IL VLM?
     # =========================================
-    def should_observe(self, scene_changed, last_diff):
+    def should_observe(self, scene_changed, last_diff, change_streak=0):
         """Decide se e come osservare.
-        
-        Ritorna:
-            None: non osservare
-            'single': frame singolo (scena stabile, check periodico)
-            'burst': sequenza standard (4 frame ogni 0.5s)
-            'burst_fast': sequenza rapida (5 frame ogni 0.3s)
+
+        burst_fast: azione intensa e sostenuta (diff alto + streak alto)
+        burst:      movimento normale
+        single:     check periodico su scena stabile
         """
         now = time.time()
         time_since_last = now - self._prev_observation_time
 
         if scene_changed and time_since_last >= 15:
-            if last_diff > 15:
+            if last_diff > 15 and change_streak >= 4:
                 return 'burst_fast'
             return 'burst'
 
@@ -123,19 +124,13 @@ class Observer:
     # CONTESTO CONVERSAZIONALE
     # =========================================
     def _build_context(self):
-        """Contesto intelligente: ultime 3 osservazioni come riepilogo.
-        
-        Non costruisce una finta conversazione multi-turno,
-        ma un riepilogo chiaro in un singolo messaggio.
+        """Contesto intelligente: ultime  5 osservazioni come riepilogo e il riassunto dell'ultima ora.
         """
         if not self.observations:
             return None
 
         summary = ""
-    
-    # Includi l'ultima sintesi oraria se disponibile
-    # Dà al VLM il quadro dell'ultima ora, non solo gli ultimi 3 frame
-        if hasattr(self, '_last_hourly_text') and self._last_hourly_text:
+        if self._last_hourly_text:
             summary += f"Riepilogo dell'ultima ora: {self._last_hourly_text}\n\n"
 
         # Ultime 5 osservazioni (non 3 — abbiamo spazio)
@@ -144,9 +139,9 @@ class Observer:
         for obs in recent:
             obs_type = obs.get('type', 'singolo')
             tag = ""
-            if obs_type == "alert":
+            if obs_type == "alert": #per evitare di confondere gli alert con le osservazioni normali, aggiungiamo un tag [ALERT] alle osservazioni di tipo alert, così il VLM può dare loro la giusta attenzione e priorità nella generazione della risposta.
                 tag = " [ALERT]"
-            elif obs_type == "confronto":
+            elif obs_type == "confronto": #stessa cosa per le osservazioni di confronto ambientale, che sono particolarmente importanti per rilevare cambiamenti rischiosi nell'ambiente. Aggiungiamo un tag [CONFRONTO] per evidenziarle nel contesto e far capire al VLM che sono osservazioni chiave da considerare nella sua analisi.
                 tag = " [CONFRONTO]"
             summary += f"- Ore {obs['time']}{tag}: {obs['description']}\n"
 
@@ -166,20 +161,19 @@ class Observer:
             bool: True se l'osservazione è stata salvata, False se skippata/errore
         """
         
-        if (self.capture.last_diff < 1.5 and 
-            len(self.observations) > 0 and
-            time.time() - self._prev_observation_time < 30):
-            self._prev_observation_time = time.time()
-            print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Scena stabile (diff={self.capture.last_diff:.1f})")
-            return False
         context = self._build_context()
         if isinstance(frame, list):
-            # Riceviamo la sequenza dal Monitor (Buffer + Burst)
             images = frame
             obs_type = "sequenza"
             n_frames = len(images)
             description = self.vlm.call_with_images(images, context)
         else:
+            if (self.capture.last_diff < 1.5 and
+                len(self.observations) > 0 and
+                time.time() - self._prev_observation_time < 30):
+                self._prev_observation_time = time.time()
+                print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Scena stabile (diff={self.capture.last_diff:.1f})")
+                return False
             image_b64 = self.capture.frame_to_base64(frame)
             description = self.vlm.call_with_images(image_b64, context)
             obs_type = "singolo"
@@ -195,7 +189,7 @@ class Observer:
             }
             self.observations.append(obs)
             self._prev_observation_time = time.time()
-            self._save()
+            self._save() #
             tag = "EVT" if obs_type == "sequenza" else "FIX"
             print(f"[{obs['time']}] [{tag}×{n_frames}] {description}")
             self._track_absence(description)

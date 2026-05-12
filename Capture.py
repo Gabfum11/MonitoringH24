@@ -3,7 +3,6 @@ Modulo di cattura frame.
 
 Gestisce:
 - Screen capture via mss
-- Cattura finestra Xiaomi Home via Quartz (macOS)
 - Change detection con soglia adattiva e mini-storia
 - Burst capture per sequenze di frame
 """
@@ -15,37 +14,16 @@ import base64
 import numpy as np
 from collections import deque
 
-# Cattura finestra specifica su macOS
-try:
-    import Quartz
-    from Quartz import (CGWindowListCopyWindowInfo, kCGWindowListOptionAll,
-                        kCGNullWindowID, CGWindowListCreateImage,
-                        kCGWindowImageDefault, CGRectNull,
-                        kCGWindowListOptionIncludingWindow)
-    HAS_QUARTZ = True
-except ImportError:
-    HAS_QUARTZ = False
-
 
 class CaptureManager:
-    def __init__(self, monitor_area=None, use_window_capture=False):
+    def __init__(self, monitor_area=None):
         """
         Args:
             monitor_area: dict con top/left/width/height per screen capture
-            use_window_capture: se True, prova a catturare la finestra Xiaomi Home
         """
         self.sct = mss.mss()
         self.monitor = monitor_area or {"top": 270, "left": 10, "width": 900, "height": 520}
         self.frame_buffer = deque(maxlen=10)  # Buffer per burst capture
-        # Cattura finestra Xiaomi Home (macOS)
-        self._xiaomi_window_id = None
-        self._use_window_capture = use_window_capture
-        if self._use_window_capture:
-            self._xiaomi_window_id = self._find_xiaomi_window()
-            if self._xiaomi_window_id:
-                print(f"[INIT] Cattura finestra Xiaomi Home (window ID: {self._xiaomi_window_id})")
-            else:
-                print("[INIT] Finestra Xiaomi Home non trovata, uso screen capture")
 
         # Change detection
         self._prev_frame_gray = None
@@ -56,62 +34,12 @@ class CaptureManager:
     # =========================================
     # CATTURA FRAME
     # =========================================
-    def _find_xiaomi_window(self):
-        """Trova l'ID della finestra Xiaomi Home su macOS."""
-        if not HAS_QUARTZ:
-            return None
-        windows = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID)
-        for w in windows:
-            name = w.get('kCGWindowOwnerName', '')
-            if 'Xiaomi' in name:
-                return w.get('kCGWindowNumber')
-        return None
-
     def capture_frame(self):
-        """Cattura un frame dalla finestra Xiaomi Home o dallo schermo."""
-        if self._use_window_capture:
-            frame = self._capture_window()
-            if frame is not None:
-                return frame
-            self._xiaomi_window_id = self._find_xiaomi_window()
-            if self._xiaomi_window_id:
-                frame = self._capture_window()
-                if frame is not None:
-                    return frame
-
-        # Fallback: screen capture
+        """Cattura un frame dallo schermo."""
         sct_img = self.sct.grab(self.monitor)
         frame = np.array(sct_img)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
         return frame
-
-    def _capture_window(self):
-        """Cattura la finestra Xiaomi Home tramite le API macOS."""
-        if self._xiaomi_window_id is None:
-            return None
-        try:
-            image = CGWindowListCreateImage(
-                CGRectNull,
-                kCGWindowListOptionIncludingWindow,
-                self._xiaomi_window_id,
-                kCGWindowImageDefault
-            )
-            if image is None:
-                self._xiaomi_window_id = None
-                return None
-            width = Quartz.CGImageGetWidth(image)
-            height = Quartz.CGImageGetHeight(image)
-            bytes_per_row = Quartz.CGImageGetBytesPerRow(image)
-            pixel_data = Quartz.CGDataProviderCopyData(Quartz.CGImageGetDataProvider(image))
-            frame = np.frombuffer(pixel_data, dtype=np.uint8)
-            frame = frame.reshape(height, bytes_per_row // 4, 4)
-            frame = frame[:height, :width, :3]
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            return frame
-        except Exception as e:
-            print(f"[CAPTURE] Errore cattura finestra: {e}")
-            self._xiaomi_window_id = None
-            return None
 
     # =========================================
     # CONVERSIONE E RIDIMENSIONAMENTO
@@ -159,17 +87,12 @@ class CaptureManager:
             threshold = max(2.5, mean_diff + 1.0 * std_diff)
         else:
             threshold = 2.5
-            """
-        con la deviaizione standard il sistema diventa più tollerante ai cambiamenti normali (es. luce)
-        es. se la stanza è stabile basta un diff leggermente più alto per scattare l'osservazione, mentre se la stanza è più "rumorosa" (es. luce che cambia spesso) la soglia si alza automaticamente per evitare falsi positivi.
-            """
 
         # Mini-storia: 2 frame consecutivi sopra soglia
         if diff > threshold:
             self._change_streak += 1
         else:
             self._change_streak = 0
-        #print(f"[DEBUG] Diff: {diff:.2f} | Soglia: {threshold:.2f} | Streak: {self._change_streak}")
 
         return self._change_streak >= 2
     
@@ -191,11 +114,9 @@ class CaptureManager:
             if i < n_frames - 1:
                 time.sleep(interval)
         return frames
+
     def get_strategic_frames(self):
-        """
-        Sostituisce get_buffered_sequence.
-        Recupera 4 frame distribuiti su 30 secondi di memoria.
-        """
+        """Recupera 4 frame distribuiti sui 20 secondi di buffer."""
         # Trasforma la deque in lista per accedere agli indici
         buffer_list = list(self.frame_buffer)
         n = len(buffer_list)
@@ -204,12 +125,7 @@ class CaptureManager:
         if n < 4:
             return [self.frame_to_base64(f) for f in buffer_list]
             
-        # Indici strategici per maxlen=15 (intervallo 2s = 30s totali)
-        # 0: il più vecchio (T-30s)
-        # 4: intermedio (T-22s)
-        # 8: metà strada (T-14s)
-        # 12: passato prossimo (T-6s)
-        # n-1: l'ultimo prima del burst (T-2s)
+        #0 -> t-20s, n//3 -> t-13s, (2n)//3 -> t-7s, n-1 -> T-2s
         indices = [0, n // 3, (2 * n) // 3, n - 1]
         
         return [self.frame_to_base64(buffer_list[i]) for i in indices]
@@ -219,11 +135,8 @@ class CaptureManager:
     # =========================================
     def preview(self):
         """Mostra una finestra con l'area catturata. Premi Q per chiudere."""
-        if self._xiaomi_window_id:
-            print(f"[PREVIEW] Cattura finestra Xiaomi Home (window ID: {self._xiaomi_window_id})")
-        else:
-            print(f"[PREVIEW] Screen capture - Area: top={self.monitor['top']} left={self.monitor['left']} "
-                  f"{self.monitor['width']}x{self.monitor['height']}")
+        print(f"[PREVIEW] Screen capture - Area: top={self.monitor['top']} left={self.monitor['left']} "
+              f"{self.monitor['width']}x{self.monitor['height']}")
         print("Premi Q per chiudere l'anteprima e avviare il monitoraggio\n")
 
         cv2.namedWindow("VLM Monitor - Preview (Q per chiudere)", cv2.WINDOW_NORMAL)
@@ -238,5 +151,4 @@ class CaptureManager:
 
     @property
     def capture_mode(self):
-        """Ritorna la modalità di cattura corrente."""
-        return "Finestra Xiaomi Home" if self._xiaomi_window_id else "Screen capture"
+        return "Screen capture"

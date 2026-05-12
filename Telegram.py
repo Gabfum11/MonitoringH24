@@ -24,17 +24,37 @@ Configurazione:
         python telegram_bot.py --token "il_tuo_token"
 """
 
-import os
+import re
 import json
 import asyncio
-import argparse
 from datetime import date, timedelta
 from pathlib import Path
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from Database_manager import DatabaseManager
 
-# Riusa il client VLM esistente
-from Vlm_calls import VLMClient
+GIORNI_IT = {
+    "lunedì": 0, "lunedi": 0,
+    "martedì": 1, "martedi": 1,
+    "mercoledì": 2, "mercoledi": 2,
+    "giovedì": 3, "giovedi": 3,
+    "venerdì": 4, "venerdi": 4,
+    "sabato": 5,
+    "domenica": 6,
+}
+
+MESI_IT = {
+    "gennaio": 1, "febbraio": 2, "marzo": 3, "aprile": 4,
+    "maggio": 5, "giugno": 6, "luglio": 7, "agosto": 8,
+    "settembre": 9, "ottobre": 10, "novembre": 11, "dicembre": 12
+}
+
+MESI_NOMI = {
+    1: "Gennaio", 2: "Febbraio", 3: "Marzo", 4: "Aprile",
+    5: "Maggio", 6: "Giugno", 7: "Luglio", 8: "Agosto",
+    9: "Settembre", 10: "Ottobre", 11: "Novembre", 12: "Dicembre"
+}
+
 
 
 class MonitorBot:
@@ -44,6 +64,7 @@ class MonitorBot:
         self.data_dir = Path(data_dir)
         self.test_runner = test_runner
         self.allowed_ids = set(allowed_ids) if allowed_ids else set()
+        self.db = DatabaseManager()
 
     async def _check_auth(self, update: Update) -> bool:
         if not self.allowed_ids:
@@ -56,16 +77,104 @@ class MonitorBot:
     # =========================================
     # LETTURA DATI
     # =========================================
+    def _format_test_history(self, test_type="TUG", n=6):
+        """Legge gli ultimi N test dal DB e restituisce un confronto velocità leggibile."""
+        end = date.today().isoformat()
+        start = (date.today() - timedelta(days=90)).isoformat()
+
+        if test_type == "TUG":
+            results = self.db.get_tug_results(start, end)
+        else:
+            results = self.db.get_sts_results(start, end)
+
+        if not results:
+            return None
+
+        recent = results[-n:]
+        lines = [f"STORICO TEST {test_type} (ultimi {len(recent)} test):"]
+
+        for i, r in enumerate(recent):
+            d = r['date']
+            t = r['total_time']
+            speed = r.get('avg_speed_px_s', 0)
+
+            if i == 0:
+                lines.append(f"- {d}: {t:.1f}s")
+            else:
+                prev_speed = recent[i - 1].get('avg_speed_px_s', 0)
+                if prev_speed and speed:
+                    delta_pct = ((speed - prev_speed) / prev_speed) * 100
+                    if delta_pct > 5:
+                        trend = f"più veloce del {delta_pct:.0f}% rispetto al precedente"
+                    elif delta_pct < -5:
+                        trend = f"più lento del {abs(delta_pct):.0f}% rispetto al precedente"
+                    else:
+                        trend = "prestazione simile al precedente"
+                    lines.append(f"- {d}: {t:.1f}s ({trend})")
+                else:
+                    lines.append(f"- {d}: {t:.1f}s")
+
+        if len(recent) >= 2:
+            first_speed = recent[0].get('avg_speed_px_s', 0)
+            last_speed = recent[-1].get('avg_speed_px_s', 0)
+            if first_speed and last_speed:
+                overall_pct = ((last_speed - first_speed) / first_speed) * 100
+                if overall_pct > 5:
+                    lines.append(f"Tendenza generale: miglioramento del {overall_pct:.0f}%")
+                elif overall_pct < -5:
+                    lines.append(f"Tendenza generale: peggioramento del {abs(overall_pct):.0f}%")
+                else:
+                    lines.append("Tendenza generale: prestazioni stabili")
+
+        return "\n".join(lines)
+
     def _get_today_observations(self):
-        """Legge le osservazioni di oggi dal data.json."""
-        today = date.today().isoformat()
-        d = date.today()
-        path = self.data_dir / str(d.year) / f"{d.month:02d}" / today / "data.json"
+        return self._get_observations_for_date(date.today())
+
+    def _get_observations_for_date(self, target_date):
+        """Legge osservazioni e riepiloghi orari da data.json per una data specifica."""
+        d = target_date
+        path = self.data_dir / str(d.year) / f"{d.month:02d}" / d.isoformat() / "data.json"
         if not path.exists():
             return None, None
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         return data.get("observations", []), data.get("hourly_summaries", [])
+
+    def _extract_referenced_dates(self, query):
+        """Estrae date referenziate nella query (ieri, lunedì, 3 maggio, ecc.)."""
+        today = date.today()
+        q = query.lower()
+        dates = []
+
+        if "altro ieri" in q:
+            dates.append(today - timedelta(days=2))
+        elif "ieri" in q:
+            dates.append(today - timedelta(days=1))
+
+        if "settimana scorsa" in q:
+            # Lunedì della settimana scorsa → domenica
+            monday_last = today - timedelta(days=today.weekday() + 7)
+            dates += [monday_last + timedelta(days=i) for i in range(7)]
+
+        for nome, weekday in GIORNI_IT.items():
+            if nome in q:
+                days_back = (today.weekday() - weekday) % 7
+                if days_back == 0:
+                    days_back = 7
+                dates.append(today - timedelta(days=days_back))
+
+        for nome_mese, mese_num in MESI_IT.items():
+            m = re.search(rf"\b(\d{{1,2}})\s+{nome_mese}\b", q)
+            if m:
+                giorno = int(m.group(1))
+                year = today.year if mese_num <= today.month else today.year - 1
+                try:
+                    dates.append(date(year, mese_num, giorno))
+                except ValueError:
+                    pass
+
+        return sorted({d for d in dates if d < today}, reverse=True)
 
     def _get_diary(self, target_date=None):
         """Legge il diario di una data specifica."""
@@ -80,32 +189,54 @@ class MonitorBot:
 
     def _build_context_for_query(self, query):
         """Costruisce il contesto rilevante per la domanda del familiare."""
-        observations, hourly_summaries = self._get_today_observations()
-
+        today = date.today()
         context = ""
 
-        # Sintesi orarie (quadro generale)
+        # Dati di oggi
+        observations, hourly_summaries = self._get_today_observations()
         if hourly_summaries:
             context += "RIEPILOGHI ORARI DI OGGI:\n"
             for s in sorted(hourly_summaries, key=lambda x: x['hour']):
                 context += f"[{s['hour_label']}] {s['summary']}\n\n"
-
-        # Osservazioni recenti (ultime 20 per dettaglio)
         if observations:
-            recent = observations[-20:]
-            context += "ULTIME OSSERVAZIONI:\n"
-            for o in recent:
-                obs_type = o.get('type', 'singolo')
-                tag = ""
-                if obs_type == "alert":
-                    tag = " [ALERT]"
-                elif obs_type == "confronto":
-                    tag = " [CONFRONTO]"
+            context += "ULTIME OSSERVAZIONI DI OGGI:\n"
+            for o in observations[-20:]:
+                tag = " [ALERT]" if o.get('type') == 'alert' else (" [CONFRONTO]" if o.get('type') == 'confronto' else "")
                 context += f"- {o['time']}{tag}: {o['description']}\n"
 
-        # Se non ci sono dati oggi, prova il diario di ieri
+        # Date referenziate nella domanda (max 3 per non sovraccaricare il contesto)
+        ref_dates = self._extract_referenced_dates(query)[:3]
+        for ref_date in ref_dates:
+            label = f"{ref_date.day} {MESI_NOMI[ref_date.month]} {ref_date.year}"
+            obs, summaries = self._get_observations_for_date(ref_date)
+            if summaries:
+                context += f"\nRIEPILOGHI ORARI DEL {label}:\n"
+                for s in sorted(summaries, key=lambda x: x['hour']):
+                    context += f"[{s['hour_label']}] {s['summary']}\n\n"
+            elif obs:
+                context += f"\nOSSERVAZIONI DEL {label}:\n"
+                for o in obs[-15:]:
+                    tag = " [ALERT]" if o.get('type') == 'alert' else ""
+                    context += f"- {o['time']}{tag}: {o['description']}\n"
+            else:
+                diary = self._get_diary(ref_date)
+                if diary:
+                    context += f"\nDIARIO DEL {label}:\n{diary}\n"
+
+        # Storico test clinici se la domanda li menziona
+        q = query.lower()
+        if any(k in q for k in ["tug", "test", "cammin", "velocit", "mobilit"]):
+            tug_history = self._format_test_history("TUG")
+            if tug_history:
+                context += f"\n{tug_history}\n"
+        if any(k in q for k in ["sts", "sit", "alzat", "sedut", "ripetiz"]):
+            sts_history = self._format_test_history("STS")
+            if sts_history:
+                context += f"\n{sts_history}\n"
+
+        # Fallback se non c'è nulla
         if not context:
-            yesterday_diary = self._get_diary(date.today() - timedelta(days=1))
+            yesterday_diary = self._get_diary(today - timedelta(days=1))
             if yesterday_diary:
                 context = f"DIARIO DI IERI:\n{yesterday_diary}\n"
             else:
@@ -186,7 +317,7 @@ class MonitorBot:
         else:
             msg += "Nessun alert"
 
-        await update.message.reply_text(msg)
+        await update.message.reply_text(msg) #permette di inviare un altro mesaggio mentre il sistema sta elaborando la risposta precedente, evitando blocchi o ritardi e migliorando l'esperienza utente.
 
     async def cmd_diario(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Invia il diario di oggi."""
@@ -328,30 +459,3 @@ class MonitorBot:
                 await app.shutdown()
 
         asyncio.run(start())
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Telegram Bot Monitoraggio")
-    parser.add_argument("--token", default=os.environ.get("TELEGRAM_BOT_TOKEN"),
-                        help="Token del bot Telegram (o usa TELEGRAM_BOT_TOKEN env)")
-    parser.add_argument("--model", default="gemma-4-26b-a4b-it")
-    parser.add_argument("--url", default="http://localhost:1234")
-    parser.add_argument("--data-dir", default="diari")
-    parser.add_argument("--allowed-ids", nargs="*", type=int, default=None,
-                        help="User ID Telegram autorizzati (es. --allowed-ids 123456 789012)")
-    args = parser.parse_args()
-
-    if not args.token:
-        print("Errore: token Telegram non fornito.")
-        print("Usa --token oppure imposta TELEGRAM_BOT_TOKEN:")
-        print("  export TELEGRAM_BOT_TOKEN='il_tuo_token'")
-        return
-
-    vlm = VLMClient(model=args.model, lmstudio_url=args.url)
-    bot = MonitorBot(token=args.token, vlm_client=vlm, data_dir=args.data_dir,
-                     allowed_ids=args.allowed_ids)
-    bot.run()
-
-
-if __name__ == "__main__":
-    main()

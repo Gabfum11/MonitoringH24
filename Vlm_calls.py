@@ -13,7 +13,7 @@ import requests
 from datetime import datetime
 
 
-class VLMClient:
+class VLMCalls:
     def __init__(self, model="gemma-4-26b-a4b-it", lmstudio_url="http://localhost:1234"):
         """
         Args:
