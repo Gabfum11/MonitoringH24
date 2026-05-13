@@ -27,7 +27,7 @@ class CaptureManager:
 
         # Change detection
         self._prev_frame_gray = None
-        self._diff_history = deque(maxlen=10)
+        self._diff_history = deque(maxlen=10) 
         self._change_streak = 0
         self.last_diff = 0
 

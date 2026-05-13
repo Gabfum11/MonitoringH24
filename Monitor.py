@@ -2,7 +2,7 @@
 VLM Daily Monitor — Monitoraggio h24 con Vision Language Model.
 
 Modulo principale (orchestratore). Compone i moduli:
-  - capture.py: cattura frame, change detection, burst
+  - capture.py: cattura frame, change detection, sequenza
   - vlm_client.py: chiamate al VLM (LM Studio)
   - observer.py: osservazione, ridondanza, intervalli, assenza, confronto
   - diary_generator.py: sintesi orarie, diari giornalieri/settimanali/mensili/annuali
@@ -170,10 +170,10 @@ class VLMMonitor:
                 # Osservazione (include assenza tracking internamente)
                 obs_mode = self.observer.should_observe(changed, self.capture.last_diff, self.capture._change_streak)
                 if obs_mode:
-                    if obs_mode in ['burst', 'burst_fast']:
+                    if obs_mode in ['sequenza', 'sequenza_rapida']:
                         history = self.capture.get_strategic_frames()
-                        interval = 2 if obs_mode == 'burst' else 0.5
-                        now = self.capture.capture_burst(n_frames=3 if obs_mode == 'burst' else 5, interval=interval)
+                        interval = 2 if obs_mode == 'sequenza' else 0.5
+                        now = self.capture.capture_sequenza(n_frames=3 if obs_mode == 'sequenza' else 5, interval=interval)
                         self.observer.observe(history + now, mode=obs_mode)
                     else:
                         self.observer.observe(frame, mode='single')

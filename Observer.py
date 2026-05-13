@@ -2,7 +2,7 @@
 Modulo di osservazione.
 
 Gestisce:
-- Decisione se/come osservare (single, burst, burst_fast)
+- Decisione se/come osservare (single, sequenza, sequenza_rapida)
 - Intervallo adattivo basato sul livello di movimento
 - Filtro ridondanza per evitare osservazioni ripetitive
 - Contesto conversazionale per il VLM
@@ -103,8 +103,8 @@ class Observer:
     def should_observe(self, scene_changed, last_diff, change_streak=0):
         """Decide se e come osservare.
 
-        burst_fast: azione intensa e sostenuta (diff alto + streak alto)
-        burst:      movimento normale
+        sequenza_rapida: azione intensa e sostenuta (diff alto + streak alto)
+        sequenza:      movimento normale
         single:     check periodico su scena stabile
         """
         now = time.time()
@@ -112,8 +112,8 @@ class Observer:
 
         if scene_changed and time_since_last >= 15:
             if last_diff > 15 and change_streak >= 4:
-                return 'burst_fast'
-            return 'burst'
+                return 'sequenza_rapida'
+            return 'sequenza'
 
         if time_since_last >= self._current_interval:
             return 'single'
@@ -155,7 +155,7 @@ class Observer:
         
         Args:
             frame: frame corrente (usato per 'single')
-            mode: 'single', 'burst', o 'burst_fast'
+            mode: 'single', 'sequenza', o 'sequenza_rapida'
             
         Returns:
             bool: True se l'osservazione è stata salvata, False se skippata/errore

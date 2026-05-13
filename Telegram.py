@@ -105,12 +105,12 @@ class MonitorBot:
                 if prev_speed and speed:
                     delta_pct = ((speed - prev_speed) / prev_speed) * 100
                     if delta_pct > 5:
-                        trend = f"più veloce del {delta_pct:.0f}% rispetto al precedente"
+                        andamento = f"più veloce del {delta_pct:.0f}% rispetto al precedente"
                     elif delta_pct < -5:
-                        trend = f"più lento del {abs(delta_pct):.0f}% rispetto al precedente"
+                        andamento = f"più lento del {abs(delta_pct):.0f}% rispetto al precedente"
                     else:
-                        trend = "prestazione simile al precedente"
-                    lines.append(f"- {d}: {t:.1f}s ({trend})")
+                        andamento = "prestazione simile al precedente"
+                    lines.append(f"- {d}: {t:.1f}s ({andamento})")
                 else:
                     lines.append(f"- {d}: {t:.1f}s")
 

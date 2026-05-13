@@ -81,28 +81,39 @@ class DiaryGenerator:
         lines = [f"\nTEST CLINICI ({start_date_str} → {end_date_str}):"]
 
         if tug:
-            lines.append("\nTUG (Timed Up and Go — alzarsi, camminare 3m, tornare):")
+            lines.append("\nTUG (Timed Up and Go):")
             tug = [r for r in tug if r['total_time'] is not None]
             for r in tug:
-                dist = f"{r['total_distance_px']:.0f}px" if r['total_distance_px'] is not None else "N/A"
-                spd = f"{r['avg_speed_px_s']:.1f}px/s" if r['avg_speed_px_s'] is not None else "N/A"
-                lines.append(f"  {r['date']}: {r['total_time']:.1f}s | {dist} | {spd}")
+                lines.append(f"  {r['date']}: {r['total_time']:.1f}s")
             if len(tug) >= 2:
-                delta = tug[-1]['total_time'] - tug[0]['total_time']
-                if delta > 1:
-                    lines.append(f"  → trend: peggioramento (+{delta:.1f}s rispetto al primo test)")
-                elif delta < -1:
-                    lines.append(f"  → trend: miglioramento ({delta:.1f}s rispetto al primo test)")
-                else:
-                    lines.append("  → trend: stabile")
+                s0 = tug[0].get('avg_speed_px_s')
+                s1 = tug[-1].get('avg_speed_px_s')
+                if s0 and s1 and abs(s0) > 0:
+                    delta_pct = ((s1 - s0) / s0) * 100
+                    delta_t = tug[-1]['total_time'] - tug[0]['total_time']
+                    if abs(delta_pct) > 5:
+                        direzione = "miglioramento" if delta_pct > 0 else "peggioramento"
+                        if abs(delta_t) < 1.0:
+                            tempo_note = ", nonostante tempo simile"
+                        else:
+                            tempo_note = ""
+                        lines.append(f"  → andamento: {direzione} del {abs(delta_pct):.0f}% nella velocità di cammino{tempo_note}")
+                    else:
+                        lines.append("  → andamento: stabile")
 
         if sts:
             lines.append("\nSTS (5 Sit-to-Stand):")
             sts = [r for r in sts if r['total_time'] is not None]
             for r in sts:
-                knee = f" | ginocchio {r['avg_knee_angle']:.0f}°" if r['avg_knee_angle'] is not None else ""
-                avg_rep = f"{r['avg_rep_time']:.1f}s/rip" if r['avg_rep_time'] is not None else "N/A"
-                lines.append(f"  {r['date']}: {r['total_time']:.1f}s | {r['reps_completed']} rip. | {avg_rep}{knee}")
+                lines.append(f"  {r['date']}: {r['total_time']:.1f}s | {r['reps_completed']} rip.")
+            if len(sts) >= 2:
+                delta = sts[-1]['total_time'] - sts[0]['total_time']
+                if delta > 1:
+                    lines.append(f"  peggioramento (+{delta:.1f}s rispetto al primo test)")
+                elif delta < -1:
+                    lines.append(f"  miglioramento ({abs(delta):.1f}s rispetto al primo test)")
+                else:
+                    lines.append(" stabile")
 
         return "\n".join(lines) + "\n"
 
@@ -238,11 +249,10 @@ class DiaryGenerator:
             f"PATTERN E SEGNALAZIONI: periodi di inattività prolungata, "
             f"difficoltà motorie ricorrenti, cambiamenti rispetto ai giorni precedenti.\n\n"
             "OSSERVAZIONI RILEVANTI: eventuali elementi che meritano attenzione "
-"(posture anomale, difficoltà nei movimenti, periodi di inattività prolungata, "
-"assenze dall'inquadratura).\n\n" 
-"assenze dall'inquadratura).\n\n"
-"NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
-"Scrivi in modo professionale ma comprensibile per un medico o un caregiver."
+            "(posture anomale, difficoltà nei movimenti, periodi di inattività prolungata, "
+            "assenze dall'inquadratura).\n\n"
+            "NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
+            "Scrivi in modo professionale ma comprensibile per un medico o un caregiver."
         )
 
         diary = self.vlm.call_text(
@@ -322,7 +332,7 @@ class DiaryGenerator:
             f"PATTERN SETTIMANALI: pattern ricorrenti, orari di maggiore attività, "
             f"momenti di difficoltà, evoluzione della mobilità.\n\n"
             f"CONFRONTO E TREND: miglioramento, peggioramento o stabilità? "
-            f"Se ci sono test clinici (TUG, STS), commentane i valori e il trend.\n\n"
+            f"Se ci sono test clinici (TUG, STS), commentane i valori e il andamento.\n\n"
             "ELEMENTI DI ATTENZIONE: variazioni rispetto ai giorni precedenti, "
             "eventi ricorrenti, cambiamenti nel livello di attività o autonomia.\n\n"
             "Non aggiungere firme, intestazioni mediche o formule di chiusura."
@@ -440,11 +450,11 @@ class DiaryGenerator:
             f"ANDAMENTO SETTIMANALE: per ogni settimana, 3-4 frasi.\n\n"
             f"EVOLUZIONE DELLA MOBILITÀ: autonomia rispetto all'inizio del mese?\n\n"
             f"PATTERN MENSILI: orari ricorrenti, giorni migliori/peggiori, eventi critici.\n\n"
-            f"TEST CLINICI: se presenti, commenta i valori TUG/STS, il trend nel mese "
+            f"TEST CLINICI: se presenti, commenta i valori TUG/STS, il andamento nel mese "
             f"e il confronto con il mese precedente.\n\n"
             f"CONFRONTO CON IL MESE PRECEDENTE: miglioramenti o peggioramenti.\n\n"
             "SINTESI DELLE VARIAZIONI: cambiamenti osservati nel periodo, "
-            "trend nell'attività e nella mobilità, eventi significativi registrati."
+            "andamento nell'attività e nella mobilità, eventi significativi registrati."
         )
 
         diary = self.vlm.call_text(
@@ -520,7 +530,7 @@ class DiaryGenerator:
             f"PATTERN STAGIONALI: differenze tra estate e inverno, periodi migliori e peggiori.\n\n"
             f"EVENTI SIGNIFICATIVI: cadute, ospedalizzazioni, cambiamenti improvvisi.\n\n"
             f"SINTESI DELLE VARIAZIONI: cambiamenti osservati nell'anno, "
-f"trend nell'attività e nella mobilità, eventi significativi registrati.\n\n"
+f"andamento nell'attività e nella mobilità, eventi significativi registrati.\n\n"
 f"NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
         )
 

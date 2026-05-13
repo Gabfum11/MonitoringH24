@@ -108,24 +108,36 @@ class TestRunner:
                 if phase == "FINISHED":
                     result = tug.get_result()
                     if result and test_id:
+                        # Legge il test precedente prima di salvare quello nuovo
+                        today = datetime.now().strftime("%Y-%m-%d")
+                        prev_results = self.db.get_tug_results("2000-01-01", today)
+                        prev = prev_results[-1] if prev_results else None
+
                         self.db.complete_test_session(test_id, datetime.now().isoformat())
                         self.db.save_tug_result(test_id, result)
-                        t = result['total_time']
-                        if t < 12:
-                            giudizio = "mobilità nella norma"
-                        elif t < 20:
-                            giudizio = "rischio moderato di caduta"
-                        else:
-                            giudizio = "rischio elevato di caduta"
 
-                        obs_text = f"Test TUG completato: {t:.1f}s — {giudizio}"
+                        t = result['total_time']
+                        obs_text = f"Test TUG completato: {t:.1f}s"
+
+                        # Trend velocità normalizzata rispetto al test precedente
+                        if prev and prev['avg_speed_px_s'] and result['avg_speed_px_s']:
+                            delta_pct = ((result['avg_speed_px_s'] - prev['avg_speed_px_s']) / prev['avg_speed_px_s']) * 100
+                            delta_t = t - prev['total_time']
+                            if abs(delta_pct) > 5:
+                                direzione = "miglioramento" if delta_pct > 0 else "peggioramento"
+                                if abs(delta_t) < 1.0:
+                                    tempo_note = ", nonostante tempo simile"
+                                else:
+                                    tempo_note = ""
+                                obs_text += f" — {direzione} del {abs(delta_pct):.0f}% nella velocità di cammino{tempo_note}"
+                            else:
+                                obs_text += " — prestazione simile al test precedente"
+
                         if tracking_lost_phases:
                             fasi = ", ".join(f"{fase} ({dur}s)" for fase, dur in tracking_lost_phases)
                             obs_text += f" [tracking perso durante: {fasi}]"
 
-                        print(f"[TEST] TUG completato: {t:.1f}s ({giudizio})")
-                        if tracking_lost_phases:
-                            print(f"[TEST] Perdite tracking: {tracking_lost_phases}")
+                        print(f"[TEST] TUG: {obs_text}")
                         self._add_observation(obs_text)
                     self._running = False
                     return result
@@ -213,16 +225,27 @@ class TestRunner:
                 if sts.reps >= 5:
                     result = sts.get_result()
                     if result and test_id:
+                        today = datetime.now().strftime("%Y-%m-%d")
+                        prev_results = self.db.get_sts_results("2000-01-01", today)
+                        prev = prev_results[-1] if prev_results else None
+
                         self.db.complete_test_session(test_id, datetime.now().isoformat())
                         self.db.save_sts_result(test_id, result)
-                        print(f"[TEST] STS completato: {result['reps_completed']} reps "
-                              f"in {result['total_time']:.1f}s")
-                        self._add_observation(
-                            f"Test 5-Times Sit-to-Stand completato: {result['total_time']:.1f}s "
-                            f"({result['reps_completed']} ripetizioni), "
-                            f"tempo medio per ripetizione: {result['avg_rep_time']:.1f}s, "
-                            f"angolo ginocchio medio: {result['avg_knee_angle']:.0f}°"
-                        )
+
+                        t = result['total_time']
+                        obs_text = f"Test STS completato: {t:.1f}s (5 ripetizioni)"
+
+                        if prev and prev['total_time']:
+                            delta = t - prev['total_time']
+                            if delta > 1:
+                                obs_text += f" — peggioramento (+{delta:.1f}s rispetto al test precedente)"
+                            elif delta < -1:
+                                obs_text += f" — miglioramento ({abs(delta):.1f}s rispetto al test precedente)"
+                            else:
+                                obs_text += " — prestazione simile al test precedente"
+
+                        print(f"[TEST] STS: {obs_text}")
+                        self._add_observation(obs_text)
                     self._running = False
                     return result
 

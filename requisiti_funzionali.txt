@@ -1,0 +1,114 @@
+REQUISITI FUNZIONALI — Sistema di Monitoraggio Domiciliare h24
+==============================================================
+Versione: maggio 2026
+
+
+1. MONITORAGGIO CONTINUO
+------------------------
+1.1  Il sistema deve catturare frame video a intervalli adattivi (30s–180s) tramite screen capture di un'area configurabile.
+1.2  Il sistema deve rilevare cambiamenti nella sdicena confrontando frame consecutivi tramite differenza pixel in scala di grigi ridimensionata (160x120).
+1.3  Il sistema deve applicare una soglia adattiva (media + deviazione standard dei diff recenti) per distinguere cambiamenti reali da variazioni di luce.
+1.4  Il sistema deve richiedere almeno 2 frame consecutivi sopra soglia prima di classificare una scena come "cambiata" (mini-storia anti-falsi positivi).
+1.5  Il sistema deve ignorare diff superiori a 70 (movimento camera) senza generare un'osservazione.
+1.6  Il sistema deve mantenere un buffer circolare degli ultimi 10 frame (20 secondi) per la ricostruzione storica delle azioni.
+
+
+2. MODALITÀ DI OSSERVAZIONE
+----------------------------
+2.1  Il sistema deve supportare tre modalità di osservazione:
+     - SINGLE: frame singolo per check periodico su scena stabile
+     - SEQUENZA: 4 frame storici + 3 nuovi a intervallo 2s (movimento normale)
+     - SEQUENZA_RAPIDA: 4 frame storici + 5 nuovi a intervallo 0.5s (azione intensa e sostenuta)
+2.2  SEQUENZA_RAPIDA deve essere attivato solo se diff > 15 E change_streak >= 4 (intensità sostenuta).
+2.3  SEQUENZA deve essere attivato se la scena è cambiata e sono trascorsi almeno 15s dall'ultima osservazione.
+2.4  SINGLE deve essere attivato se è trascorso l'intervallo corrente senza cambiamenti.
+2.5  Il filtro SKIP (scena troppo stabile) deve applicarsi solo alla modalità SINGLE, mai al SEQUENZA.
+2.6  L'intervallo adattivo deve aumentare fino a 180s in assenza di movimento e ridursi a 20s in presenza di movimento significativo.
+
+
+3. ANALISI VLM
+--------------
+3.1  Il sistema deve inviare i frame al modello Gemma via API LM Studio (compatibile OpenAI).
+3.2  Ogni chiamata deve includere un contesto con le ultime 5 osservazioni e l'ultimo riepilogo orario disponibile.
+3.3  Il sistema deve includere un contesto temporale (fascia oraria) per guidare l'interpretazione clinica.
+3.4  Le osservazioni devono essere descrizioni cliniche in italiano (max 200 token per osservazioni singole, 350 per sequenze).
+3.5  Il sistema deve loggare TTFT e TTLT per ogni chiamata VLM.
+3.6  Il sistema deve gestire errori di connessione al VLM senza interrompere il loop principale.
+
+
+4. RILEVAMENTO ASSENZA
+-----------------------
+4.1  Il sistema deve tracciare osservazioni consecutive senza persona visibile.
+4.2  Se la persona non è visibile per 30 minuti consecutivi durante le ore diurne (6:00–22:00), deve generare un alert nelle osservazioni.
+4.3  L'alert deve essere generato una sola volta per episodio di assenza.
+4.4  Il contatore di assenza deve azzerarsi quando la persona torna visibile.
+
+
+5. CONFRONTO AMBIENTALE
+------------------------
+5.1  Ogni 30 minuti il sistema deve confrontare il frame corrente con quello precedente per rilevare cambiamenti ambientali (oggetti caduti, ostacoli).
+5.2  Il confronto deve ignorare la persona e concentrarsi sull'ambiente.
+5.3  Il risultato del confronto deve essere salvato come osservazione di tipo "confronto".
+
+
+6. SINTESI E DIARI
+-------------------
+6.1  Il sistema deve generare un riepilogo orario a ogni cambio d'ora, sintetizzando le osservazioni dell'ora precedente tramite VLM.
+6.2  Il sistema deve generare un diario giornaliero a mezzanotte o allo stop manuale, strutturato in sezioni: riepilogo generale, mattina, pomeriggio, sera/notte, pattern, osservazioni rilevanti.
+6.3  Il sistema deve generare un report settimanale ogni lunedì, sintetizzando i 7 diari giornalieri.
+6.4  Il sistema deve generare un report mensile il primo del mese.
+6.5  Il sistema deve generare un report annuale il primo gennaio.
+6.6  I diari devono includere i risultati dei test clinici del periodo con andamento della velocità normalizzata.
+6.7  Il diario deve essere salvato in formato testo nella struttura: diari/ANNO/MESE/DATA/diario.txt
+6.8  Le osservazioni grezze e i riepiloghi orari devono essere salvati in diari/ANNO/MESE/DATA/data.json aggiornato in tempo reale dopo ogni osservazione.
+
+
+7. TEST CLINICI
+---------------
+7.1  Il sistema deve supportare il test TUG (Timed Up and Go) su richiesta.
+7.2  Il test TUG deve rilevare automaticamente le fasi: SIT_TO_STAND, WALK_FORWARD, TURN, WALK_BACK, FINISHED.
+7.3  Il test TUG deve calcolare tempo totale, distanza percorsa e velocità media (px/s).
+7.4  Il sistema deve supportare il test STS (5 Sit-to-Stand) su richiesta.
+7.5  Il test STS deve contare le ripetizioni (STANDING→SITTING) e calcolare tempo totale e tempo medio per ripetizione.
+7.6  Entrambi i test devono attendere il rilevamento della persona (max 30s) prima di avviarsi.
+7.7  Il test TUG deve essere annullato se il tracking è perso per più di 2 secondi; qualsiasi perdita inferiore deve essere registrata nel risultato.
+7.8  Il test STS deve essere annullato se il tracking è perso per più di 1 secondo.
+7.9  Il test STS deve essere annullato per inattività se il numero di ripetizioni non aumenta per 20 secondi.
+7.10 I risultati dei test devono essere salvati nel database SQLite con timestamp e sessione.
+7.11 L'osservazione salvata dopo ogni test deve includere il confronto con il test precedente espresso come variazione percentuale della velocità normalizzata (TUG) o variazione del tempo totale (STS).
+
+
+8. DATABASE
+-----------
+8.1  Il sistema deve mantenere un database SQLite con sessioni di test, risultati TUG e risultati STS.
+8.2  Il database deve supportare migrazione automatica dello schema senza perdita di dati.
+8.3  I risultati devono essere consultabili per range di date.
+
+
+9. BOT TELEGRAM
+---------------
+9.1  Il bot deve rispondere a domande in linguaggio naturale dei familiari basandosi sui dati reali del giorno.
+9.2  Il bot deve supportare riferimenti temporali nelle domande: "ieri", "l'altro ieri", "lunedì", "3 maggio", "settimana scorsa".
+9.3  Per ogni data referenziata il bot deve caricare i dati disponibili in ordine di preferenza: riepiloghi orari, osservazioni grezze, diario testuale.
+9.4  Quando la domanda menziona TUG, test o mobilità, il bot deve includere automaticamente lo storico degli ultimi test con andamento della velocità.
+9.5  Il bot deve supportare i comandi: /start, /stato, /diario, /ieri, /alert, /tug, /sts.
+9.6  Il bot deve limitare l'accesso agli utenti autorizzati tramite lista di Telegram ID.
+9.7  Il bot deve avviarsi in un thread daemon separato senza bloccare il loop principale di monitoraggio.
+9.8  Il token del bot deve essere letto esclusivamente da config.local.json, mai da codice sorgente.
+
+
+10. AVVIO E ARRESTO
+--------------------
+10.1 Il sistema deve avviarsi in background tramite start.sh con output rediretto su monitor.log.
+10.2 Lo script stop.sh deve inviare SIGINT al processo, attendere la generazione del diario finale e confermare l'arresto effettivo.
+10.3 Stop.sh deve forzare l'arresto con SIGKILL dopo 3 minuti se il processo non termina.
+10.4 Il sistema deve ricaricare i dati esistenti all'avvio senza perdere le osservazioni del giorno corrente.
+10.5 A mezzanotte il sistema deve generare automaticamente il diario, azzerare le osservazioni e ricominciare per il nuovo giorno senza riavvio manuale.
+
+
+11. CONFIGURAZIONE
+------------------
+11.1 Il modello VLM, l'URL del server, l'intervallo di cattura e l'area di monitoraggio devono essere configurabili da riga di comando.
+11.2 Il token Telegram e gli ID autorizzati devono essere configurabili tramite config.local.json.
+11.3 Il sistema deve supportare la modalità anteprima (--preview) per verificare l'area di cattura prima dell'avvio.
+11.4 Il sistema deve supportare la generazione manuale di report settimanali, mensili e annuali tramite flag da riga di comando.
