@@ -1,36 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 30 files:   0%|          | 0/30 [00:00<?, ?it/s]Fetching 30 files: 100%|██████████| 30/30 [00:00<00:00, 17112.62it/s]
-Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights:   1%|▏         | 5/391 [00:00<00:38,  9.90it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 763.61it/s]
-[INIT] Caricati 363 osservazioni e 15 riepiloghi per 2026-05-13
-============================================================
-VLM Daily Monitor — Monitoraggio h24
-  Modello:      gemma-4-26b-a4b-it
-  Server:       http://localhost:1234
-  Cattura:      Screen capture
-  Intervallo:   30s (adattivo)
-  Diario:       a mezzanotte (automatico)
-  Output:       diari
-============================================================
-Premi Ctrl+C per fermare e generare il diario
-
-[TELEGRAM] Bot avviato in background
-============================================================
-Telegram Bot — Monitoraggio Domiciliare
-  VLM:    gemma-4-26b-a4b-it
-  Server: http://localhost:1234
-  Dati:   diari
-============================================================
-Bot avviato. In attesa di messaggi...
-
-[VLM] TTFT=6.719s  TTLT=7.365s
-[15:31] [EVT×4] Persona presente, in posizione semisdraia sul divano. L'attività consiste nell'uso di uno smartphone; la postura e i movimenti appaiono stabili, senza segni di difficoltà o rischi rilevanti.
-[VLM] TTFT=10.538s  TTLT=11.194s
-[15:31] [EVT×7] Persona presente, in posizione semisdraia sul divano. L'attività consiste nell'uso di uno smartphone; la postura e i movimenti appaiono stabili, senza segni di difficoltà o rischi rilevanti.
-[VLM] TTFT=10.507s  TTLT=11.174s
-[15:34] [EVT×7] La persona è presente, in posizione semisdraia sul divano con l'uso di uno smartphone. L'attività e i movimenti appaiono stabili, senza segni di difficoltà motorie o rischi rilevanti.
-[VLM] TTFT=10.474s  TTLT=11.188s
-[15:35] [EVT×7] La persona è presente, in posizione semisdraia sul divano. L'attività consiste nell'uso di uno smartphone; la postura e i movimenti appaiono stabili, senza segni di difficoltà motorie o rischi rilevanti.
-[VLM] TTFT=10.493s  TTLT=11.179s
-[15:35] [EVT×7] Persona presente, in posizione semisdraia sul divano. L'attività consiste nell'uso di uno smartphone; la postura e i movimenti appaiono stabili, senza segni di difficoltà motorie o rischi rilevanti.
-[VLM] TTFT=2.86s  TTLT=3.491s
-[15:38] [FIX×1] Persona presente, in posizione semisdraia sul divano con l'uso di uno smartphone. La postura e i movimenti appaiono stabili, senza segni di sonnolenza o rischi clinici rilevanti.
