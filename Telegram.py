@@ -58,13 +58,14 @@ MESI_NOMI = {
 
 
 class MonitorBot:
-    def __init__(self, token, vlm_client, data_dir="diari", test_runner=None, allowed_ids=None):
+    def __init__(self, token, vlm_client, data_dir="diari", test_runner=None, allowed_ids=None, rag=None):
         self.token = token
         self.vlm = vlm_client
         self.data_dir = Path(data_dir)
         self.test_runner = test_runner
         self.allowed_ids = set(allowed_ids) if allowed_ids else set()
         self.db = DatabaseManager()
+        self.rag = rag
 
     async def _check_auth(self, update: Update) -> bool:
         if not self.allowed_ids:
@@ -233,6 +234,13 @@ class MonitorBot:
             sts_history = self._format_test_history("STS")
             if sts_history:
                 context += f"\n{sts_history}\n"
+
+        # RAG: ricerca semantica sull'archivio storico
+        # Attivata quando non ci sono date specifiche nella domanda (domanda storica/pattern)
+        if self.rag and self.rag.count() > 0 and not ref_dates:
+            rag_context = self.rag.search(query, n_results=5)
+            if rag_context:
+                context += f"\n{rag_context}\n"
 
         # Fallback se non c'è nulla
         if not context:

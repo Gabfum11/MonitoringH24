@@ -42,6 +42,7 @@ class Observer:
         self._consecutive_absence = 0
         self._absence_alerted = False
         self._absence_start_time = 0
+        self._zoom_pending = False
 
         # Confronto ambientale
         self._last_comparison_time = time.time()
@@ -189,14 +190,39 @@ class Observer:
             }
             self.observations.append(obs)
             self._prev_observation_time = time.time()
-            self._save() #
+            self._save()
             tag = "EVT" if obs_type == "sequenza" else "FIX"
             print(f"[{obs['time']}] [{tag}×{n_frames}] {description}")
             self._track_absence(description)
+            if self._zoom_pending:
+                self._zoom_pending = False
+                self._observe_zoomed()
             return True
         else:
             print(f"[{datetime.now().strftime('%H:%M')}] Nessuna risposta dal VLM")
             return False
+
+    def _observe_zoomed(self):
+        """Osservazione con zoom automatico: doppio click → cattura → doppio click."""
+        self.capture.zoom_in()
+        frame = self.capture.capture_frame()
+        image_b64 = self.capture.frame_to_base64(frame)
+        context = self._build_context()
+        description = self.vlm.call_with_images(image_b64, context)
+        self.capture.zoom_out()
+
+        if description:
+            obs = {
+                "time": datetime.now().strftime("%H:%M"),
+                "timestamp": datetime.now().isoformat(),
+                "hour": datetime.now().hour,
+                "type": "singolo",
+                "description": f"[ZOOM] {description}"
+            }
+            self.observations.append(obs)
+            self._save()
+            print(f"[{obs['time']}] [ZOOM] {description}")
+            self._track_absence(description)
 
     # =========================================
     # RILEVAMENTO ASSENZA PROLUNGATA
@@ -218,9 +244,11 @@ class Observer:
             if self._consecutive_absence == 0:
                 self._absence_start_time = time.time()
             self._consecutive_absence += 1
+            self._zoom_pending = True
         else:
             self._consecutive_absence = 0
             self._absence_alerted = False
+            self._zoom_pending = False
 
         # Calcolo basato sul tempo reale
         if self._consecutive_absence > 0:

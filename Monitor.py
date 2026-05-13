@@ -28,6 +28,7 @@ from Observer import Observer
 from Diary_generator import DiaryGenerator
 from Telegram import MonitorBot
 from TestRunner import TestRunner
+from Rag import RagIndex
 
 class VLMMonitor:
     def __init__(self,
@@ -49,9 +50,10 @@ class VLMMonitor:
         # Inizializza i moduli
         self.capture = CaptureManager(monitor_area=monitor_area)
         self.vlm = VLMCalls(model=model, lmstudio_url=lmstudio_url)
+        self.rag = RagIndex()
         self.diary = DiaryGenerator(
             self.vlm, self.observations, self.hourly_summaries,
-            output_dir=output_dir
+            output_dir=output_dir, rag=self.rag
         )
         self.observer = Observer(
             self.capture, self.vlm, self.observations,
@@ -147,7 +149,8 @@ class VLMMonitor:
             )
             def run_bot():
                 bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir),
-                                 test_runner=test_runner, allowed_ids=local_cfg.get("allowed_ids"))
+                                 test_runner=test_runner, allowed_ids=local_cfg.get("allowed_ids"),
+                                 rag=self.rag)
                 bot.run()
             bot_thread = threading.Thread(target=run_bot, daemon=True) #indica la creazione di un sottoprocesso in cui la funzione run_bot viene avviata senza bloccare il processo principale del monitoraggio. Il bot Telegram funzionerà in background, permettendo al monitoraggio di continuare senza interruzioni.
             bot_thread.start() #avvia il thread del bot Telegram
@@ -218,7 +221,8 @@ def main():
                         help="Genera il report mensile e esci")
     parser.add_argument("--gen-annual", action="store_true",
                         help="Genera il report annuale e esci")
-   
+    parser.add_argument("--index-rag", action="store_true",
+                        help="Indicizza i riepiloghi orari esistenti nel RAG e esci")
 
     args = parser.parse_args()
 
@@ -233,6 +237,10 @@ def main():
         output_dir=args.output
     )
 
+    if args.index_rag:
+        monitor.rag.index_existing_data(data_dir=args.output)
+        print(f"[RAG] Indice aggiornato: {monitor.rag.count()} riepiloghi totali")
+        return
     if args.gen_weekly:
         monitor.diary.generate_weekly_diary()
         return

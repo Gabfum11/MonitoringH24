@@ -28,7 +28,7 @@ from Database_manager import DatabaseManager
 
 
 class DiaryGenerator:
-    def __init__(self, vlm_client, observations, hourly_summaries, output_dir="diari", db=None):
+    def __init__(self, vlm_client, observations, hourly_summaries, output_dir="diari", db=None, rag=None):
         """
         Args:
             vlm_client: istanza di VLMClient
@@ -36,6 +36,7 @@ class DiaryGenerator:
             hourly_summaries: lista condivisa dei riepiloghi orari
             output_dir: cartella base per i file
             db: istanza di DatabaseManager (opzionale, ne crea una se None)
+            rag: istanza di RagIndex (opzionale)
         """
         self.vlm = vlm_client
         self.observations = observations
@@ -43,6 +44,7 @@ class DiaryGenerator:
         self.output_dir = Path(output_dir)
         self.today = date.today().isoformat()
         self.db = db or DatabaseManager()
+        self.rag = rag
 
     # =========================================
     # GESTIONE CARTELLE
@@ -186,6 +188,8 @@ class DiaryGenerator:
             }
             self.hourly_summaries.append(entry)
             self.save_data()
+            if self.rag:
+                self.rag.index_summary(self.today, hour, entry["hour_label"], summary)
             print(f"\n[SINTESI {hour:02d}:00] {summary}\n")
 
     # =========================================

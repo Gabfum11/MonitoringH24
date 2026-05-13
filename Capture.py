@@ -12,6 +12,7 @@ import time
 import mss
 import base64
 import numpy as np
+import pyautogui
 from collections import deque
 
 
@@ -100,7 +101,7 @@ class CaptureManager:
     # =========================================
     # BURST CAPTURE
     # =========================================
-    def capture_burst(self, n_frames=3, interval=2):
+    def capture_sequenza(self, n_frames=3, interval=2):
         """Cattura una sequenza rapida di frame per analizzare un'azione.
         
         Args:
@@ -129,6 +130,24 @@ class CaptureManager:
         indices = [0, n // 3, (2 * n) // 3, n - 1]
         
         return [self.frame_to_base64(buffer_list[i]) for i in indices]
+
+    # =========================================
+    # ZOOM AUTOMATICO
+    # =========================================
+    def _click_center(self):
+        cx = self.monitor['left'] + self.monitor['width'] // 2
+        cy = self.monitor['top'] + self.monitor['height'] // 2
+        pyautogui.doubleClick(cx, cy)
+
+    def zoom_in(self):
+        self._click_center()
+        time.sleep(2)
+        print("[ZOOM] Zoom avanti")
+
+    def zoom_out(self):
+        self._click_center()
+        time.sleep(2)
+        print("[ZOOM] Zoom indietro")
 
     # =========================================
     # ANTEPRIMA
