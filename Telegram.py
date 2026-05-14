@@ -277,7 +277,7 @@ class MonitorBot:
                 "Rispondi in modo semplice e comprensibile, evitando gergo medico. "
                 "Fornisci informazioni utili basate sui dati, ma non fare diagnosi o previsioni. "
             ),
-            max_tokens=500
+            max_tokens=500 
         )
 
         return response or "Mi dispiace, non riesco a rispondere in questo momento. Riprova tra poco."
@@ -291,11 +291,23 @@ class MonitorBot:
             return
         await update.message.reply_text(
             "Ciao! Sono il bot di monitoraggio domiciliare.\n\n"
-            "Puoi chiedermi cose come:\n"
-            "• Come sta oggi?\n"
+            "Puoi farmi domande in linguaggio naturale, ad esempio:\n\n"
+            "Situazione attuale:\n"
+            "• Come sta adesso?\n"
+            "• Cosa sta facendo?\n"
+            "• Ci sono stati problemi oggi?\n\n"
+            "Fasce orarie:\n"
             "• Cosa ha fatto stamattina?\n"
-            "• Ci sono stati problemi?\n"
+            "• Com'è andata questa sera?\n"
             "• Cosa faceva alle 15?\n\n"
+            "Giorni precedenti:\n"
+            "• Cosa ha fatto ieri pomeriggio?\n"
+            "• Com'era lunedì mattina?\n"
+            "• Ci sono stati problemi martedì?\n\n"
+            "Andamento nel tempo:\n"
+            "• È migliorata rispetto alla settimana scorsa?\n"
+            "• Come cammina ultimamente?\n"
+            "• Ci sono stati episodi di instabilità di recente?\n\n"
             "Comandi:\n"
             "/stato - Stato attuale\n"
             "/diario - Diario di oggi\n"
@@ -425,9 +437,11 @@ class MonitorBot:
         query = update.message.text
         await update.message.reply_text("Cerco nei dati...")
 
-        # Eseguito in un thread separato per non bloccare il loop asyncio
-        response = await asyncio.to_thread(self._answer_query, query)
-        await update.message.reply_text(response)
+        try:
+            response = await asyncio.to_thread(self._answer_query, query)
+            await update.message.reply_text(response)
+        except Exception:
+            await update.message.reply_text("Si è verificato un errore nel recupero delle informazioni.")
 
     # =========================================
     # AVVIO BOT
@@ -445,6 +459,12 @@ class MonitorBot:
             app.add_handler(CommandHandler("tug", self.cmd_tug))
             app.add_handler(CommandHandler("sts", self.cmd_sts))
             app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
+
+            async def error_handler(update, context):
+                if update and update.message:
+                    await update.message.reply_text("Si è verificato un errore nel recupero delle informazioni.")
+
+            app.add_error_handler(error_handler)
 
             print(f"{'='*60}")
             print(f"Telegram Bot — Monitoraggio Domiciliare")

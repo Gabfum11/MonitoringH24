@@ -165,13 +165,13 @@ class Observer:
         context = self._build_context()
         if isinstance(frame, list):
             images = frame
-            obs_type = "sequenza"
+            obs_type = mode if mode in ("sequenza", "sequenza_rapida") else "sequenza"
             n_frames = len(images)
             description = self.vlm.call_with_images(images, context)
-        else:
-            if (self.capture.last_diff < 1.5 and
+        else: #per le osservazioni singole, se il diff è molto basso e abbiamo già un'osservazione recente, skippiamo per evitare ripetizioni inutili su scena stabile
+            if (self.capture.last_diff < 2.0 and
                 len(self.observations) > 0 and
-                time.time() - self._prev_observation_time < 30):
+                time.time() - self._prev_observation_time < 30): #se c'è stata un osservazione negli ultimi 30 secondi e il diff è molto basso, consideriamo la scena stabile e skippiamo
                 self._prev_observation_time = time.time()
                 print(f"[{datetime.now().strftime('%H:%M')}] [SKIP] Scena stabile (diff={self.capture.last_diff:.1f})")
                 return False

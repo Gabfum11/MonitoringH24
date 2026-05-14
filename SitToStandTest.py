@@ -13,6 +13,8 @@ class SitToStandTest:
         self.rep_times = []
         self.current_rep_start = None
         self.knee_angles = []
+        self._standing_since = None
+        self._min_standing_s = 0.4
     
     def start(self):
         self.reset()
@@ -26,15 +28,22 @@ class SitToStandTest:
         
         if knee_angle > 0:
             self.knee_angles.append(knee_angle)
-        
-        # Conta ripetizione completata
-        if state == "SITTING" and self.prev_state == "STANDING":
-            self.reps += 1
-            if self.current_rep_start:
-                rep_time = time.time() - self.current_rep_start
-                self.rep_times.append(rep_time)
-            self.current_rep_start = time.time()
-        
+
+        now = time.time()
+
+        if state == "STANDING" and self.prev_state != "STANDING":
+            self._standing_since = now
+        elif state == "SITTING" and self.prev_state == "STANDING":
+            standing_duration = (now - self._standing_since) if self._standing_since else 0
+            if standing_duration >= self._min_standing_s:
+                self.reps += 1
+                if self.current_rep_start:
+                    self.rep_times.append(now - self.current_rep_start)
+                self.current_rep_start = now
+            self._standing_since = None
+        elif state != "STANDING":
+            self._standing_since = None
+
         self.prev_state = state
         
         if self.reps >= 5:

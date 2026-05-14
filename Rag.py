@@ -18,11 +18,11 @@ class BGEM3EmbeddingFunction(EmbeddingFunction):
     """Wrapper BGE-M3 compatibile con ChromaDB."""
 
     def __init__(self):
-        self._model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=True)
+        self._model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=True) #fp16 serve per risparmiare memoria, non influisce sulla qualità degli embedding
 
     def __call__(self, input):
-        result = self._model.encode(input, batch_size=12, max_length=512)
-        return result["dense_vecs"].tolist()
+        result = self._model.encode(input, batch_size=12, max_length=512) #significa che tronca a 512 token, ma i nostri riepiloghi orari sono molto più corti, quindi va bene
+        return result["dense_vecs"].tolist() 
 
 
 class RagIndex:
@@ -44,16 +44,44 @@ class RagIndex:
         self._collection.upsert(
             ids=[doc_id],
             documents=[summary],
-            metadatas=[{"date": summary_date, "hour": hour, "hour_label": hour_label}]
+            metadatas=[{"date": summary_date, "hour": hour, "hour_label": hour_label, "type": "orario"}]
+        )
+
+    def index_diary(self, summary_date: str, content: str):
+        """Indicizza un diario giornaliero."""
+        doc_id = f"diario_{summary_date}"
+        self._collection.upsert(
+            ids=[doc_id],
+            documents=[content],
+            metadatas=[{"date": summary_date, "type": "diario"}]
+        )
+
+    def index_weekly(self, start_date: str, end_date: str, content: str):
+        """Indicizza un report settimanale."""
+        doc_id = f"settimanale_{start_date}_{end_date}"
+        self._collection.upsert(
+            ids=[doc_id],
+            documents=[content],
+            metadatas=[{"date": end_date, "start_date": start_date, "type": "settimanale"}]
+        )
+
+    def index_monthly(self, year: int, month: int, content: str):
+        """Indicizza un report mensile."""
+        doc_id = f"mensile_{year}-{month:02d}"
+        self._collection.upsert(
+            ids=[doc_id],
+            documents=[content],
+            metadatas=[{"date": f"{year}-{month:02d}-01", "type": "mensile"}]
         )
 
     def index_existing_data(self, data_dir: str = "diari"):
-        """Indicizza tutti i riepiloghi orari esistenti nell'archivio."""
+        """Indicizza riepiloghi orari, diari giornalieri e report settimanali esistenti."""
         root = Path(data_dir)
-        json_files = list(root.rglob("data.json"))
-        print(f"[RAG] Indicizzazione di {len(json_files)} file...")
 
-        indexed = 0
+        # Riepiloghi orari
+        json_files = list(root.rglob("data.json"))
+        print(f"[RAG] Indicizzazione di {len(json_files)} file orari...")
+        indexed_orari = 0
         for path in json_files:
             try:
                 with open(path, "r", encoding="utf-8") as f:
@@ -65,11 +93,63 @@ class RagIndex:
                         hour_label=s["hour_label"],
                         summary=s["summary"]
                     )
-                    indexed += 1
+                    indexed_orari += 1
             except Exception as e:
                 print(f"[RAG] Errore su {path}: {e}")
+        print(f"[RAG] Indicizzati {indexed_orari} riepiloghi orari.")
 
-        print(f"[RAG] Indicizzati {indexed} riepiloghi orari.")
+        # Diari giornalieri
+        diary_files = list(root.rglob("diario.txt"))
+        print(f"[RAG] Indicizzazione di {len(diary_files)} diari giornalieri...")
+        indexed_diari = 0
+        for path in diary_files:
+            try:
+                summary_date = path.parent.name
+                with open(path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                body = content.split("\n\n", 1)
+                body = body[1] if len(body) > 1 else content
+                self.index_diary(summary_date, body.strip())
+                indexed_diari += 1
+            except Exception as e:
+                print(f"[RAG] Errore su {path}: {e}")
+        print(f"[RAG] Indicizzati {indexed_diari} diari giornalieri.")
+
+        # Report settimanali
+        weekly_files = list(root.rglob("settimanale_*.txt"))
+        print(f"[RAG] Indicizzazione di {len(weekly_files)} report settimanali...")
+        indexed_weekly = 0
+        for path in weekly_files:
+            try:
+                parts = path.stem.replace("settimanale_", "").split("_")
+                start_date, end_date = parts[0], parts[1]
+                with open(path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                body = content.split("\n\n", 1)
+                body = body[1] if len(body) > 1 else content
+                self.index_weekly(start_date, end_date, body.strip())
+                indexed_weekly += 1
+            except Exception as e:
+                print(f"[RAG] Errore su {path}: {e}")
+        print(f"[RAG] Indicizzati {indexed_weekly} report settimanali.")
+
+        # Report mensili
+        monthly_files = list(root.rglob("mensile_*.txt"))
+        print(f"[RAG] Indicizzazione di {len(monthly_files)} report mensili...")
+        indexed_monthly = 0
+        for path in monthly_files:
+            try:
+                parts = path.stem.replace("mensile_", "").split("-")
+                year, month = int(parts[0]), int(parts[1])
+                with open(path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                body = content.split("\n\n", 1)
+                body = body[1] if len(body) > 1 else content
+                self.index_monthly(year, month, body.strip())
+                indexed_monthly += 1
+            except Exception as e:
+                print(f"[RAG] Errore su {path}: {e}")
+        print(f"[RAG] Indicizzati {indexed_monthly} report mensili.")
 
     # =========================================
     # RICERCA
@@ -106,7 +186,8 @@ class RagIndex:
 
         lines = ["RIEPILOGHI RILEVANTI DALL'ARCHIVIO:"]
         for doc, meta in zip(docs, metas):
-            lines.append(f"[{meta['date']} {meta['hour_label']}] {doc}")
+            label = meta.get("hour_label") or meta.get("type", "")
+            lines.append(f"[{meta['date']} {label}] {doc}")
 
         return "\n".join(lines)
 

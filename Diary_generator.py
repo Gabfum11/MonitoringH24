@@ -297,6 +297,9 @@ class DiaryGenerator:
         with open(path, 'w', encoding='utf-8') as f:
             f.write(header + diary_text)
         print(f"[DIARIO] Salvato in {path}")
+        if self.rag:
+            self.rag.index_diary(self.today, diary_text)
+            print(f"[RAG] Diario giornaliero indicizzato")
 
     # =========================================
     # LIVELLO 3: REPORT SETTIMANALE
@@ -361,6 +364,9 @@ class DiaryGenerator:
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(header + diary)
             print(f"[SETTIMANALE] Salvato in {path}")
+            if self.rag:
+                self.rag.index_weekly(start_date.isoformat(), end_date.isoformat(), diary)
+                print(f"[RAG] Report settimanale indicizzato")
             return diary
         else:
             print("[SETTIMANALE] Errore nella generazione")
@@ -480,6 +486,9 @@ class DiaryGenerator:
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(header + diary)
             print(f"[MENSILE] Salvato in {path}")
+            if self.rag:
+                self.rag.index_monthly(year, month, diary)
+                print(f"[RAG] Report mensile indicizzato")
             return diary
         else:
             print("[MENSILE] Errore nella generazione")

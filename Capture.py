@@ -12,7 +12,7 @@ import time
 import mss
 import base64
 import numpy as np
-import pyautogui
+import subprocess
 from collections import deque
 
 
@@ -137,7 +137,11 @@ class CaptureManager:
     def _click_center(self):
         cx = self.monitor['left'] + self.monitor['width'] // 2
         cy = self.monitor['top'] + self.monitor['height'] // 2
-        pyautogui.doubleClick(cx, cy)
+        subprocess.run(
+            ['osascript', '-e',
+             f'tell application "System Events" to double click at {{{cx}, {cy}}}'],
+            capture_output=True
+        )
 
     def zoom_in(self):
         self._click_center()

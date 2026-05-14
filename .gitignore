@@ -3,6 +3,10 @@ __pycache__/
 *.pyc
 .env
 diari/
-.log
-.sh
+*.log
+*.sh
+*.db
 config.local.json
+rag_index/
+requisiti_funzionali.txt
+Test-Tug-debug.py
