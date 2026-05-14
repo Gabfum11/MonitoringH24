@@ -89,7 +89,7 @@ class Observer:
             if self._no_change_streak % 5 == 0:
                 self._current_interval = min(
                     self._current_interval + 20, # Saliamo gradualmente
-                    180  # Max  3 minuti tra un check e l'altro se non succede nulla
+                    120  # Max 2 minuti tra un check e l'altro se non succede nulla
                 )
 
         # Log critico per capire se il "cervello" sta accelerando o rallentando
