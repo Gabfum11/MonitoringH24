@@ -112,7 +112,7 @@ class Observer:
         time_since_last = now - self._prev_observation_time
 
         if scene_changed and time_since_last >= 15:
-            if last_diff > 15 and change_streak >= 4:
+            if last_diff > 6 and change_streak >= 3:
                 return 'sequenza_rapida'
             return 'sequenza'
 
@@ -191,9 +191,10 @@ class Observer:
             self.observations.append(obs)
             self._prev_observation_time = time.time()
             self._save()
-            tag = "EVT" if obs_type == "sequenza" else "FIX"
+            tag = "EVT_R" if obs_type == "sequenza_rapida" else ("EVT" if obs_type == "sequenza" else "FIX")
             print(f"[{obs['time']}] [{tag}×{n_frames}] {description}")
             self._track_absence(description)
+            self._track_anomalies(description)
             if self._zoom_pending:
                 self._zoom_pending = False
                 self._observe_zoomed()
@@ -275,6 +276,47 @@ class Observer:
             print(f"\n{'!'*60}")
             print(f"[{alert_obs['time']}] {alert_obs['description']}")
             print(f"{'!'*60}\n")
+
+    # =========================================
+    # RILEVAMENTO ANOMALIE
+    # =========================================
+    _ALERT_PATTERNS = {
+        "caduta": [
+            "a terra", "caduta", "è caduta", "è caduto", "distesa sul pavimento",
+            "disteso sul pavimento", "giace", "giace sul pavimento", "è scivolata", "è scivolato"
+        ],
+        "instabilità grave": [
+            "barcolla", "perde l'equilibrio", "si aggrappa", "si regge al muro",
+            "rischio di caduta", "quasi caduta", "ha perso l'equilibrio"
+        ],
+        "difficoltà evidente": [
+            "in evidente difficoltà", "si contorce", "si tiene la testa",
+            "non riesce ad alzarsi", "non riesce a muoversi", "sembra sofferente"
+        ],
+        "estraneo": [
+            "persona sconosciuta", "estraneo", "individuo non identificato",
+            "presenza non abituale"
+        ],
+    }
+
+    def _track_anomalies(self, description):
+        """Rileva situazioni critiche nel testo dell'osservazione e genera alert immediati."""
+        desc_lower = description.lower()
+        for categoria, termini in self._ALERT_PATTERNS.items():
+            if any(t in desc_lower for t in termini):
+                alert_obs = {
+                    "time": datetime.now().strftime("%H:%M"),
+                    "timestamp": datetime.now().isoformat(),
+                    "hour": datetime.now().hour,
+                    "type": "alert",
+                    "description": (f"⚠ ALERT ({categoria}): {description}")
+                }
+                self.observations.append(alert_obs)
+                self._save()
+                print(f"\n{'!'*60}")
+                print(f"[{alert_obs['time']}] ALERT {categoria.upper()}: {description}")
+                print(f"{'!'*60}\n")
+                break
 
     # =========================================
     # CONFRONTO AMBIENTALE

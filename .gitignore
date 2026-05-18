@@ -10,3 +10,5 @@ config.local.json
 rag_index/
 requisiti_funzionali.txt
 Test-Tug-debug.py
+.DS_Store
+nohup.out

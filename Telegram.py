@@ -188,61 +188,99 @@ class MonitorBot:
                 return f.read()
         return None
 
+    def _classify_query(self, query: str) -> str:
+        """Classifica la domanda per scegliere la strategia di recupero dati."""
+        prompt = (
+            f"Classifica questa domanda in una delle seguenti categorie:\n"
+            f"- stato_attuale: cosa sta facendo o come sta adesso\n"
+            f"- evento_specifico: cosa è successo in un momento preciso (ieri, stamattina, lunedì...)\n"
+            f"- confronto_temporale: andamento, miglioramenti, abitudini nel tempo\n"
+            f"- test_clinici: domande sui test TUG o STS\n\n"
+            f"Domanda: \"{query}\"\n\n"
+            f"Rispondi con una sola parola tra: stato_attuale, evento_specifico, confronto_temporale, test_clinici"
+        )
+        result = self.vlm.call_text(prompt, max_tokens=20)
+        if result:
+            result = result.strip().lower().split()[0]
+            if result in ("stato_attuale", "evento_specifico", "confronto_temporale", "test_clinici"):
+                return result
+        return "evento_specifico"
+
     def _build_context_for_query(self, query):
         """Costruisce il contesto rilevante per la domanda del familiare."""
         today = date.today()
+        category = self._classify_query(query)
         context = ""
 
-        # Dati di oggi
-        observations, hourly_summaries = self._get_today_observations()
-        if hourly_summaries:
-            context += "RIEPILOGHI ORARI DI OGGI:\n"
-            for s in sorted(hourly_summaries, key=lambda x: x['hour']):
-                context += f"[{s['hour_label']}] {s['summary']}\n\n"
-        if observations:
-            context += "ULTIME OSSERVAZIONI DI OGGI:\n"
-            for o in observations[-20:]:
-                tag = " [ALERT]" if o.get('type') == 'alert' else (" [CONFRONTO]" if o.get('type') == 'confronto' else "")
-                context += f"- {o['time']}{tag}: {o['description']}\n"
-
-        # Date referenziate nella domanda (max 3 per non sovraccaricare il contesto)
-        ref_dates = self._extract_referenced_dates(query)[:3]
-        for ref_date in ref_dates:
-            label = f"{ref_date.day} {MESI_NOMI[ref_date.month]} {ref_date.year}"
-            obs, summaries = self._get_observations_for_date(ref_date)
-            if summaries:
-                context += f"\nRIEPILOGHI ORARI DEL {label}:\n"
-                for s in sorted(summaries, key=lambda x: x['hour']):
-                    context += f"[{s['hour_label']}] {s['summary']}\n\n"
-            elif obs:
-                context += f"\nOSSERVAZIONI DEL {label}:\n"
-                for o in obs[-15:]:
+        if category == "stato_attuale":
+            observations, _ = self._get_today_observations()
+            if observations:
+                context += "ULTIME OSSERVAZIONI:\n"
+                for o in observations[-5:]:
                     tag = " [ALERT]" if o.get('type') == 'alert' else ""
                     context += f"- {o['time']}{tag}: {o['description']}\n"
-            else:
-                diary = self._get_diary(ref_date)
-                if diary:
-                    context += f"\nDIARIO DEL {label}:\n{diary}\n"
 
-        # Storico test clinici se la domanda li menziona
-        q = query.lower()
-        if any(k in q for k in ["tug", "test", "cammin", "velocit", "mobilit"]):
+        elif category == "evento_specifico":
+            observations, hourly_summaries = self._get_today_observations()
+            if hourly_summaries:
+                context += "RIEPILOGHI ORARI DI OGGI:\n"
+                for s in sorted(hourly_summaries, key=lambda x: x['hour']):
+                    context += f"[{s['hour_label']}] {s['summary']}\n\n"
+            if observations:
+                context += "ULTIME OSSERVAZIONI DI OGGI:\n"
+                for o in observations[-20:]:
+                    tag = " [ALERT]" if o.get('type') == 'alert' else (" [CONFRONTO]" if o.get('type') == 'confronto' else "")
+                    context += f"- {o['time']}{tag}: {o['description']}\n"
+
+            ref_dates = self._extract_referenced_dates(query)[:3]
+            for ref_date in ref_dates:
+                label = f"{ref_date.day} {MESI_NOMI[ref_date.month]} {ref_date.year}"
+                obs, summaries = self._get_observations_for_date(ref_date)
+                if summaries:
+                    context += f"\nRIEPILOGHI ORARI DEL {label}:\n"
+                    for s in sorted(summaries, key=lambda x: x['hour']):
+                        context += f"[{s['hour_label']}] {s['summary']}\n\n"
+                elif obs:
+                    context += f"\nOSSERVAZIONI DEL {label}:\n"
+                    for o in obs[-15:]:
+                        tag = " [ALERT]" if o.get('type') == 'alert' else ""
+                        context += f"- {o['time']}{tag}: {o['description']}\n"
+                else:
+                    diary = self._get_diary(ref_date)
+                    if diary:
+                        context += f"\nDIARIO DEL {label}:\n{diary}\n"
+
+            if self.rag and self.rag.count() > 0 and not ref_dates:
+                rag_context = self.rag.search(query, n_results=5)
+                if rag_context:
+                    context += f"\n{rag_context}\n"
+
+        elif category == "confronto_temporale":
+            # Riepiloghi di oggi come punto di riferimento attuale
+            _, hourly_summaries = self._get_today_observations()
+            if hourly_summaries:
+                context += "OGGI:\n"
+                for s in sorted(hourly_summaries, key=lambda x: x['hour']):
+                    context += f"[{s['hour_label']}] {s['summary']}\n\n"
+
+            # RAG su tutto l'archivio con più risultati per copertura temporale ampia
+            if self.rag and self.rag.count() > 0:
+                rag_context = self.rag.search(query, n_results=10)
+                if rag_context:
+                    context += f"\n{rag_context}\n"
+
+        elif category == "test_clinici":
             tug_history = self._format_test_history("TUG")
             if tug_history:
                 context += f"\n{tug_history}\n"
-        if any(k in q for k in ["sts", "sit", "alzat", "sedut", "ripetiz"]):
             sts_history = self._format_test_history("STS")
             if sts_history:
                 context += f"\n{sts_history}\n"
+            if self.rag and self.rag.count() > 0:
+                rag_context = self.rag.search(query, n_results=5)
+                if rag_context:
+                    context += f"\n{rag_context}\n"
 
-        # RAG: ricerca semantica sull'archivio storico
-        # Attivata quando non ci sono date specifiche nella domanda (domanda storica/pattern)
-        if self.rag and self.rag.count() > 0 and not ref_dates:
-            rag_context = self.rag.search(query, n_results=5)
-            if rag_context:
-                context += f"\n{rag_context}\n"
-
-        # Fallback se non c'è nulla
         if not context:
             yesterday_diary = self._get_diary(today - timedelta(days=1))
             if yesterday_diary:
@@ -310,7 +348,6 @@ class MonitorBot:
             "• Ci sono stati episodi di instabilità di recente?\n\n"
             "Comandi:\n"
             "/stato - Stato attuale\n"
-            "/diario - Diario di oggi\n"
             "/ieri - Diario di ieri\n"
             "/alert - Alert della giornata\n"
             "/tug - Avvia test TUG\n"
@@ -338,25 +375,6 @@ class MonitorBot:
             msg += "Nessun alert"
 
         await update.message.reply_text(msg) #permette di inviare un altro mesaggio mentre il sistema sta elaborando la risposta precedente, evitando blocchi o ritardi e migliorando l'esperienza utente.
-
-    async def cmd_diario(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Invia il diario di oggi."""
-        if not await self._check_auth(update):
-            return
-        diary = self._get_diary()
-        if diary:
-            # Telegram ha un limite di 4096 caratteri per messaggio
-            if len(diary) > 4000:
-                parts = [diary[i:i+4000] for i in range(0, len(diary), 4000)]
-                for part in parts:
-                    await update.message.reply_text(part)
-            else:
-                await update.message.reply_text(diary)
-        else:
-            await update.message.reply_text(
-                "Il diario di oggi non è ancora stato generato.\n"
-                "Viene creato automaticamente a mezzanotte."
-            )
 
     async def cmd_ieri(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Invia il diario di ieri."""
@@ -453,7 +471,6 @@ class MonitorBot:
 
             app.add_handler(CommandHandler("start", self.cmd_start))
             app.add_handler(CommandHandler("stato", self.cmd_stato))
-            app.add_handler(CommandHandler("diario", self.cmd_diario))
             app.add_handler(CommandHandler("ieri", self.cmd_ieri))
             app.add_handler(CommandHandler("alert", self.cmd_alert))
             app.add_handler(CommandHandler("tug", self.cmd_tug))
