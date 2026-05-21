@@ -95,6 +95,7 @@ class CaptureManager:
         else:
             self._change_streak = 0
 
+        print(f"[DIFF] diff={diff:.2f} threshold={threshold:.2f} streak={self._change_streak} changed={self._change_streak >= 2}")
         return self._change_streak >= 2
     
    

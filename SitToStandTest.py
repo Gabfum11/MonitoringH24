@@ -15,6 +15,8 @@ class SitToStandTest:
         self.knee_angles = []
         self._standing_since = None
         self._min_standing_s = 0.4
+        self.transition_just_occurred = False
+        self.standup_just_occurred = False
     
     def start(self):
         self.reset()
@@ -31,12 +33,17 @@ class SitToStandTest:
 
         now = time.time()
 
+        self.transition_just_occurred = False
+        self.standup_just_occurred = False
+
         if state == "STANDING" and self.prev_state != "STANDING":
             self._standing_since = now
+            self.standup_just_occurred = True
         elif state == "SITTING" and self.prev_state == "STANDING":
             standing_duration = (now - self._standing_since) if self._standing_since else 0
             if standing_duration >= self._min_standing_s:
                 self.reps += 1
+                self.transition_just_occurred = True
                 if self.current_rep_start:
                     self.rep_times.append(now - self.current_rep_start)
                 self.current_rep_start = now

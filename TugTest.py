@@ -32,6 +32,7 @@ class TUGTest:
         self.phase_start_time = None
         self.movement_values = []
         self.knee_angles = []
+        self.phase_just_changed = False
 
     def start(self, hip_x, hip_y):
         """Avvia il test. Non richiede calibrazione."""
@@ -46,6 +47,8 @@ class TUGTest:
     def update(self, state, hip_x, hip_y, movement=0, knee_angle=0):
         if not self.active:
             return self.phase
+
+        self.phase_just_changed = False
 
         if movement > 0:
             self.movement_values.append(movement)
@@ -81,17 +84,18 @@ class TUGTest:
             self.phase = "WALK_FORWARD"
             self.phase_start_time = now
             self.forward_distance = 0
-            self.timed_deltas = []  # FIX: resetta timed_deltas, non recent_deltas
+            self.timed_deltas = []
+            self.phase_just_changed = True
             print(f"[TUG] SIT_TO_STAND → WALK_FORWARD ({self.phase_times['sit_to_stand']:.1f}s)")
 
         # 2. WALK_FORWARD → TURN
         elif self.phase == "WALK_FORWARD":
-            # Serve almeno 2 secondi di cammino prima di cercare l'inversione
             if now - self.phase_start_time > 2.0 and self._detect_direction_change():
                 self.phase_times['walk_forward'] = now - self.phase_start_time
                 self.phase = "TURN"
                 self.phase_start_time = now
-                self.timed_deltas = []  # FIX
+                self.timed_deltas = []
+                self.phase_just_changed = True
                 print(f"[TUG] WALK_FORWARD → TURN ({self.phase_times['walk_forward']:.1f}s)")
 
         # 3. TURN → WALK_BACK: aspetta almeno 1 secondo nel turn
@@ -102,6 +106,7 @@ class TUGTest:
                 self.phase_start_time = now
                 self.return_distance = 0
                 self.timed_deltas = []
+                self.phase_just_changed = True
                 print(f"[TUG] TURN → WALK_BACK ({self.phase_times['turn']:.1f}s)")
 
         # 4. WALK_BACK → FINISHED
@@ -110,6 +115,7 @@ class TUGTest:
             self.phase = "FINISHED"
             self.end_time = now
             self.active = False
+            self.phase_just_changed = True
             print(f"[TUG] WALK_BACK → FINISHED ({self.phase_times['walk_back']:.1f}s)")
 
         # DEBUG: stampa ogni secondo

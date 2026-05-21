@@ -58,9 +58,14 @@ class DatabaseManager:
     def _migrate(self):
         """Aggiunge colonne mancanti per retrocompatibilità con DB esistenti."""
         cursor = self.conn.cursor()
-        existing = {row[1] for row in cursor.execute("PRAGMA table_info(tug_result)")}
-        if 'avg_speed_px_s' not in existing:
+        existing_tug = {row[1] for row in cursor.execute("PRAGMA table_info(tug_result)")}
+        if 'avg_speed_px_s' not in existing_tug:
             cursor.execute("ALTER TABLE tug_result ADD COLUMN avg_speed_px_s REAL")
+        if 'vlm_analysis' not in existing_tug:
+            cursor.execute("ALTER TABLE tug_result ADD COLUMN vlm_analysis TEXT")
+        existing_sts = {row[1] for row in cursor.execute("PRAGMA table_info(sts_result)")}
+        if 'vlm_analysis' not in existing_sts:
+            cursor.execute("ALTER TABLE sts_result ADD COLUMN vlm_analysis TEXT")
 
     # === TEST SESSION ===
     def create_test_session(self, summary_date, test_type, start_time, video_source=None):
@@ -89,6 +94,14 @@ class DatabaseManager:
         ''', {**tug_data, 'test_id': test_id})
         self.close()
 
+    def update_tug_vlm_analysis(self, test_id, vlm_analysis):
+        cursor = self.connect()
+        cursor.execute(
+            "UPDATE tug_result SET vlm_analysis = ? WHERE test_id = ?",
+            (vlm_analysis, test_id)
+        )
+        self.close()
+
     def get_tug_results(self, start_date, end_date):
         """Restituisce i risultati TUG completati in un range di date (YYYY-MM-DD)."""
         cursor = self.connect()
@@ -108,10 +121,17 @@ class DatabaseManager:
     def save_sts_result(self, test_id, sts_data):
         cursor = self.connect()
         cursor.execute('''
-            INSERT INTO sts_result VALUES (
-                :test_id, :total_time, :reps_completed, :avg_rep_time, :avg_knee_angle
-            )
+            INSERT INTO sts_result (test_id, total_time, reps_completed, avg_rep_time, avg_knee_angle)
+            VALUES (:test_id, :total_time, :reps_completed, :avg_rep_time, :avg_knee_angle)
         ''', {**sts_data, 'test_id': test_id})
+        self.close()
+
+    def update_sts_vlm_analysis(self, test_id, vlm_analysis):
+        cursor = self.connect()
+        cursor.execute(
+            "UPDATE sts_result SET vlm_analysis = ? WHERE test_id = ?",
+            (vlm_analysis, test_id)
+        )
         self.close()
 
     def get_sts_results(self, start_date, end_date):

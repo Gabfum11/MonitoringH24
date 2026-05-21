@@ -145,7 +145,9 @@ class VLMMonitor:
             test_runner = TestRunner( #test runner per eseguire i test TUG e STS su richiesta dal bot Telegram, con callback per salvare i risultati nel diario
                 monitor_area=self.capture.monitor,
                 observations=self.observations,
-                save_callback=self.diary.save_data 
+                save_callback=self.diary.save_data,
+                vlm_client=self.vlm,
+                output_dir=str(self.diary.output_dir)
             )
             def run_bot():
                 bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir),

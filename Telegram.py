@@ -418,15 +418,47 @@ class MonitorBot:
             return
         await update.message.reply_text("Avvio test TUG... La persona deve essere visibile.")
 
-        result = await asyncio.to_thread(self.test_runner.run_tug)
+        outcome = await asyncio.to_thread(self.test_runner.run_tug)
 
-        if result:
-            await update.message.reply_text(
-                f"TUG completato!\n"
-                f"Tempo: {result['total_time']:.1f}s"
-            )
-        else:
+        if outcome is None:
             await update.message.reply_text("Test non completato.")
+            return
+
+        result, standup_frames, tug_frames, test_id = outcome
+        if not result:
+            await update.message.reply_text("Test non completato.")
+            return
+
+        await update.message.reply_text(
+            f"TUG completato!\n"
+            f"Tempo: {result['total_time']:.1f}s"
+        )
+
+        if not self.test_runner._vlm:
+            return
+
+        full_analysis_parts = []
+
+        if standup_frames:
+            await update.message.reply_text("Analizzo l'alzata...")
+            standup = await asyncio.to_thread(
+                self.test_runner._analyse_standup, standup_frames
+            )
+            if standup:
+                await update.message.reply_text(f"*Alzata:*\n{standup}", parse_mode="Markdown")
+                full_analysis_parts.append(f"[Alzata]\n{standup}")
+
+        if tug_frames:
+            await update.message.reply_text("Analizzo andatura e svolta...")
+            gait = await asyncio.to_thread(
+                self.test_runner._analyse_tug_quality, tug_frames
+            )
+            if gait:
+                await update.message.reply_text(f"*Andatura:*\n{gait}", parse_mode="Markdown")
+                full_analysis_parts.append(f"[Andatura]\n{gait}")
+
+        if full_analysis_parts and test_id:
+            self.test_runner.db.update_tug_vlm_analysis(test_id, "\n\n".join(full_analysis_parts))
 
     async def cmd_sts(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Avvia un test STS."""
@@ -437,16 +469,32 @@ class MonitorBot:
             return
         await update.message.reply_text("Avvio test STS... La persona deve essere visibile.")
 
-        result = await asyncio.to_thread(self.test_runner.run_sts)
+        outcome = await asyncio.to_thread(self.test_runner.run_sts)
 
-        if result:
-            await update.message.reply_text(
-                f"STS completato!\n"
-                f"Ripetizioni: {result['reps_completed']}\n"
-                f"Tempo: {result['total_time']:.1f}s"
-            )
-        else:
+        if outcome is None:
             await update.message.reply_text("Test non completato.")
+            return
+
+        result, transition_frames, test_id = outcome
+        if not result:
+            await update.message.reply_text("Test non completato.")
+            return
+
+        await update.message.reply_text(
+            f"STS completato!\n"
+            f"Ripetizioni: {result['reps_completed']}\n"
+            f"Tempo: {result['total_time']:.1f}s"
+        )
+
+        if transition_frames and self.test_runner._vlm:
+            await update.message.reply_text("Analizzo il movimento...")
+            analysis = await asyncio.to_thread(
+                self.test_runner._analyse_sts_quality, transition_frames
+            )
+            if analysis:
+                await update.message.reply_text(analysis)
+                if test_id:
+                    self.test_runner.db.update_sts_vlm_analysis(test_id, analysis)
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Gestisce messaggi liberi — interroga Gemma."""

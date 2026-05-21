@@ -300,23 +300,42 @@ class Observer:
     }
 
     def _track_anomalies(self, description):
-        """Rileva situazioni critiche nel testo dell'osservazione e genera alert immediati."""
+        """Rileva situazioni critiche: keyword matching come pre-filtro, VLM per conferma."""
         desc_lower = description.lower()
+        categoria_match = None
         for categoria, termini in self._ALERT_PATTERNS.items():
             if any(t in desc_lower for t in termini):
-                alert_obs = {
-                    "time": datetime.now().strftime("%H:%M"),
-                    "timestamp": datetime.now().isoformat(),
-                    "hour": datetime.now().hour,
-                    "type": "alert",
-                    "description": (f"⚠ ALERT ({categoria}): {description}")
-                }
-                self.observations.append(alert_obs)
-                self._save()
-                print(f"\n{'!'*60}")
-                print(f"[{alert_obs['time']}] ALERT {categoria.upper()}: {description}")
-                print(f"{'!'*60}\n")
+                categoria_match = categoria
                 break
+
+        if not categoria_match:
+            return
+
+        # Conferma con VLM per evitare falsi positivi da negazioni
+        prompt = (
+            f"La seguente osservazione descrive una situazione di emergenza reale "
+            f"({categoria_match})? Rispondi solo 'sì' o 'no'.\n\nOsservazione: {description}"
+        )
+        try:
+            risposta = self.vlm.call_text(prompt, max_tokens=5).strip().lower()
+        except Exception:
+            risposta = "sì"  # in caso di errore, meglio un falso positivo
+
+        if not risposta.startswith("sì") and not risposta.startswith("si"):
+            return
+
+        alert_obs = {
+            "time": datetime.now().strftime("%H:%M"),
+            "timestamp": datetime.now().isoformat(),
+            "hour": datetime.now().hour,
+            "type": "alert",
+            "description": (f"⚠ ALERT ({categoria_match}): {description}")
+        }
+        self.observations.append(alert_obs)
+        self._save()
+        print(f"\n{'!'*60}")
+        print(f"[{alert_obs['time']}] ALERT {categoria_match.upper()}: {description}")
+        print(f"{'!'*60}\n")
 
     # =========================================
     # CONFRONTO AMBIENTALE
