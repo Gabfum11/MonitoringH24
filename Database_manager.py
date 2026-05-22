@@ -26,8 +26,7 @@ class DatabaseManager:
                 test_type TEXT,
                 start_time TEXT,
                 end_time TEXT,
-                completed INTEGER,
-                video_source TEXT
+                completed INTEGER
             )
         ''')
 
@@ -47,7 +46,6 @@ class DatabaseManager:
                 total_time REAL,
                 reps_completed INTEGER,
                 avg_rep_time REAL,
-                avg_knee_angle REAL,
                 FOREIGN KEY(test_id) REFERENCES test_session(test_id)
             )
         ''')
@@ -71,9 +69,9 @@ class DatabaseManager:
     def create_test_session(self, summary_date, test_type, start_time, video_source=None):
         cursor = self.connect()
         cursor.execute('''
-            INSERT INTO test_session (summary_date, test_type, start_time, completed, video_source)
-            VALUES (?, ?, ?, 0, ?)
-        ''', (summary_date, test_type, start_time, video_source))
+            INSERT INTO test_session (summary_date, test_type, start_time, completed)
+            VALUES (?, ?, ?, 0)
+        ''', (summary_date, test_type, start_time))
         test_id = cursor.lastrowid
         self.close()
         return test_id
@@ -121,8 +119,8 @@ class DatabaseManager:
     def save_sts_result(self, test_id, sts_data):
         cursor = self.connect()
         cursor.execute('''
-            INSERT INTO sts_result (test_id, total_time, reps_completed, avg_rep_time, avg_knee_angle)
-            VALUES (:test_id, :total_time, :reps_completed, :avg_rep_time, :avg_knee_angle)
+            INSERT INTO sts_result (test_id, total_time, reps_completed, avg_rep_time)
+            VALUES (:test_id, :total_time, :reps_completed, :avg_rep_time)
         ''', {**sts_data, 'test_id': test_id})
         self.close()
 
@@ -138,7 +136,7 @@ class DatabaseManager:
         """Restituisce i risultati STS completati in un range di date (YYYY-MM-DD)."""
         cursor = self.connect()
         cursor.execute('''
-            SELECT ts.summary_date, sr.total_time, sr.reps_completed, sr.avg_rep_time, sr.avg_knee_angle
+            SELECT ts.summary_date, sr.total_time, sr.reps_completed, sr.avg_rep_time
             FROM test_session ts
             JOIN sts_result sr ON ts.test_id = sr.test_id
             WHERE ts.summary_date BETWEEN ? AND ? AND ts.completed = 1
@@ -147,4 +145,4 @@ class DatabaseManager:
         rows = cursor.fetchall()
         self.close()
         return [{'date': r[0], 'total_time': r[1], 'reps_completed': r[2],
-                 'avg_rep_time': r[3], 'avg_knee_angle': r[4]} for r in rows]
+                 'avg_rep_time': r[3]} for r in rows]

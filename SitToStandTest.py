@@ -12,7 +12,6 @@ class SitToStandTest:
         self.end_time = None
         self.rep_times = []
         self.current_rep_start = None
-        self.knee_angles = []
         self._standing_since = None
         self._min_standing_s = 0.4
         self.transition_just_occurred = False
@@ -27,9 +26,6 @@ class SitToStandTest:
     def update(self, state, knee_angle=0):
         if not self.test_active:
             return self.reps
-        
-        if knee_angle > 0:
-            self.knee_angles.append(knee_angle)
 
         now = time.time()
 
@@ -66,13 +62,11 @@ class SitToStandTest:
         
         total_time = self.end_time - self.start_time
         avg_rep_time = sum(self.rep_times) / len(self.rep_times) if self.rep_times else 0
-        avg_knee = sum(self.knee_angles) / len(self.knee_angles) if self.knee_angles else 0
-        
+
         return {
             'total_time': round(total_time, 2),
             'reps_completed': self.reps,
-            'avg_rep_time': round(avg_rep_time, 2),
-            'avg_knee_angle': round(avg_knee, 2)
+            'avg_rep_time': round(avg_rep_time, 2)
         }
     
     def get_time(self):

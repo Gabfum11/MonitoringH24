@@ -28,7 +28,6 @@ class CaptureManager:
 
         # Change detection
         self._prev_frame_gray = None
-        self._diff_history = deque(maxlen=10) 
         self._change_streak = 0
         self.last_diff = 0
 
@@ -58,11 +57,14 @@ class CaptureManager:
     # =========================================
     # CHANGE DETECTION
     # =========================================
+    _THRESHOLD = 3.0
+
     def scene_changed(self, frame):
         """Confronta il frame corrente con il precedente.
-        
-        Usa soglia adattiva (media + 2σ dei diff recenti) e mini-storia
-        (2 frame consecutivi sopra soglia) per filtrare falsi positivi.
+
+        Usa soglia fissa e mini-storia (2 frame consecutivi sopra soglia)
+        per filtrare falsi positivi. Eventi bruschi (diff>10) vengono
+        rilevati immediatamente senza attendere il secondo frame.
         """
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.resize(gray, (160, 120))
@@ -75,27 +77,24 @@ class CaptureManager:
         diff = np.mean(np.abs(gray.astype(float) - self._prev_frame_gray.astype(float)))
         self._prev_frame_gray = gray
         self.last_diff = diff
+
         if diff > 70:
             self._change_streak = 0
             print(f"[ROTAZIONE] Movimento camera rilevato (Diff: {diff:.2f}), ignoro...")
             return False
 
-        # Soglia adattiva
-        self._diff_history.append(diff)
-        if len(self._diff_history) >= 5:
-            mean_diff = np.mean(list(self._diff_history))
-            std_diff = np.std(list(self._diff_history))
-            threshold = max(2.5, mean_diff + 1.0 * std_diff)
-        else:
-            threshold = 2.5
+        # Evento brusco improvviso: bypass soglia e streak
+        if diff > 10:
+            self._change_streak = 0
+            print(f"[SPIKE] Evento brusco rilevato (diff={diff:.2f}), osservazione immediata")
+            return True
 
-        # Mini-storia: 2 frame consecutivi sopra soglia
-        if diff > threshold:
+        # Mini-storia: 2 frame consecutivi sopra soglia fissa
+        if diff > self._THRESHOLD:
             self._change_streak += 1
         else:
             self._change_streak = 0
 
-        print(f"[DIFF] diff={diff:.2f} threshold={threshold:.2f} streak={self._change_streak} changed={self._change_streak >= 2}")
         return self._change_streak >= 2
     
    

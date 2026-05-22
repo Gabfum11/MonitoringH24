@@ -111,10 +111,17 @@ class Observer:
         now = time.time()
         time_since_last = now - self._prev_observation_time
 
-        if scene_changed and time_since_last >= 15:
-            if last_diff > 6 and change_streak >= 3:
-                return 'sequenza_rapida'
-            return 'sequenza'
+        if scene_changed:
+            if last_diff > 20 or change_streak >= 3:
+                # Evento significativo o azione sostenuta: cooldown minimo per non sovrapporre il buffer
+                if time_since_last >= 30:
+                    if last_diff > 6 and change_streak >= 3:
+                        return 'sequenza_rapida'
+                    return 'sequenza'
+            else:
+                # Spike lieve (10-20): micro-movimento vicino camera, cooldown lungo
+                if time_since_last >= 60:
+                    return 'sequenza'
 
         if time_since_last >= self._current_interval:
             return 'single'
