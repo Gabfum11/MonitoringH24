@@ -66,6 +66,20 @@ class MonitorBot:
         self.allowed_ids = set(allowed_ids) if allowed_ids else set()
         self.db = DatabaseManager()
         self.rag = rag
+        self._app = None
+        self._loop = None
+
+    def send_alert(self, text):
+        """Invia una notifica proattiva a tutti gli utenti autorizzati."""
+        if not self._app or not self._loop or not self.allowed_ids:
+            return
+        async def _send():
+            for user_id in self.allowed_ids:
+                try:
+                    await self._app.bot.send_message(chat_id=user_id, text=f"⚠ {text}")
+                except Exception as e:
+                    print(f"[TELEGRAM] Errore invio notifica a {user_id}: {e}")
+        asyncio.run_coroutine_threadsafe(_send(), self._loop)
 
     async def _check_auth(self, update: Update) -> bool:
         if not self.allowed_ids:
@@ -516,6 +530,8 @@ class MonitorBot:
         """Avvia il bot Telegram."""
         async def start():
             app = ApplicationBuilder().token(self.token).build()
+            self._app = app
+            self._loop = asyncio.get_running_loop()
 
             app.add_handler(CommandHandler("start", self.cmd_start))
             app.add_handler(CommandHandler("stato", self.cmd_stato))

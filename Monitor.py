@@ -68,6 +68,37 @@ class VLMMonitor:
         self.diary.load_existing_data()
 
     # =========================================
+    # RECUPERO REPORT MANCANTI
+    # =========================================
+    def _recover_missing_weekly_reports(self):
+        """All'avvio, genera i report settimanali mancanti delle settimane precedenti."""
+        today = date.today()
+        current_monday = today - timedelta(days=today.weekday())
+        for i in range(1, 9):
+            week_end = current_monday - timedelta(days=1) - timedelta(weeks=i - 1)
+            week_start = week_end - timedelta(days=6)
+            month_dir = self.diary._get_monthly_dir(week_end.year, week_end.month)
+            path = month_dir / f"settimanale_{week_start.isoformat()}_{week_end.isoformat()}.txt"
+            if not path.exists():
+                print(f"[SETTIMANALE] Report mancante per {week_start} → {week_end}, genero...")
+                self.diary.generate_weekly_diary(end_date=week_end)
+
+    def _recover_missing_monthly_reports(self):
+        """All'avvio, genera i report mensili mancanti degli ultimi 3 mesi."""
+        today = date.today()
+        for i in range(1, 4):
+            month = today.month - i
+            year = today.year
+            if month <= 0:
+                month += 12
+                year -= 1
+            month_dir = self.diary._get_monthly_dir(year, month)
+            path = month_dir / f"mensile_{year}-{month:02d}.txt"
+            if not path.exists():
+                print(f"[MENSILE] Report mancante per {year}-{month:02d}, genero...")
+                self.diary.generate_monthly_diary(year=year, month=month)
+
+    # =========================================
     # CAMBIO GIORNATA
     # =========================================
     def _check_new_day(self):
@@ -93,12 +124,7 @@ class VLMMonitor:
                 print(f"[MENSILE] Primo del mese, genero report mensile")
                 self.diary.generate_monthly_diary()
 
-            # 1° gennaio → report annuale
-            if today.month == 1 and today.day == 1:
-                print(f"[ANNUALE] Primo gennaio, genero report annuale")
-                self.diary.generate_annual_diary()
-
-            # Reset per il nuovo giorno
+# Reset per il nuovo giorno
             self.today = today_str
             self.diary.today = today_str
             self.observations.clear()
@@ -141,24 +167,26 @@ class VLMMonitor:
                 local_cfg = json.load(f) #lettura del token da config.local.json, se presente, per evitare di esporlo in chiaro nel codice o nelle variabili d'ambiente
 
         token = local_cfg.get("telegram_token")
-        if token:  #se il token è presente, avvia il bot Telegram in un thread separato
-            test_runner = TestRunner( #test runner per eseguire i test TUG e STS su richiesta dal bot Telegram, con callback per salvare i risultati nel diario
+        if token:
+            test_runner = TestRunner(
                 monitor_area=self.capture.monitor,
                 observations=self.observations,
                 save_callback=self.diary.save_data,
                 vlm_client=self.vlm,
                 output_dir=str(self.diary.output_dir)
             )
-            def run_bot():
-                bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir),
-                                 test_runner=test_runner, allowed_ids=local_cfg.get("allowed_ids"),
-                                 rag=self.rag)
-                bot.run()
-            bot_thread = threading.Thread(target=run_bot, daemon=True) #indica la creazione di un sottoprocesso in cui la funzione run_bot viene avviata senza bloccare il processo principale del monitoraggio. Il bot Telegram funzionerà in background, permettendo al monitoraggio di continuare senza interruzioni.
-            bot_thread.start() #avvia il thread del bot Telegram
+            bot = MonitorBot(token=token, vlm_client=self.vlm, data_dir=str(self.diary.output_dir),
+                             test_runner=test_runner, allowed_ids=local_cfg.get("allowed_ids"),
+                             rag=self.rag)
+            self.observer._alert_callback = bot.send_alert
+            bot_thread = threading.Thread(target=bot.run, daemon=True)
+            bot_thread.start()
             print("[TELEGRAM] Bot avviato in background")
         else:
             print("[TELEGRAM] Token non trovato, bot non avviato")
+
+        self._recover_missing_weekly_reports()
+        self._recover_missing_monthly_reports()
 
         try:
             while True:
@@ -221,8 +249,6 @@ def main():
                         help="Genera il report settimanale e esci")
     parser.add_argument("--gen-monthly", action="store_true",
                         help="Genera il report mensile e esci")
-    parser.add_argument("--gen-annual", action="store_true",
-                        help="Genera il report annuale e esci")
     parser.add_argument("--index-rag", action="store_true",
                         help="Indicizza i riepiloghi orari esistenti nel RAG e esci")
 
@@ -248,9 +274,6 @@ def main():
         return
     if args.gen_monthly:
         monitor.diary.generate_monthly_diary()
-        return
-    if args.gen_annual:
-        monitor.diary.generate_annual_diary()
         return
     if args.preview:
         monitor.capture.preview()

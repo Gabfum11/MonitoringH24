@@ -64,13 +64,7 @@ class DiaryGenerator:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    def _get_annual_dir(self, year):
-        """Es: diari/2026/"""
-        path = self.output_dir / str(year)
-        path.mkdir(parents=True, exist_ok=True)
-        return path
-
-    # =========================================
+# =========================================
     # TEST CLINICI
     # =========================================
     def _format_test_data(self, start_date_str, end_date_str):
@@ -224,7 +218,7 @@ class DiaryGenerator:
             )
             source = "osservazioni grezze"
 
-        alerts = [o for o in self.observations if o.get('type') == 'alert']
+        alerts = [o for o in self.observations if o.get('type') in ('alert', 'assenza')]
         alert_text = ""
         if alerts:
             alert_text = (
@@ -235,12 +229,25 @@ class DiaryGenerator:
         first_time = self.observations[0]['time'] if self.observations else "N/D"
         last_time = self.observations[-1]['time'] if self.observations else "N/D"
 
+        observed_hours = {o.get('hour') for o in self.observations}
+        if observed_hours:
+            first_hour = min(observed_hours)
+            last_hour = max(observed_hours)
+            missing_hours = [h for h in range(first_hour, last_hour + 1) if h not in observed_hours]
+            missing_hours_note = ""
+            if missing_hours:
+                labels = ", ".join(f"{h:02d}:00-{h:02d}:59" for h in missing_hours)
+                missing_hours_note = f"\nATTENZIONE: nessuna osservazione nelle seguenti ore: {labels}.\n"
+        else:
+            missing_hours_note = ""
+
         week_ago = (date.fromisoformat(self.today) - timedelta(days=7)).isoformat()
-        test_block = self._format_test_data(week_ago, self.today) #in text, ma contiene i risultati dei test clinici della settimana, se presenti
+        test_block = self._format_test_data(week_ago, self.today)
 
         prompt = (
             f"Oggi {self.today}, il sistema ha monitorato la persona dalle {first_time} alle {last_time}.\n"
-            f"Totale osservazioni: {len(self.observations)}.\n\n"
+            f"Totale osservazioni: {len(self.observations)}.\n"
+            f"{missing_hours_note}\n"
             f"Ecco i {source} della giornata:\n\n"
             f"{content}{alert_text}"
             f"{test_block}\n\n"
@@ -320,6 +327,16 @@ class DiaryGenerator:
             print("[SETTIMANALE] Nessun diario giornaliero trovato, skip")
             return None
 
+        available_dates = {entry['date'] for entry in daily_diaries}
+        missing_dates = [
+            (start_date + timedelta(days=i)).isoformat()
+            for i in range(7)
+            if (start_date + timedelta(days=i)).isoformat() not in available_dates
+        ]
+        missing_note = ""
+        if missing_dates:
+            missing_note = f"ATTENZIONE: dati mancanti per i seguenti giorni: {', '.join(missing_dates)}.\n\n"
+
         content = "\n\n".join(
             f"--- {entry['date']} ---\n{entry['content']}"
             for entry in daily_diaries
@@ -331,6 +348,7 @@ class DiaryGenerator:
             f"Sei un geriatra. Ecco i diari giornalieri di monitoraggio domiciliare "
             f"dal {start_date.isoformat()} al {end_date.isoformat()} "
             f"({len(daily_diaries)} giorni su 7 con dati disponibili).\n\n"
+            f"{missing_note}"
             f"{content}"
             f"{test_block}\n\n"
             f"Scrivi un REPORT SETTIMANALE completo in italiano (2-3 pagine). Struttura:\n\n"
@@ -400,59 +418,37 @@ class DiaryGenerator:
         print(f"{'='*60}")
 
         weekly_reports = self._read_weekly_diaries(start_date, end_date)
-        daily_diaries = self._read_daily_diaries(start_date, end_date)
 
-        if not weekly_reports and not daily_diaries:
-            print("[MENSILE] Nessun dato trovato, skip")
-            return None
+        if not weekly_reports:
+            print("[MENSILE] Nessun report settimanale trovato, genero con dati mancanti segnalati")
 
-        if weekly_reports:
-            # Settimanali per il quadro generale
-            content = "REPORT SETTIMANALI:\n\n"
-            content += "\n\n".join(
-                f"--- Settimana {entry['period']} ---\n{entry['content']}"
-                for entry in weekly_reports
-            )
-            # Aggiungi anche i giornalieri per il dettaglio
-            if daily_diaries:
-                content += "\n\nDETTAGLIO GIORNALIERO:\n\n"
-                content += "\n\n".join(
-                    f"--- {entry['date']} ---\n{entry['content']}"
-                    for entry in daily_diaries
-                )
-            source = (f"{len(weekly_reports)} report settimanali + "
-                      f"{len(daily_diaries)} diari giornalieri")
-        else:
-            # Fallback: solo giornalieri — tronca solo se necessario
-            # Stima token: ~1.4 token per parola
-            total_words = sum(len(e['content'].split()) for e in daily_diaries)
-            max_words = 35000  # ~50000 token lasciando spazio per prompt e risposta
-            
-            if total_words > max_words:
-                # Tronca proporzionalmente ogni diario
-                words_per_diary = max_words // len(daily_diaries)
-                truncated = []
-                for entry in daily_diaries:
-                    words = entry['content'].split()
-                    short = ' '.join(words[:words_per_diary])
-                    if len(words) > words_per_diary:
-                        short += "\n[...troncato...]"
-                    truncated.append({"date": entry['date'], "content": short})
-                daily_diaries = truncated
-                source = f"{len(daily_diaries)} diari giornalieri (troncati)"
-            else:
-                source = f"{len(daily_diaries)} diari giornalieri"
+        content = "\n\n".join(
+            f"--- Settimana {entry['period']} ---\n{entry['content']}"
+            for entry in weekly_reports
+        ) if weekly_reports else ""
+        source = f"{len(weekly_reports)} report settimanali" if weekly_reports else "nessun dato disponibile"
 
-            content = "\n\n".join(
-                f"--- {entry['date']} ---\n{entry['content']}"
-                for entry in daily_diaries
-            )
+        available_weeks = {entry['period'].split(' → ')[0] for entry in weekly_reports}
+        missing_weeks = []
+        cursor = start_date
+        while cursor <= end_date:
+            week_monday = cursor - timedelta(days=cursor.weekday())
+            if week_monday.isoformat() not in available_weeks:
+                week_sunday = week_monday + timedelta(days=6)
+                missing_weeks.append(f"{week_monday.isoformat()} → {week_sunday.isoformat()}")
+            cursor += timedelta(weeks=1)
+            cursor -= timedelta(days=cursor.weekday())
+        missing_weeks = list(dict.fromkeys(missing_weeks))
+        missing_weeks_note = ""
+        if missing_weeks:
+            missing_weeks_note = f"ATTENZIONE: dati mancanti per le seguenti settimane: {'; '.join(missing_weeks)}.\n\n"
 
         test_block = self._format_test_data(start_date.isoformat(), end_date.isoformat())
 
         prompt = (
             f"Sei un geriatra. Ecco i dati di monitoraggio domiciliare per {month_name} "
             f"(fonte: {source}).\n\n"
+            f"{missing_weeks_note}"
             f"{content}"
             f"{test_block}\n\n"
             f"Scrivi un REPORT MENSILE completo in italiano (3-4 pagine). Struttura:\n\n"
@@ -492,83 +488,6 @@ class DiaryGenerator:
             return diary
         else:
             print("[MENSILE] Errore nella generazione")
-            return None
-
-    # =========================================
-    # LIVELLO 5: REPORT ANNUALE
-    # =========================================
-    def generate_annual_diary(self, year=None):
-        """Genera il report annuale dai report mensili."""
-        if year is None:
-            year = date.today().year - 1
-
-        print(f"\n{'='*60}")
-        print(f"[ANNUALE] Generazione diario annuale: {year}")
-        print(f"{'='*60}")
-
-        # Cerca i report mensili — li usa completi (12 × ~2500 token = ~30000, dentro i 64K)
-        monthly_reports = []
-        for month in range(1, 13):
-            month_dir = self._get_monthly_dir(year, month)
-            path = month_dir / f"mensile_{year}-{month:02d}.txt"
-            if path.exists():
-                with open(path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                body = content.split('\n\n', 1)
-                body = body[1] if len(body) > 1 else content
-                monthly_reports.append({
-                    "month": f"{year}-{month:02d}",
-                    "content": body.strip()
-                })
-
-        if not monthly_reports:
-            print("[ANNUALE] Nessun report mensile trovato, skip")
-            return None
-
-        print(f"  Mesi con dati: {len(monthly_reports)}/12")
-
-        content = "\n\n".join(
-            f"--- {entry['month']} ---\n{entry['content']}"
-            for entry in monthly_reports
-        )
-
-        prompt = (
-            f"Sei un geriatra. Ecco i report mensili di monitoraggio domiciliare "
-            f"per l'anno {year} ({len(monthly_reports)} mesi su 12 con dati).\n\n"
-            f"{content}\n\n"
-            f"Scrivi un REPORT ANNUALE completo in italiano (4-5 pagine). Struttura:\n\n"
-            f"RIEPILOGO ANNUALE: stato complessivo della persona durante l'anno.\n\n"
-            f"EVOLUZIONE TRIMESTRALE: per ogni trimestre, 4-5 frasi sull'andamento.\n\n"
-            f"MOBILITÀ E AUTONOMIA: come è cambiata nel corso dell'anno.\n\n"
-            f"PATTERN STAGIONALI: differenze tra estate e inverno, periodi migliori e peggiori.\n\n"
-            f"EVENTI SIGNIFICATIVI: cadute, ospedalizzazioni, cambiamenti improvvisi.\n\n"
-            f"SINTESI DELLE VARIAZIONI: cambiamenti osservati nell'anno, "
-f"andamento nell'attività e nella mobilità, eventi significativi registrati.\n\n"
-f"NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
-        )
-
-        diary = self.vlm.call_text(
-            prompt,
-            system="Sei un geriatra esperto in monitoraggio domiciliare a lungo termine.",
-            max_tokens=6000
-        )
-
-        if diary:
-            header = (
-                f"REPORT ANNUALE DI MONITORAGGIO DOMICILIARE\n"
-                f"{'='*50}\n"
-                f"Anno: {year}\n"
-                f"Mesi con dati: {len(monthly_reports)}/12\n"
-                f"{'='*50}\n\n"
-            )
-            annual_dir = self._get_annual_dir(year)
-            path = annual_dir / f"annuale_{year}.txt"
-            with open(path, 'w', encoding='utf-8') as f:
-                f.write(header + diary)
-            print(f"[ANNUALE] Salvato in {path}")
-            return diary
-        else:
-            print("[ANNUALE] Errore nella generazione")
             return None
 
     # =========================================

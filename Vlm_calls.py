@@ -35,14 +35,17 @@ class VLMCalls:
             "- Attività in corso\n"
             "- Stabilità e movimento (normale, lento, incerto)\n"
             "- Se la persona è assistita da qualcuno nell'alzarsi, camminare o altre azioni\n"
-            "- Possibili segnali di rischio (caduta, immobilità prolungata, difficoltà)\n\n"
             "Se nelle osservazioni precedenti la persona era in una posizione diversa, "
             "segnala il cambiamento.\n\n"
             "Scrivi in italiano, massimo 2-3 frasi, stile cartella clinica.\n"
             "Sii oggettivo e preciso.\n"
             "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
             "a meno che non siano importanti per la sicurezza.\n"
-            "Se la persona non è visibile, dichiaralo chiaramente."
+            "Se la persona non è visibile, dichiaralo chiaramente.\n\n"
+            "Segnala se la persona è sedentaria (seduta o sdraiata) per lunghi periodi senza cambiamenti, "
+            "Se rilevi una situazione critica (caduta, persona a terra, instabilità grave, difficoltà nel movimento), "
+            "termina la risposta con: [ALERT: categoria]\n"
+            "Altrimenti non aggiungere nulla."
         )
 
     # =========================================

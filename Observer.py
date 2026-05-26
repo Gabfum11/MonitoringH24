@@ -10,13 +10,15 @@ Gestisce:
 - Osservazioni di confronto ambientale periodiche
 """
 
+import re
 import time
 from datetime import datetime
 
 
 class Observer:
     def __init__(self, capture_manager, vlm_client, observations,
-                 save_callback, capture_interval=30, comparison_interval=1800):
+                 save_callback, capture_interval=30, comparison_interval=1800,
+                 alert_callback=None):
         """
         Args:
             capture_manager: istanza di CaptureManager
@@ -25,11 +27,13 @@ class Observer:
             save_callback: funzione da chiamare per salvare i dati su disco
             capture_interval: intervallo base in secondi
             comparison_interval: secondi tra confronti ambientali (default: 30 minuti)
+            alert_callback: funzione opzionale chiamata con il testo dell'alert
         """
         self.capture = capture_manager
         self.vlm = vlm_client
         self.observations = observations
         self._save = save_callback
+        self._alert_callback = alert_callback
 
         # Intervalli adattivi
         self._min_interval = capture_interval
@@ -43,6 +47,10 @@ class Observer:
         self._absence_alerted = False
         self._absence_start_time = 0
         self._zoom_pending = False
+
+        # Sedentarietà prolungata
+        self._sedentary_start_time = 0
+        self._sedentary_alerted = False
 
         # Confronto ambientale
         self._last_comparison_time = time.time()
@@ -61,6 +69,8 @@ class Observer:
         """Reset giornaliero dello stato."""
         self._consecutive_absence = 0
         self._absence_alerted = False
+        self._sedentary_start_time = 0
+        self._sedentary_alerted = False
         self._comparison_frame = None
 
     # =========================================
@@ -195,13 +205,24 @@ class Observer:
                 "type": obs_type,
                 "description": description
             }
+            alert_match = re.search(r'\[ALERT:\s*([^\]]+)\]', description)
+            if alert_match:
+                categoria = alert_match.group(1).strip()
+                obs['type'] = 'alert'
+                obs['description'] = f"⚠ ALERT ({categoria}): {description}"
             self.observations.append(obs)
             self._prev_observation_time = time.time()
             self._save()
             tag = "EVT_R" if obs_type == "sequenza_rapida" else ("EVT" if obs_type == "sequenza" else "FIX")
             print(f"[{obs['time']}] [{tag}×{n_frames}] {description}")
+            if alert_match:
+                print(f"\n{'!'*60}")
+                print(f"[{obs['time']}] ALERT {categoria.upper()}: {description}")
+                print(f"{'!'*60}\n")
+                if self._alert_callback:
+                    self._alert_callback(obs['description'])
             self._track_absence(description)
-            self._track_anomalies(description)
+            self._track_sedentary(description)
             if self._zoom_pending:
                 self._zoom_pending = False
                 self._observe_zoomed()
@@ -267,13 +288,13 @@ class Observer:
         hour = datetime.now().hour
         is_daytime = 6 <= hour < 22
 
-        if (is_daytime and minutes_absent >= 30 and not self._absence_alerted):
+        if (is_daytime and minutes_absent >= 60 and not self._absence_alerted):
             alert_obs = {
                 "time": datetime.now().strftime("%H:%M"),
                 "timestamp": datetime.now().isoformat(),
                 "hour": datetime.now().hour,
-                "type": "alert",
-                "description": (f"⚠ ALERT: La persona non è visibile da circa "
+                "type": "assenza",
+                "description": (f"⚠ ASSENZA: La persona non è visibile da circa "
                                f"{minutes_absent:.0f} minuti durante le ore diurne. "
                                f"Verificare se è uscita o se si trova fuori dall'inquadratura.")
             }
@@ -283,66 +304,49 @@ class Observer:
             print(f"\n{'!'*60}")
             print(f"[{alert_obs['time']}] {alert_obs['description']}")
             print(f"{'!'*60}\n")
+            if self._alert_callback:
+                self._alert_callback(alert_obs['description'])
 
-    # =========================================
-    # RILEVAMENTO ANOMALIE
-    # =========================================
-    _ALERT_PATTERNS = {
-        "caduta": [
-            "a terra", "caduta", "è caduta", "è caduto", "distesa sul pavimento",
-            "disteso sul pavimento", "giace", "giace sul pavimento", "è scivolata", "è scivolato"
-        ],
-        "instabilità grave": [
-            "barcolla", "perde l'equilibrio", "si aggrappa", "si regge al muro",
-            "rischio di caduta", "quasi caduta", "ha perso l'equilibrio"
-        ],
-        "difficoltà evidente": [
-            "in evidente difficoltà", "si contorce", "si tiene la testa",
-            "non riesce ad alzarsi", "non riesce a muoversi", "sembra sofferente"
-        ],
-        "estraneo": [
-            "persona sconosciuta", "estraneo", "individuo non identificato",
-            "presenza non abituale"
-        ],
-    }
-
-    def _track_anomalies(self, description):
-        """Rileva situazioni critiche: keyword matching come pre-filtro, VLM per conferma."""
+    def _track_sedentary(self, description):
+        """Segnala sedentarietà prolungata se la persona è ferma da più di 2 ore di giorno."""
         desc_lower = description.lower()
-        categoria_match = None
-        for categoria, termini in self._ALERT_PATTERNS.items():
-            if any(t in desc_lower for t in termini):
-                categoria_match = categoria
-                break
+        is_sedentary = any(k in desc_lower for k in (
+            "seduta", "sdraiata", "sul divano", "sulla sedia", "in poltrona",
+            "a riposo", "non si muove", "ferma"
+        ))
+        is_active = any(k in desc_lower for k in (
+            "in piedi", "cammina", "si alza", "si muove", "in movimento"
+        ))
 
-        if not categoria_match:
+        if is_active:
+            self._sedentary_start_time = 0
+            self._sedentary_alerted = False
             return
 
-        # Conferma con VLM per evitare falsi positivi da negazioni
-        prompt = (
-            f"La seguente osservazione descrive una situazione di emergenza reale "
-            f"({categoria_match})? Rispondi solo 'sì' o 'no'.\n\nOsservazione: {description}"
-        )
-        try:
-            risposta = self.vlm.call_text(prompt, max_tokens=5).strip().lower()
-        except Exception:
-            risposta = "sì"  # in caso di errore, meglio un falso positivo
-
-        if not risposta.startswith("sì") and not risposta.startswith("si"):
-            return
-
-        alert_obs = {
-            "time": datetime.now().strftime("%H:%M"),
-            "timestamp": datetime.now().isoformat(),
-            "hour": datetime.now().hour,
-            "type": "alert",
-            "description": (f"⚠ ALERT ({categoria_match}): {description}")
-        }
-        self.observations.append(alert_obs)
-        self._save()
-        print(f"\n{'!'*60}")
-        print(f"[{alert_obs['time']}] ALERT {categoria_match.upper()}: {description}")
-        print(f"{'!'*60}\n")
+        if is_sedentary:
+            if self._sedentary_start_time == 0:
+                self._sedentary_start_time = time.time()
+            hour = datetime.now().hour
+            is_daytime = 6 <= hour < 22
+            minutes = (time.time() - self._sedentary_start_time) / 60
+            if is_daytime and minutes >= 120 and not self._sedentary_alerted:
+                obs = {
+                    "time": datetime.now().strftime("%H:%M"),
+                    "timestamp": datetime.now().isoformat(),
+                    "hour": datetime.now().hour,
+                    "type": "alert",
+                    "description": (f"⚠ ALERT: La persona è sedentaria da circa "
+                                   f"{minutes:.0f} minuti. Potrebbe essere opportuno incoraggiarla a muoversi.")
+                }
+                self.observations.append(obs)
+                self._save()
+                self._sedentary_alerted = True
+                print(f"[{obs['time']}] {obs['description']}")
+                if self._alert_callback:
+                    self._alert_callback(obs['description'])
+        else:
+            self._sedentary_start_time = 0
+            self._sedentary_alerted = False
 
     # =========================================
     # CONFRONTO AMBIENTALE
