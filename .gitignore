@@ -1,14 +1,66 @@
+# =========================================
+# Python
+# =========================================
 venv/
+.venv/
 __pycache__/
 *.pyc
+*.pyo
 .env
-diari/
-*.log
-*.sh
-*.db
+
+# =========================================
+# Configurazione locale e segreti
+# =========================================
 config.local.json
+
+# =========================================
+# Dati di esercizio (privacy: contengono osservazioni cliniche)
+# =========================================
+diari/
 rag_index/
-requisiti_funzionali.txt
+*.db
+*.db-journal
+*.log
+
+# =========================================
+# Materiale di debug (video, frame, script di prova)
+# =========================================
+debug_frames/
+*.mp4
+*.mov
+*.avi
+sts_debug_*.mp4
+tug_debug_*.mp4
+Test-Tug_debug.py
 Test-Tug-debug.py
-.DS_Store
+Test-Sts_debug.py
+
+# =========================================
+# Output degli script di analisi
+# =========================================
+campioni_risorse_*.csv
+powermetrics_*.log
+
+# =========================================
+# Backup locali (contengono dati di esercizio)
+# =========================================
+*.tar.gz
+*.tar
+*.zip
+diari_*_backup_*
+
+# =========================================
+# Script accessori e documenti privati
+# =========================================
+*.sh
+requisiti_funzionali.txt
 nohup.out
+
+# =========================================
+# Sistema operativo / IDE
+# =========================================
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo

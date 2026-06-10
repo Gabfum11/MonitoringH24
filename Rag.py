@@ -6,6 +6,7 @@ e permette la ricerca semantica per rispondere a domande storiche.
 """
 
 import json
+import time
 from pathlib import Path
 from datetime import date, timedelta
 
@@ -34,6 +35,40 @@ class RagIndex:
             embedding_function=self._ef,
             metadata={"hnsw:space": "cosine"}
         )
+
+        # Accumulatore latenze ricerca (resettato a inizio giornata)
+        self._latency_samples = {
+            "embedding": [],
+            "retrieval": [],
+            "build_context": [],
+            "total": [],
+        }
+
+    # =========================================
+    # METRICHE DI LATENZA
+    # =========================================
+    def _record_latency(self, embedding, retrieval, build, total):
+        self._latency_samples["embedding"].append(embedding)
+        self._latency_samples["retrieval"].append(retrieval)
+        self._latency_samples["build_context"].append(build)
+        self._latency_samples["total"].append(total)
+
+    def get_latency_summary(self):
+        summary = {}
+        for phase, samples in self._latency_samples.items():
+            if not samples:
+                continue
+            summary[phase] = {
+                "n": len(samples),
+                "mean": round(sum(samples) / len(samples), 3),
+                "min": round(min(samples), 3),
+                "max": round(max(samples), 3),
+            }
+        return summary
+
+    def reset_latency(self):
+        for v in self._latency_samples.values():
+            v.clear()
 
     # =========================================
     # INDICIZZAZIONE
@@ -171,25 +206,38 @@ class RagIndex:
             cutoff = (date.today() - timedelta(days=days_back)).isoformat()
             where = {"date": {"$gte": cutoff}}
 
+        # Fase 1: embedding della query
+        t0 = time.perf_counter()
+        query_embedding = self._ef([query])
+        t1 = time.perf_counter()
+
+        # Fase 2: retrieval da ChromaDB (passa l'embedding già calcolato
+        # per evitare il doppio calcolo che farebbe query_texts)
         results = self._collection.query(
-            query_texts=[query],
+            query_embeddings=query_embedding,
             n_results=min(n_results, total),
             where=where,
             include=["documents", "metadatas"]
         )
+        t2 = time.perf_counter()
 
         docs = results["documents"][0]
         metas = results["metadatas"][0]
 
         if not docs:
+            self._record_latency(t1 - t0, t2 - t1, 0.0, t2 - t0)
             return ""
 
+        # Fase 3: costruzione del contesto testuale
         lines = ["RIEPILOGHI RILEVANTI DALL'ARCHIVIO:"]
         for doc, meta in zip(docs, metas):
             label = meta.get("hour_label") or meta.get("type", "")
             lines.append(f"[{meta['date']} {label}] {doc}")
+        context = "\n".join(lines)
+        t3 = time.perf_counter()
 
-        return "\n".join(lines)
+        self._record_latency(t1 - t0, t2 - t1, t3 - t2, t3 - t0)
+        return context
 
     def count(self) -> int:
         return self._collection.count()

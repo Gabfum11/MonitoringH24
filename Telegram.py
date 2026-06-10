@@ -25,13 +25,19 @@ Configurazione:
 """
 
 import re
+import time
 import json
 import asyncio
 from datetime import date, timedelta
 from pathlib import Path
-from telegram import Update
+from telegram import Update, BotCommand
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from Database_manager import DatabaseManager
+
+
+# Cooldown minimo (in secondi) tra due richieste consecutive di uno stesso utente,
+# per evitare di sovraccaricare il server VLM con query in rapida successione.
+USER_COOLDOWN_SECONDS = 10
 
 GIORNI_IT = {
     "lunedì": 0, "lunedi": 0,
@@ -68,6 +74,8 @@ class MonitorBot:
         self.rag = rag
         self._app = None
         self._loop = None
+        # Rate limiting: timestamp dell'ultima query per utente
+        self._last_query_at = {}
 
     def send_alert(self, text):
         """Invia una notifica proattiva a tutti gli utenti autorizzati."""
@@ -89,11 +97,30 @@ class MonitorBot:
             return False
         return True
 
+    async def _check_rate_limit(self, update: Update) -> bool:
+        """Limita la frequenza delle query per utente.
+
+        Restituisce False (e avvisa l'utente) se ha mandato un messaggio
+        meno di USER_COOLDOWN_SECONDS secondi fa.
+        """
+        user_id = update.effective_user.id
+        now = time.time()
+        last = self._last_query_at.get(user_id, 0)
+        delta = now - last
+        if delta < USER_COOLDOWN_SECONDS:
+            wait = int(USER_COOLDOWN_SECONDS - delta) + 1
+            await update.message.reply_text(
+                f"Hai inviato troppe richieste in poco tempo. Attendi {wait} secondi e riprova."
+            )
+            return False
+        self._last_query_at[user_id] = now
+        return True
+
     # =========================================
     # LETTURA DATI
     # =========================================
     def _format_test_history(self, test_type="TUG", n=6):
-        """Legge gli ultimi N test dal DB e restituisce un confronto velocità leggibile."""
+        """Legge gli ultimi N test dal DB e restituisce un confronto temporale leggibile."""
         end = date.today().isoformat()
         start = (date.today() - timedelta(days=90)).isoformat()
 
@@ -111,33 +138,36 @@ class MonitorBot:
         for i, r in enumerate(recent):
             d = r['date']
             t = r['total_time']
-            speed = r.get('avg_speed_px_s', 0)
 
             if i == 0:
                 lines.append(f"- {d}: {t:.1f}s")
             else:
-                prev_speed = recent[i - 1].get('avg_speed_px_s', 0)
-                if prev_speed and speed:
-                    delta_pct = ((speed - prev_speed) / prev_speed) * 100
-                    if delta_pct > 5:
-                        andamento = f"più veloce del {delta_pct:.0f}% rispetto al precedente"
-                    elif delta_pct < -5:
-                        andamento = f"più lento del {abs(delta_pct):.0f}% rispetto al precedente"
+                prev_t = recent[i - 1]['total_time']
+                if prev_t and t:
+                    delta = t - prev_t
+                    if delta > 0.5:
+                        andamento = f"più lento di {delta:.1f}s rispetto al precedente"
+                    elif delta < -0.5:
+                        andamento = f"più veloce di {abs(delta):.1f}s rispetto al precedente"
                     else:
                         andamento = "prestazione simile al precedente"
                     lines.append(f"- {d}: {t:.1f}s ({andamento})")
                 else:
                     lines.append(f"- {d}: {t:.1f}s")
 
+            if test_type == "STS" and r.get('rep_times'):
+                rep_str = ", ".join(f"rep{rep['numero']}={rep['tempo']:.1f}s" for rep in r['rep_times'])
+                lines.append(f"    Tempi ripetizioni: {rep_str}")
+
         if len(recent) >= 2:
-            first_speed = recent[0].get('avg_speed_px_s', 0)
-            last_speed = recent[-1].get('avg_speed_px_s', 0)
-            if first_speed and last_speed:
-                overall_pct = ((last_speed - first_speed) / first_speed) * 100
-                if overall_pct > 5:
-                    lines.append(f"Tendenza generale: miglioramento del {overall_pct:.0f}%")
-                elif overall_pct < -5:
-                    lines.append(f"Tendenza generale: peggioramento del {abs(overall_pct):.0f}%")
+            first_t = recent[0]['total_time']
+            last_t = recent[-1]['total_time']
+            if first_t and last_t:
+                overall_delta = last_t - first_t
+                if overall_delta > 1:
+                    lines.append(f"Tendenza generale: peggioramento di {overall_delta:.1f}s rispetto al primo test")
+                elif overall_delta < -1:
+                    lines.append(f"Tendenza generale: miglioramento di {abs(overall_delta):.1f}s rispetto al primo test")
                 else:
                     lines.append("Tendenza generale: prestazioni stabili")
 
@@ -213,7 +243,7 @@ class MonitorBot:
             f"Domanda: \"{query}\"\n\n"
             f"Rispondi con una sola parola tra: stato_attuale, evento_specifico, confronto_temporale, test_clinici"
         )
-        result = self.vlm.call_text(prompt, max_tokens=20)
+        result = self.vlm.call_text(prompt, max_tokens=20, category="telegram_classificazione")
         if result:
             result = result.strip().lower().split()[0]
             if result in ("stato_attuale", "evento_specifico", "confronto_temporale", "test_clinici"):
@@ -231,8 +261,7 @@ class MonitorBot:
             if observations:
                 context += "ULTIME OSSERVAZIONI:\n"
                 for o in observations[-5:]:
-                    tag = " [ALERT]" if o.get('type') == 'alert' else ""
-                    context += f"- {o['time']}{tag}: {o['description']}\n"
+                    context += f"- {o['time']}: {o['description']}\n"
 
         elif category == "evento_specifico":
             observations, hourly_summaries = self._get_today_observations()
@@ -243,7 +272,7 @@ class MonitorBot:
             if observations:
                 context += "ULTIME OSSERVAZIONI DI OGGI:\n"
                 for o in observations[-20:]:
-                    tag = " [ALERT]" if o.get('type') == 'alert' else (" [CONFRONTO]" if o.get('type') == 'confronto' else "")
+                    tag = " [CONFRONTO]" if o.get('type') == 'confronto' else ""
                     context += f"- {o['time']}{tag}: {o['description']}\n"
 
             ref_dates = self._extract_referenced_dates(query)[:3]
@@ -257,8 +286,7 @@ class MonitorBot:
                 elif obs:
                     context += f"\nOSSERVAZIONI DEL {label}:\n"
                     for o in obs[-15:]:
-                        tag = " [ALERT]" if o.get('type') == 'alert' else ""
-                        context += f"- {o['time']}{tag}: {o['description']}\n"
+                        context += f"- {o['time']}: {o['description']}\n"
                 else:
                     diary = self._get_diary(ref_date)
                     if diary:
@@ -328,8 +356,10 @@ class MonitorBot:
                 "Sei un assistente domiciliare che comunica con i familiari. "
                 "Rispondi in modo semplice e comprensibile, evitando gergo medico. "
                 "Fornisci informazioni utili basate sui dati, ma non fare diagnosi o previsioni. "
+                "Scrivi in testo semplice, senza formattazione Markdown."
             ),
-            max_tokens=500 
+            max_tokens=500,
+            category="telegram_risposta"
         )
 
         return response or "Mi dispiace, non riesco a rispondere in questo momento. Riprova tra poco."
@@ -344,28 +374,24 @@ class MonitorBot:
         await update.message.reply_text(
             "Ciao! Sono il bot di monitoraggio domiciliare.\n\n"
             "Puoi farmi domande in linguaggio naturale, ad esempio:\n\n"
-            "Situazione attuale:\n"
-            "• Come sta adesso?\n"
+            "Stato attuale:\n"
             "• Cosa sta facendo?\n"
-            "• Ci sono stati problemi oggi?\n\n"
-            "Fasce orarie:\n"
-            "• Cosa ha fatto stamattina?\n"
-            "• Com'è andata questa sera?\n"
-            "• Cosa faceva alle 15?\n\n"
-            "Giorni precedenti:\n"
-            "• Cosa ha fatto ieri pomeriggio?\n"
-            "• Com'era lunedì mattina?\n"
-            "• Ci sono stati problemi martedì?\n\n"
-            "Andamento nel tempo:\n"
-            "• È migliorata rispetto alla settimana scorsa?\n"
-            "• Come cammina ultimamente?\n"
-            "• Ci sono stati episodi di instabilità di recente?\n\n"
-            "Comandi:\n"
-            "/stato - Stato attuale\n"
-            "/ieri - Diario di ieri\n"
-            "/alert - Alert della giornata\n"
-            "/tug - Avvia test TUG\n"
-            "/sts - Avvia test STS"
+            "• Com'è adesso?\n\n"
+            "Giorno specifico:\n"
+            "• Com'era ieri sera?\n"
+            "• Cosa ha fatto lunedì?\n\n"
+            "Confronto temporale:\n"
+            "• È migliorata?\n"
+            "• Come cammina ultimamente?\n\n"
+            "Test clinici:\n"
+            "• Com'è andato l'ultimo TUG?\n"
+            "• Mostrami l'andamento dei test\n\n"
+            "Oppure puoi usare i comandi predefiniti:\n"
+            "/stato - Stato attuale della persona\n"
+            "/info_tug - Istruzioni per eseguire il test Timed Up and Go\n"
+            "/info_sts - Istruzioni per eseguire il test Five times Sit-to-Stand\n"
+            "/tug - Avvia il test Timed Up and Go\n"
+            "/sts - Avvia il test Five times Sit-to-Stand"
         )
 
     async def cmd_stato(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -378,50 +404,37 @@ class MonitorBot:
             return
 
         last = observations[-1]
-        n_obs = len(observations)
-        alerts = [o for o in observations if o.get('type') == 'alert']
-
-        msg = f" Stato alle {last['time']}:\n{last['description']}\n\n"
-        msg += f"Osservazioni oggi: {n_obs}\n"
-        if alerts:
-            msg += f" Alert: {len(alerts)}"
-        else:
-            msg += "Nessun alert"
+        msg = f"Stato alle {last['time']}:\n{last['description']}"
 
         await update.message.reply_text(msg) #permette di inviare un altro mesaggio mentre il sistema sta elaborando la risposta precedente, evitando blocchi o ritardi e migliorando l'esperienza utente.
 
-    async def cmd_ieri(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Invia il diario di ieri."""
+    async def cmd_info_tug(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Mostra le istruzioni per il test TUG."""
         if not await self._check_auth(update):
             return
-        diary = self._get_diary(date.today() - timedelta(days=1))
-        if diary:
-            if len(diary) > 4000:
-                parts = [diary[i:i+4000] for i in range(0, len(diary), 4000)]
-                for part in parts:
-                    await update.message.reply_text(part)
-            else:
-                await update.message.reply_text(diary)
-        else:
-            await update.message.reply_text("Nessun diario disponibile per ieri.")
+        await update.message.reply_text(
+            "Istruzioni test TUG (Timed Up and Go):\n\n"
+            "1. Posizionati seduto su una sedia in vista della telecamera.\n"
+            "2. Al via, alzati senza utilizzare appoggi.\n"
+            "3. Cammina in linea retta restando nell'inquadratura.\n"
+            "4. Gira e torna a sederti.\n\n"
+            "Quando sei pronto invia /tug per avviare il test. "
+            "Il test partirà automaticamente quando sarai rilevato seduto."
+        )
 
-    async def cmd_alert(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Mostra gli alert della giornata."""
+    async def cmd_info_sts(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Mostra le istruzioni per il test STS."""
         if not await self._check_auth(update):
             return
-        observations, _ = self._get_today_observations()
-        if not observations:
-            await update.message.reply_text("Nessun dato per oggi.")
-            return
-
-        alerts = [o for o in observations if o.get('type') == 'alert']
-        if not alerts:
-            await update.message.reply_text("Nessun alert oggi.")
-        else:
-            msg = f" {len(alerts)} alert oggi:\n\n"
-            for a in alerts:
-                msg += f"• {a['time']}: {a['description']}\n\n"
-            await update.message.reply_text(msg)
+        await update.message.reply_text(
+            "Istruzioni test STS (Five-Times Sit-to-Stand):\n\n"
+            "1. Posizionati seduto su una sedia in vista della telecamera.\n"
+            "2. Esegui 5 alzate consecutive il più velocemente possibile.\n"
+            "3. Alzati completamente in piedi e siediti completamente ogni volta.\n"
+            "4. Non usare i braccioli per spingerti.\n\n"
+            "Quando sei pronto invia /sts per avviare il test. "
+            "Il test partirà automaticamente quando sarai rilevato seduto."
+        )
 
     async def cmd_tug(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Avvia un test TUG."""
@@ -430,7 +443,10 @@ class MonitorBot:
         if not self.test_runner:
             await update.message.reply_text("Test runner non disponibile.")
             return
-        await update.message.reply_text("Avvio test TUG... La persona deve essere visibile.")
+        await update.message.reply_text(
+            "Test TUG avviato. Il test partirà automaticamente "
+            "quando sarai rilevato seduto dal sistema."
+        )
 
         outcome = await asyncio.to_thread(self.test_runner.run_tug)
 
@@ -438,41 +454,25 @@ class MonitorBot:
             await update.message.reply_text("Test non completato.")
             return
 
-        result, standup_frames, tug_frames, test_id = outcome
+        result, tug_frames, test_id = outcome
         if not result:
             await update.message.reply_text("Test non completato.")
             return
 
-        await update.message.reply_text(
-            f"TUG completato!\n"
-            f"Tempo: {result['total_time']:.1f}s"
-        )
+        await update.message.reply_text(f"TUG completato!\nTempo: {result['total_time']:.1f}s")
 
         if not self.test_runner._vlm:
             return
 
-        full_analysis_parts = []
-
-        if standup_frames:
-            await update.message.reply_text("Analizzo l'alzata...")
-            standup = await asyncio.to_thread(
-                self.test_runner._analyse_standup, standup_frames
-            )
-            if standup:
-                await update.message.reply_text(f"*Alzata:*\n{standup}", parse_mode="Markdown")
-                full_analysis_parts.append(f"[Alzata]\n{standup}")
-
         if tug_frames:
-            await update.message.reply_text("Analizzo andatura e svolta...")
-            gait = await asyncio.to_thread(
-                self.test_runner._analyse_tug_quality, tug_frames
+            await update.message.reply_text("Analizzo il test...")
+            analysis, analysis_time = await asyncio.to_thread(
+                self.test_runner._analyse_tug, tug_frames
             )
-            if gait:
-                await update.message.reply_text(f"*Andatura:*\n{gait}", parse_mode="Markdown")
-                full_analysis_parts.append(f"[Andatura]\n{gait}")
-
-        if full_analysis_parts and test_id:
-            self.test_runner.db.update_tug_vlm_analysis(test_id, "\n\n".join(full_analysis_parts))
+            if analysis:
+                await update.message.reply_text(f"Analisi:\n{analysis}")
+                if test_id:
+                    self.test_runner.db.update_tug_vlm_analysis(test_id, analysis, vlm_analysis_time=analysis_time)
 
     async def cmd_sts(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Avvia un test STS."""
@@ -481,7 +481,10 @@ class MonitorBot:
         if not self.test_runner:
             await update.message.reply_text("Test runner non disponibile.")
             return
-        await update.message.reply_text("Avvio test STS... La persona deve essere visibile.")
+        await update.message.reply_text(
+            "Test STS avviato. Il test partirà automaticamente "
+            "quando sarai rilevato seduto dal sistema."
+        )
 
         outcome = await asyncio.to_thread(self.test_runner.run_sts)
 
@@ -502,17 +505,19 @@ class MonitorBot:
 
         if transition_frames and self.test_runner._vlm:
             await update.message.reply_text("Analizzo il movimento...")
-            analysis = await asyncio.to_thread(
+            analysis, analysis_time = await asyncio.to_thread(
                 self.test_runner._analyse_sts_quality, transition_frames
             )
             if analysis:
                 await update.message.reply_text(analysis)
                 if test_id:
-                    self.test_runner.db.update_sts_vlm_analysis(test_id, analysis)
+                    self.test_runner.db.update_sts_vlm_analysis(test_id, analysis, vlm_analysis_time=analysis_time)
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Gestisce messaggi liberi — interroga Gemma."""
         if not await self._check_auth(update):
+            return
+        if not await self._check_rate_limit(update):
             return
         query = update.message.text
         await update.message.reply_text("Cerco nei dati...")
@@ -535,8 +540,8 @@ class MonitorBot:
 
             app.add_handler(CommandHandler("start", self.cmd_start))
             app.add_handler(CommandHandler("stato", self.cmd_stato))
-            app.add_handler(CommandHandler("ieri", self.cmd_ieri))
-            app.add_handler(CommandHandler("alert", self.cmd_alert))
+            app.add_handler(CommandHandler("info_tug", self.cmd_info_tug))
+            app.add_handler(CommandHandler("info_sts", self.cmd_info_sts))
             app.add_handler(CommandHandler("tug", self.cmd_tug))
             app.add_handler(CommandHandler("sts", self.cmd_sts))
             app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
@@ -556,6 +561,14 @@ class MonitorBot:
             print("Bot avviato. In attesa di messaggi...\n")
 
             await app.initialize()
+            await app.bot.set_my_commands([
+                BotCommand("start", "Presenta il bot e gli esempi di utilizzo"),
+                BotCommand("stato", "Stato attuale della persona"),
+                BotCommand("info_tug", "Istruzioni per eseguire il test Timed Up and Go"),
+                BotCommand("info_sts", "Istruzioni per eseguire il test Five times sit-to-Stand"),
+                BotCommand("tug", "Avvia il test Timed Up and Go"),
+                BotCommand("sts", "Avvia il test Five times sit-to-Stand"),
+            ])
             await app.start()
             await app.updater.start_polling()
 

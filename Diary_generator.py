@@ -24,6 +24,7 @@ e la struttura delle cartelle:
 import json
 from datetime import date, timedelta
 from pathlib import Path
+from threading import Lock
 from Database_manager import DatabaseManager
 
 
@@ -45,6 +46,9 @@ class DiaryGenerator:
         self.today = date.today().isoformat()
         self.db = db or DatabaseManager()
         self.rag = rag
+        # Lock per scritture/letture concorrenti su data.json
+        # (Monitor.py e TestRunner possono salvare in thread diversi).
+        self._save_lock = Lock()
 
     # =========================================
     # GESTIONE CARTELLE
@@ -82,26 +86,24 @@ class DiaryGenerator:
             for r in tug:
                 lines.append(f"  {r['date']}: {r['total_time']:.1f}s")
             if len(tug) >= 2:
-                s0 = tug[0].get('avg_speed_px_s')
-                s1 = tug[-1].get('avg_speed_px_s')
-                if s0 and s1 and abs(s0) > 0:
-                    delta_pct = ((s1 - s0) / s0) * 100
-                    delta_t = tug[-1]['total_time'] - tug[0]['total_time']
-                    if abs(delta_pct) > 5:
-                        direzione = "miglioramento" if delta_pct > 0 else "peggioramento"
-                        if abs(delta_t) < 1.0:
-                            tempo_note = ", nonostante tempo simile"
-                        else:
-                            tempo_note = ""
-                        lines.append(f"  → andamento: {direzione} del {abs(delta_pct):.0f}% nella velocità di cammino{tempo_note}")
-                    else:
-                        lines.append("  → andamento: stabile")
+                delta_t = tug[-1]['total_time'] - tug[0]['total_time']
+                if delta_t > 1:
+                    lines.append(f"  → andamento: peggioramento (+{delta_t:.1f}s rispetto al primo test)")
+                elif delta_t < -1:
+                    lines.append(f"  → andamento: miglioramento ({abs(delta_t):.1f}s rispetto al primo test)")
+                else:
+                    lines.append("  → andamento: stabile")
 
         if sts:
             lines.append("\nSTS (5 Sit-to-Stand):")
             sts = [r for r in sts if r['total_time'] is not None]
             for r in sts:
-                lines.append(f"  {r['date']}: {r['total_time']:.1f}s | {r['reps_completed']} rip.")
+                base = f"  {r['date']}: {r['total_time']:.1f}s | {r['reps_completed']} rip."
+                rep_times = r.get('rep_times') or []
+                if rep_times:
+                    reps_str = ", ".join(f"rep{rt['numero']}={rt['tempo']:.1f}s" for rt in rep_times)
+                    base += f" | {reps_str}"
+                lines.append(base)
             if len(sts) >= 2:
                 delta = sts[-1]['total_time'] - sts[0]['total_time']
                 if delta > 1:
@@ -121,14 +123,97 @@ class DiaryGenerator:
         return self._get_daily_dir() / "data.json"
 
     def save_data(self):
-        """Salva osservazioni e riepiloghi orari su disco."""
-        data = {
-            "date": self.today,
-            "observations": self.observations,
-            "hourly_summaries": self.hourly_summaries
-        }
-        with open(self.data_path(), 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        """Salva osservazioni, riepiloghi orari e metriche di latenza su disco.
+
+        La scrittura è atomica (write su file .tmp + rename) e protetta da lock
+        per evitare race condition tra Monitor.py e TestRunner.
+        """
+        with self._save_lock:
+            data = {
+                "date": self.today,
+                "observations": self.observations,
+                "hourly_summaries": self.hourly_summaries,
+                "vlm_metrics": self._merged_vlm_metrics(),
+                "rag_metrics": self._merged_rag_metrics()
+            }
+            target = self.data_path()
+            tmp = target.with_suffix(target.suffix + '.tmp')
+            with open(tmp, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            tmp.replace(target)
+
+    def _merged_rag_metrics(self):
+        """Combina le metriche RAG su disco con quelle accumulate in sessione."""
+        existing = {}
+        path = self.data_path()
+        if path.exists():
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    existing = json.load(f).get("rag_metrics", {}) or {}
+            except Exception:
+                existing = {}
+
+        current = self.rag.get_latency_summary() if (self.rag and hasattr(self.rag, "get_latency_summary")) else {}
+        merged = dict(existing)
+        for phase, stats in current.items():
+            prev = merged.get(phase)
+            if not prev:
+                merged[phase] = stats
+                continue
+            n_prev, n_new = prev["n"], stats["n"]
+            n_tot = n_prev + n_new
+            merged[phase] = {
+                "n": n_tot,
+                "mean": round((prev["mean"] * n_prev + stats["mean"] * n_new) / n_tot, 3),
+                "min": round(min(prev["min"], stats["min"]), 3),
+                "max": round(max(prev["max"], stats["max"]), 3),
+            }
+        if self.rag and hasattr(self.rag, "reset_latency"):
+            self.rag.reset_latency()
+        return merged
+
+    def _merged_vlm_metrics(self):
+        """Combina le metriche già su disco con quelle accumulate in sessione,
+        cosicché un riavvio dello stesso giorno non azzeri il conteggio."""
+        existing = {}
+        path = self.data_path()
+        if path.exists():
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    existing = json.load(f).get("vlm_metrics", {}) or {}
+            except Exception:
+                existing = {}
+
+        current = self.vlm.get_latency_summary() if hasattr(self.vlm, "get_latency_summary") else {}
+        merged = dict(existing)
+        for cat, stats in current.items():
+            prev = merged.get(cat)
+            if not prev:
+                merged[cat] = stats
+                continue
+            n_prev, n_new = prev["n"], stats["n"]
+            n_tot = n_prev + n_new
+
+            def weighted(key):
+                a, b = prev.get(key), stats.get(key)
+                if a is None and b is None:
+                    return None
+                if a is None:
+                    return b
+                if b is None:
+                    return a
+                return round((a * n_prev + b * n_new) / n_tot, 2)
+
+            merged[cat] = {
+                "n": n_tot,
+                "ttft_mean": weighted("ttft_mean"),
+                "ttlt_mean": weighted("ttlt_mean"),
+                "ttlt_min": round(min(prev.get("ttlt_min", stats["ttlt_min"]), stats["ttlt_min"]), 2),
+                "ttlt_max": round(max(prev.get("ttlt_max", stats["ttlt_max"]), stats["ttlt_max"]), 2),
+            }
+        if hasattr(self.vlm, "reset_latency"):
+            self.vlm.reset_latency()
+        return merged
 
     def load_existing_data(self):
         """Carica dati esistenti se il programma viene riavviato."""
@@ -140,20 +225,37 @@ class DiaryGenerator:
             self.observations.extend(data.get("observations", []))
             self.hourly_summaries.clear()
             self.hourly_summaries.extend(data.get("hourly_summaries", []))
-            print(f"[INIT] Caricati {len(self.observations)} osservazioni e "
+            print(f"Caricati {len(self.observations)} osservazioni e "
                   f"{len(self.hourly_summaries)} riepiloghi per {self.today}")
 
     # =========================================
     # LIVELLO 1: SINTESI ORARIA
     # =========================================
-    def generate_hourly_summary(self, hour):
-        """Genera un riepilogo per un'ora specifica."""
-        hour_obs = [o for o in self.observations if o.get('hour') == hour]
-        if not hour_obs:
-            return
+    def generate_hourly_summary(self, hour, allow_silent=False):
+        """Genera un riepilogo per un'ora specifica.
 
+        Se allow_silent=True e l'ora non ha osservazioni, viene comunque creato
+        un placeholder per garantire la copertura completa delle 24 ore.
+        """
         existing_hours = {s['hour'] for s in self.hourly_summaries}
         if hour in existing_hours:
+            return
+
+        hour_obs = [o for o in self.observations if o.get('hour') == hour]
+        if not hour_obs:
+            if not allow_silent:
+                return
+            entry = {
+                "hour": hour,
+                "hour_label": f"{hour:02d}:00-{hour:02d}:59",
+                "n_observations": 0,
+                "summary": "Nessuna osservazione registrata in questa fascia oraria."
+            }
+            self.hourly_summaries.append(entry)
+            self.save_data()
+            if self.rag:
+                self.rag.index_summary(self.today, hour, entry["hour_label"], entry["summary"])
+            print(f"[SINTESI {hour:02d}:00] (ora silente)")
             return
 
         obs_text = "\n".join(f"- {o['time']}: {o['description']}" for o in hour_obs)
@@ -164,13 +266,14 @@ class DiaryGenerator:
             f"Scrivi un paragrafo di 3-5 frasi che riassuma questo periodo. "
             f"Cosa ha fatto la persona? Come stava? Ci sono state variazioni? "
             f"Eventuali segnali di attenzione?\n"
-            f"Scrivi in italiano, in modo professionale e conciso."
+            f"Scrivi in italiano, in modo professionale e conciso, in testo semplice senza formattazione Markdown."
         )
 
         summary = self.vlm.call_text(
             prompt,
             system="Sei un assistente clinico per il monitoraggio domiciliare.",
-            max_tokens=300
+            max_tokens=300,
+            category="sintesi_oraria"
         )
 
         if summary:
@@ -186,6 +289,25 @@ class DiaryGenerator:
                 self.rag.index_summary(self.today, hour, entry["hour_label"], summary)
             print(f"\n[SINTESI {hour:02d}:00] {summary}\n")
 
+    def _backfill_hourly_summaries(self):
+        """Garantisce che tutte le ore passate della giornata abbiano un riepilogo.
+
+        - Se il diario è per una giornata già chiusa, copre tutte le 24 ore.
+        - Se è per la giornata corrente (chiamata manuale mid-day), copre solo
+          le ore passate, non quella in corso o future.
+        """
+        from datetime import datetime
+        today_str = date.today().isoformat()
+        max_hour_exclusive = datetime.now().hour if self.today == today_str else 24
+
+        existing_hours = {s['hour'] for s in self.hourly_summaries}
+        missing = [h for h in range(max_hour_exclusive) if h not in existing_hours]
+        if not missing:
+            return
+        print(f"[BACKFILL] Genero {len(missing)} riepiloghi orari mancanti: {missing}")
+        for h in missing:
+            self.generate_hourly_summary(h, allow_silent=True)
+
     # =========================================
     # LIVELLO 2: DIARIO GIORNALIERO
     # =========================================
@@ -194,6 +316,7 @@ class DiaryGenerator:
         from datetime import datetime
         current_hour = datetime.now().hour
         self.generate_hourly_summary(current_hour)
+        self._backfill_hourly_summaries()
 
         if not self.hourly_summaries and not self.observations:
             print("[DIARIO] Nessun dato, diario non generato")
@@ -218,12 +341,12 @@ class DiaryGenerator:
             )
             source = "osservazioni grezze"
 
-        alerts = [o for o in self.observations if o.get('type') in ('alert', 'assenza')]
+        assenze = [o for o in self.observations if o.get('type') == 'assenza']
         alert_text = ""
-        if alerts:
+        if assenze:
             alert_text = (
-                f"\n\nATTENZIONE — Durante la giornata sono stati generati {len(alerts)} alert:\n"
-                + "\n".join(f"- {a['time']}: {a['description']}" for a in alerts)
+                f"\n\nATTENZIONE — Durante la giornata sono state registrate {len(assenze)} assenze prolungate:\n"
+                + "\n".join(f"- {a['time']}: {a['description']}" for a in assenze)
             )
 
         first_time = self.observations[0]['time'] if self.observations else "N/D"
@@ -253,9 +376,10 @@ class DiaryGenerator:
             f"{test_block}\n\n"
             f"Scrivi un DIARIO GIORNALIERO completo in italiano (2-3 pagine). Struttura:\n\n"
             f"RIEPILOGO GENERALE: 3-4 frasi sullo stato complessivo della persona.\n\n"
+            f"NOTTE E PRIMA MATTINA (0:00-6:00): qualità del riposo, eventuali risvegli o spostamenti.\n\n"
             f"MATTINA (6:00-12:00): cosa ha fatto, come stava, eventuali difficoltà.\n\n"
             f"POMERIGGIO (12:00-18:00): attività, riposo, cambiamenti.\n\n"
-            f"SERA/NOTTE (18:00-6:00): cena, preparazione al sonno, qualità del riposo.\n\n"
+            f"SERA (18:00-24:00): cena, attività serali, preparazione al sonno.\n\n"
             f"Se ci sono test clinici (TUG, STS) o eventi particolari, descrivili in una sezione dedicata.\n\n"
             f"PATTERN E SEGNALAZIONI: periodi di inattività prolungata, "
             f"difficoltà motorie ricorrenti, cambiamenti rispetto ai giorni precedenti.\n\n"
@@ -263,13 +387,15 @@ class DiaryGenerator:
             "(posture anomale, difficoltà nei movimenti, periodi di inattività prolungata, "
             "assenze dall'inquadratura).\n\n"
             "NON aggiungere firme, intestazioni fittizie, nomi di medici o formule di chiusura.\n\n"
+            "Scrivi in testo semplice, senza formattazione Markdown.\n\n"
             "Scrivi in modo professionale ma comprensibile per un medico o un caregiver."
         )
 
         diary = self.vlm.call_text(
             prompt,
             system="Sei un geriatra esperto in monitoraggio domiciliare. Scrivi in modo dettagliato e professionale.",
-            max_tokens=3000
+            max_tokens=3000,
+            category="diario_giornaliero"
         )
 
         if diary:
@@ -280,23 +406,11 @@ class DiaryGenerator:
             return None
 
     def _save_diary(self, diary_text, first_time, last_time):
-        types = {}
-        for o in self.observations:
-            t = o.get('type', 'singolo')
-            types[t] = types.get(t, 0) + 1
-
         header = (
             f"DIARIO DI MONITORAGGIO DOMICILIARE\n"
             f"{'='*50}\n"
             f"Data: {self.today}\n"
             f"Periodo: {first_time} - {last_time}\n"
-            f"Osservazioni totali: {len(self.observations)}\n"
-            f"  Singole: {types.get('singolo', 0)}\n"
-            f"  Sequenze: {types.get('sequenza', 0) + types.get('sequenza_rapida', 0)}\n"
-            f"  Confronti: {types.get('confronto', 0)}\n"
-            f"  Test clinici: {types.get('test', 0)}\n"
-            f"  Alert: {types.get('alert', 0)}\n"
-            f"Riepiloghi orari: {len(self.hourly_summaries)}\n"
             f"{'='*50}\n\n"
         )
 
@@ -360,12 +474,14 @@ class DiaryGenerator:
             f"Se ci sono test clinici (TUG, STS), commentane i valori e il andamento.\n\n"
             "ELEMENTI DI ATTENZIONE: variazioni rispetto ai giorni precedenti, "
             "eventi ricorrenti, cambiamenti nel livello di attività o autonomia.\n\n"
-            "Non aggiungere firme, intestazioni mediche o formule di chiusura."
+            "Non aggiungere firme, intestazioni mediche o formule di chiusura.\n\n"
+            "Scrivi in testo semplice, senza formattazione Markdown."
         )
 
         diary = self.vlm.call_text(
             prompt,
             system="Sei un geriatra esperto in monitoraggio domiciliare a lungo termine.",
+            category="diario_settimanale",
             max_tokens=4000
         )
 
@@ -460,13 +576,15 @@ class DiaryGenerator:
             f"e il confronto con il mese precedente.\n\n"
             f"CONFRONTO CON IL MESE PRECEDENTE: miglioramenti o peggioramenti.\n\n"
             "SINTESI DELLE VARIAZIONI: cambiamenti osservati nel periodo, "
-            "andamento nell'attività e nella mobilità, eventi significativi registrati."
+            "andamento nell'attività e nella mobilità, eventi significativi registrati.\n\n"
+            "Scrivi in testo semplice, senza formattazione Markdown."
         )
 
         diary = self.vlm.call_text(
             prompt,
             system="Sei un geriatra esperto in monitoraggio domiciliare a lungo termine.",
-            max_tokens=5000
+            max_tokens=5000,
+            category="diario_mensile"
         )
 
         if diary:

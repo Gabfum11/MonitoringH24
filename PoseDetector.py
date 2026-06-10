@@ -7,7 +7,6 @@ drawing_utils = mp.solutions.drawing_utils
 drawing_styles = mp.solutions.drawing_styles
 import numpy as np
 import math
-import json
 import statistics
 from collections import deque
 import time
@@ -41,11 +40,6 @@ class PoseDetector:
         self.movement_history = deque(maxlen=6)  # ~0.25s: reattiva ma non rumorosa
         self.angle_history = deque(maxlen=5)
         
-        # Calibrazione distanza (pixel → metri)
-        self.pixels_per_meter = None
-        self.distance_calibrating = False
-        self._calib_start_hip_x = None
-        
         # Metriche qualità
         self.min_confidence_threshold = 0.75
         self.tracking_quality = 0.0
@@ -62,12 +56,10 @@ class PoseDetector:
         self.hip_x = 0
         self.hip_y = 0
         self.hip_y_velocity = 0
+        self.shoulder_y = 0
+        self.torso_length = 0
         self.left_ankle_y = 0
         self.right_ankle_y = 0
-        self.left_ankle_x = 0
-        self.right_ankle_x = 0
-        self.shoulder_mid_x = 0
-        self.shoulder_mid_y = 0
 
         # Storico pixel
         self.hip_x_raw_history = deque(maxlen=self.history_size)
@@ -109,90 +101,6 @@ class PoseDetector:
         if min_history > self.history_size:
             self.set_history_size(min_history)
 
-    # =========================================
-    # CALIBRAZIONE DISTANZA (pixel → metri)
-    # =========================================
-    def start_distance_calibration(self):
-        if not self.distance_calibrating:
-            self.distance_calibrating = True
-            self._calib_start_hip_x = self.hip_x
-            self._calib_start_hip_y = self.hip_y
-            print("=" * 50)
-            print("CALIBRAZIONE DISTANZA AVVIATA")
-            print("La persona cammini per 2 metri in linea retta,")
-            print("lateralmente rispetto alla telecamera.")
-            print("Premi di nuovo [W] quando ha raggiunto i 2 metri.")
-            print("=" * 50)
-            return False
-        else:
-            dx = self.hip_x - self._calib_start_hip_x
-            dy = self.hip_y - self._calib_start_hip_y
-            pixels = math.sqrt(dx**2 + dy**2)
-            self.distance_calibrating = False
-            
-            if pixels < 50:
-                print("Troppo poco spostamento, riprova.")
-                return False
-            
-            self.pixels_per_meter = pixels / 2.0
-            print("=" * 50)
-            print(f"CALIBRAZIONE COMPLETATA")
-            print(f"  2 metri = {pixels:.0f} pixel")
-            print(f"  1 metro = {self.pixels_per_meter:.1f} pixel")
-            print("=" * 50)
-            
-            self.save_distance_calibration()
-            return True
-
-    def save_distance_calibration(self, path="distance_calibration.json"):
-        data = {"pixels_per_meter": self.pixels_per_meter}
-        with open(path, "w") as f:
-            json.dump(data, f, indent=2)
-        print(f"Calibrazione distanza salvata in {path}")
-    
-    def load_distance_calibration(self, path="distance_calibration.json"):
-        try:
-            with open(path, "r") as f:
-                data = json.load(f)
-            self.pixels_per_meter = data["pixels_per_meter"]
-            print(f"Calibrazione distanza caricata: 1m = {self.pixels_per_meter:.1f} px")
-            return True
-        except FileNotFoundError:
-            print("Nessuna calibrazione distanza trovata. Premi [W] per calibrare.")
-            return False
-    
-    def is_distance_calibrated(self):
-        return self.pixels_per_meter is not None
-    
-    def get_pixels_for_meters(self, meters):
-        """Converte metri in pixel. Utile per il TUG test."""
-        if self.pixels_per_meter is None:
-            return None
-        return self.pixels_per_meter * meters
-    
-    # =========================================
-    # VELOCITÀ IN M/S
-    # =========================================
-    def get_speed_ms(self):
-        """Velocità in metri/secondo. Richiede calibrazione distanza.
-        
-        Usa una finestra temporale invece di frame-to-frame
-        per essere stabile a qualsiasi FPS.
-        """
-        if not self.pixels_per_meter:
-            return None
-        
-        window = max(2, int(self.fps * 0.3))
-        if len(self.hip_x_raw_history) < window:
-            return None
-        
-        dx = self.hip_x_raw_history[-1] - self.hip_x_raw_history[-window]
-        dy = self.hip_y_raw_history[-1] - self.hip_y_raw_history[-window]
-        px_displacement = math.sqrt(dx**2 + dy**2)
-        meters = px_displacement / self.pixels_per_meter
-        seconds = window / self.fps
-        return meters / seconds if seconds > 0 else 0
-    
     # =========================================
     # RILEVAMENTO POSE
     # =========================================
@@ -279,7 +187,7 @@ class PoseDetector:
             cv2.circle(frame, (x, y), 10, (0, 0, 255), cv2.FILLED)
             cv2.circle(frame, (x, y), 15, (0, 0, 255), 2)
         
-        cv2.putText(frame, f"{int(angle)}°", (x2 - 50, y2 + 50),
+        cv2.putText(frame, f"{int(angle)}deg", (x2 - 50, y2 + 50),
                     cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2)
     
     # =========================================
@@ -304,18 +212,19 @@ class PoseDetector:
         hip_x_px = (l_hip_px[1] + r_hip_px[1]) / 2
         hip_y_px = (l_hip_px[2] + r_hip_px[2]) / 2
 
+        l_shoulder_px = self.lmList[11]
+        r_shoulder_px = self.lmList[12]
+        shoulder_y_px = (l_shoulder_px[2] + r_shoulder_px[2]) / 2
+
         # Aggiorna coordinate (sempre pixel)
         self.hip_x = hip_x_px
         self.hip_y = hip_y_px
+        self.shoulder_y = shoulder_y_px
+        self.torso_length = abs(hip_y_px - shoulder_y_px)
 
         # FIX: aggiorna le caviglie PRIMA di appendere alla history
         self.left_ankle_y = self.lmList[27][2]
         self.right_ankle_y = self.lmList[28][2]
-        self.left_ankle_x = self.lmList[27][1]
-        self.right_ankle_x = self.lmList[28][1]
-        self.shoulder_mid_x = (self.lmList[11][1] + self.lmList[12][1]) / 2
-        self.shoulder_mid_y = (self.lmList[11][2] + self.lmList[12][2]) / 2
-
         # Append alle history (ora con valori corretti)
         self.hip_x_raw_history.append(hip_x_px)
         self.hip_y_raw_history.append(hip_y_px)
@@ -447,13 +356,8 @@ class PoseDetector:
         is_walking_now = (moving or stepping) and not in_cooldown
 
         # Classificazione postura con isteresi
-        was_sitting = self.posture_history[-1] == 'SITTING' if self.posture_history else False
         was_walking = self.posture_history[-1] == 'WALKING' if self.posture_history else False
-
-        if was_sitting:
-            sit_threshold = 150
-        else:
-            sit_threshold = 150
+        sit_threshold = 150
 
         # Prima: controlla SITTING (ha priorità)
         if knee_angle < sit_threshold and (movement < movement_threshold or knee_angle < 120):

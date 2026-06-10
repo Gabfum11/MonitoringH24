@@ -7,7 +7,7 @@ Gestisce:
 - Filtro ridondanza per evitare osservazioni ripetitive
 - Contesto conversazionale per il VLM
 - Rilevamento assenza prolungata con alert
-- Osservazioni di confronto ambientale periodiche
+- Osservazioni di confronto ambientale periodiche (sperimentale)
 """
 
 import re
@@ -18,7 +18,7 @@ from datetime import datetime
 class Observer:
     def __init__(self, capture_manager, vlm_client, observations,
                  save_callback, capture_interval=30, comparison_interval=1800,
-                 alert_callback=None):
+                 alert_callback=None, output_dir="diari"):
         """
         Args:
             capture_manager: istanza di CaptureManager
@@ -28,12 +28,14 @@ class Observer:
             capture_interval: intervallo base in secondi
             comparison_interval: secondi tra confronti ambientali (default: 30 minuti)
             alert_callback: funzione opzionale chiamata con il testo dell'alert
+            output_dir: cartella radice dei diari, usata per salvare i frame degli alert
         """
         self.capture = capture_manager
         self.vlm = vlm_client
         self.observations = observations
         self._save = save_callback
         self._alert_callback = alert_callback
+        self._output_dir = output_dir
 
         # Intervalli adattivi
         self._min_interval = capture_interval
@@ -46,11 +48,6 @@ class Observer:
         self._consecutive_absence = 0
         self._absence_alerted = False
         self._absence_start_time = 0
-        self._zoom_pending = False
-
-        # Sedentarietà prolungata
-        self._sedentary_start_time = 0
-        self._sedentary_alerted = False
 
         # Confronto ambientale
         self._last_comparison_time = time.time()
@@ -69,8 +66,6 @@ class Observer:
         """Reset giornaliero dello stato."""
         self._consecutive_absence = 0
         self._absence_alerted = False
-        self._sedentary_start_time = 0
-        self._sedentary_alerted = False
         self._comparison_frame = None
 
     # =========================================
@@ -142,7 +137,10 @@ class Observer:
     # CONTESTO CONVERSAZIONALE
     # =========================================
     def _build_context(self):
-        """Contesto intelligente: ultime  5 osservazioni come riepilogo e il riassunto dell'ultima ora.
+        """Contesto intelligente: ultime 5 osservazioni come riepilogo e il riassunto dell'ultima ora.
+
+        Per evitare un effetto "priming" che porti il VLM a ripetere alert già emessi,
+        i prefissi e i marcatori di alert vengono rimossi dalle descrizioni nel contesto.
         """
         if not self.observations:
             return None
@@ -151,17 +149,13 @@ class Observer:
         if self._last_hourly_text:
             summary += f"Riepilogo dell'ultima ora: {self._last_hourly_text}\n\n"
 
-        # Ultime 5 osservazioni (non 3 — abbiamo spazio)
         recent = self.observations[-5:]
         summary += "Osservazioni recenti:\n"
         for obs in recent:
-            obs_type = obs.get('type', 'singolo')
-            tag = ""
-            if obs_type == "alert": #per evitare di confondere gli alert con le osservazioni normali, aggiungiamo un tag [ALERT] alle osservazioni di tipo alert, così il VLM può dare loro la giusta attenzione e priorità nella generazione della risposta.
-                tag = " [ALERT]"
-            elif obs_type == "confronto": #stessa cosa per le osservazioni di confronto ambientale, che sono particolarmente importanti per rilevare cambiamenti rischiosi nell'ambiente. Aggiungiamo un tag [CONFRONTO] per evidenziarle nel contesto e far capire al VLM che sono osservazioni chiave da considerare nella sua analisi.
-                tag = " [CONFRONTO]"
-            summary += f"- Ore {obs['time']}{tag}: {obs['description']}\n"
+            description = obs['description']
+            description = re.sub(r'^ALERT\s*\([^)]*\):\s*', '', description)
+            description = re.sub(r'\[ALERT:\s*[^\]]*\]', '', description).strip()
+            summary += f"- Ore {obs['time']}: {description}\n"
 
         return [{"role": "user", "content": summary + "\nOra osserva il frame corrente."}]
 
@@ -205,63 +199,37 @@ class Observer:
                 "type": obs_type,
                 "description": description
             }
-            alert_match = re.search(r'\[ALERT:\s*([^\]]+)\]', description)
-            if alert_match:
-                categoria = alert_match.group(1).strip()
-                obs['type'] = 'alert'
-                obs['description'] = f"⚠ ALERT ({categoria}): {description}"
             self.observations.append(obs)
             self._prev_observation_time = time.time()
             self._save()
             tag = "EVT_R" if obs_type == "sequenza_rapida" else ("EVT" if obs_type == "sequenza" else "FIX")
             print(f"[{obs['time']}] [{tag}×{n_frames}] {description}")
-            if alert_match:
-                print(f"\n{'!'*60}")
-                print(f"[{obs['time']}] ALERT {categoria.upper()}: {description}")
-                print(f"{'!'*60}\n")
-                if self._alert_callback:
-                    self._alert_callback(obs['description'])
             self._track_absence(description)
-            self._track_sedentary(description)
-            if self._zoom_pending:
-                self._zoom_pending = False
-                self._observe_zoomed()
             return True
         else:
             print(f"[{datetime.now().strftime('%H:%M')}] Nessuna risposta dal VLM")
             return False
-
-    def _observe_zoomed(self):
-        """Osservazione con zoom automatico: doppio click → cattura → doppio click."""
-        self.capture.zoom_in()
-        frame = self.capture.capture_frame()
-        image_b64 = self.capture.frame_to_base64(frame)
-        context = self._build_context()
-        description = self.vlm.call_with_images(image_b64, context)
-        self.capture.zoom_out()
-
-        if description:
-            obs = {
-                "time": datetime.now().strftime("%H:%M"),
-                "timestamp": datetime.now().isoformat(),
-                "hour": datetime.now().hour,
-                "type": "singolo",
-                "description": f"[ZOOM] {description}"
-            }
-            self.observations.append(obs)
-            self._save()
-            print(f"[{obs['time']}] [ZOOM] {description}")
-            self._track_absence(description)
 
     # =========================================
     # RILEVAMENTO ASSENZA PROLUNGATA
     # =========================================
     def _track_absence(self, description):
         """Traccia osservazioni consecutive senza persona visibile.
-        
-        Se la persona non è visibile per 30+ minuti durante il giorno (6-22),
+
+        Se la persona non è visibile per 60+ minuti durante il giorno (6-22),
         genera un alert e lo aggiunge alle osservazioni.
+        Le ore notturne non contribuiscono al conteggio (è normale che la
+        persona stia dormendo in un'altra stanza).
         """
+        hour = datetime.now().hour
+        is_daytime = 6 <= hour < 22
+
+        # Reset del conteggio nelle ore notturne
+        if not is_daytime:
+            self._consecutive_absence = 0
+            self._absence_alerted = False
+            return
+
         desc_lower = description.lower()
         person_absent = ("non è visibile" in desc_lower or
                          "non visibile" in desc_lower or
@@ -273,11 +241,9 @@ class Observer:
             if self._consecutive_absence == 0:
                 self._absence_start_time = time.time()
             self._consecutive_absence += 1
-            self._zoom_pending = True
         else:
             self._consecutive_absence = 0
             self._absence_alerted = False
-            self._zoom_pending = False
 
         # Calcolo basato sul tempo reale
         if self._consecutive_absence > 0:
@@ -285,18 +251,14 @@ class Observer:
         else:
             minutes_absent = 0
 
-        hour = datetime.now().hour
-        is_daytime = 6 <= hour < 22
-
-        if (is_daytime and minutes_absent >= 60 and not self._absence_alerted):
+        if minutes_absent >= 60 and not self._absence_alerted:
             alert_obs = {
                 "time": datetime.now().strftime("%H:%M"),
                 "timestamp": datetime.now().isoformat(),
                 "hour": datetime.now().hour,
                 "type": "assenza",
-                "description": (f"⚠ ASSENZA: La persona non è visibile da circa "
-                               f"{minutes_absent:.0f} minuti durante le ore diurne. "
-                               f"Verificare se è uscita o se si trova fuori dall'inquadratura.")
+                "description": (f"ASSENZA: La persona non è visibile da circa "
+                               f"{minutes_absent:.0f} minuti durante le ore diurne.")
             }
             self.observations.append(alert_obs)
             self._save()
@@ -307,55 +269,17 @@ class Observer:
             if self._alert_callback:
                 self._alert_callback(alert_obs['description'])
 
-    def _track_sedentary(self, description):
-        """Segnala sedentarietà prolungata se la persona è ferma da più di 2 ore di giorno."""
-        desc_lower = description.lower()
-        is_sedentary = any(k in desc_lower for k in (
-            "seduta", "sdraiata", "sul divano", "sulla sedia", "in poltrona",
-            "a riposo", "non si muove", "ferma"
-        ))
-        is_active = any(k in desc_lower for k in (
-            "in piedi", "cammina", "si alza", "si muove", "in movimento"
-        ))
-
-        if is_active:
-            self._sedentary_start_time = 0
-            self._sedentary_alerted = False
-            return
-
-        if is_sedentary:
-            if self._sedentary_start_time == 0:
-                self._sedentary_start_time = time.time()
-            hour = datetime.now().hour
-            is_daytime = 6 <= hour < 22
-            minutes = (time.time() - self._sedentary_start_time) / 60
-            if is_daytime and minutes >= 120 and not self._sedentary_alerted:
-                obs = {
-                    "time": datetime.now().strftime("%H:%M"),
-                    "timestamp": datetime.now().isoformat(),
-                    "hour": datetime.now().hour,
-                    "type": "alert",
-                    "description": (f"⚠ ALERT: La persona è sedentaria da circa "
-                                   f"{minutes:.0f} minuti. Potrebbe essere opportuno incoraggiarla a muoversi.")
-                }
-                self.observations.append(obs)
-                self._save()
-                self._sedentary_alerted = True
-                print(f"[{obs['time']}] {obs['description']}")
-                if self._alert_callback:
-                    self._alert_callback(obs['description'])
-        else:
-            self._sedentary_start_time = 0
-            self._sedentary_alerted = False
-
     # =========================================
-    # CONFRONTO AMBIENTALE
+    # CONFRONTO AMBIENTALE (sperimentale)
     # =========================================
     def check_comparison(self, frame):
-        """Ogni ora confronta il frame corrente con quello precedente.
-        
-        Concentrato sull'ambiente (oggetti caduti, ostacoli) non sulla persona.
-        Cattura cambiamenti graduali invisibili al diff frame-to-frame.
+        """Ogni intervallo confronta il frame corrente con quello precedente.
+
+        Concentrato sull'ambiente (oggetti caduti, ostacoli, arredi spostati),
+        non sulla persona. Il prompt è formulato in modo direttivo con esempi
+        few-shot per ridurre il default "Ambiente invariato" emesso dal VLM.
+        Il contesto conversazionale viene volutamente omesso per evitare il
+        bias persona-centrico delle osservazioni recenti.
         """
         now = time.time()
         if now - self._last_comparison_time < self._comparison_interval:
@@ -372,18 +296,24 @@ class Observer:
         now_str = datetime.now().strftime("%H:%M")
 
         prompt = (
-            f"Ti mostro due immagini della stessa stanza. "
-            f"La prima è delle ore {self._comparison_frame_time}, la seconda delle ore {now_str}. "
-            f"Ignora la persona. Concentrati sull'AMBIENTE: "
-            f"ci sono oggetti caduti, ostacoli nuovi, sedie spostate, "
-            f"o qualsiasi cambiamento che potrebbe rappresentare un rischio? "
-            f"Se non noti cambiamenti rilevanti, scrivi 'Ambiente invariato'. "
-            f"Nota che l'inquadratura potrebbe essere cambiata."
+            f"Confronta queste due immagini DELLA STESSA STANZA scattate a "
+            f"{self._comparison_frame_time} e a {now_str}.\n"
+            f"Il tuo unico compito è trovare DIFFERENZE NEGLI OGGETTI o "
+            f"NELL'ARREDAMENTO.\n"
+            f"Esempi di cosa devi segnalare:\n"
+            f"- una sedia è in una posizione diversa\n"
+            f"- c'è un oggetto sul pavimento che prima non c'era\n"
+            f"- una porta è aperta dove prima era chiusa\n"
+            f"- un mobile è stato spostato\n"
+            f"NON descrivere persone. NON dire \"invariato\" se non sei sicuro.\n"
+            f"Elenca ogni differenza che vedi, anche piccola."
         )
 
         images = [self._comparison_frame, current_b64]
-        context = self._build_context()
-        description = self.vlm.call_with_images(images, context, max_tokens=250, prompt_text=prompt)
+        description = self.vlm.call_with_images(
+            images, context_messages=None, max_tokens=250, prompt_text=prompt,
+            category="confronto"
+        )
 
         if description:
             obs = {

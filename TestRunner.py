@@ -23,11 +23,17 @@ class TestRunner:
         self.monitor_area = monitor_area or {"top": 270, "left": 10, "width": 900, "height": 520}
         self.db = DatabaseManager()
         self._running = False
+        self._analysis_pending = False
         self._frame_times = deque(maxlen=60)
         self._observations = observations  # lista condivisa con il monitor
         self._save_callback = save_callback
         self._vlm = vlm_client
         self._output_dir = output_dir
+
+    @property
+    def is_busy(self):
+        """True se è in corso un test o la sua analisi VLM post-test."""
+        return self._running or self._analysis_pending
 
     def _add_observation(self, description, obs_type='test'):
         """Aggiunge un risultato di test alle osservazioni del diario."""
@@ -54,124 +60,133 @@ class TestRunner:
         self._running = True
         self._frame_times.clear() 
 
-        # Aspetta che la persona sia rilevata
-        print("[TEST] In attesa della persona...")
+        # Attende la posizione seduta stabile e raccoglie baseline anca
+        print("[TEST] In attesa che la persona si sieda...")
         start_wait = time.time()
-        hip_x, hip_y = 0, 0 
+        hip_x, hip_y = 0, 0
+        seated_since = None
+        SEAT_HOLD = 1.0
+        HIP_LIFT_RATIO = TUGTest.HIP_LIFT_RATIO
+        baseline_hip_y = None
+        baseline_torso = None
+        hip_lift_threshold = None
+        _hip_y_samples = []
+        _torso_samples = []
 
-        while self._running and (time.time() - start_wait < 30):
+        while self._running and (time.time() - start_wait < 60):
             frame = self._grab_frame(sct)
             frame = detector.findPose(frame, draw=False)
             lmList = detector.findPosition(frame, draw=False)
             self._update_fps(detector)
             if detector.tracking_quality >= 0.75 and len(lmList) > 0:
-                detector.detect_posture(None)
-                hip_x = detector.hip_x
-                hip_y = detector.hip_y
-                print("[TEST] Persona rilevata, inizio TUG")
-                break
+                state = detector.detect_posture(None)
+                if state == "SITTING" and detector.last_knee_angle > 0:
+                    if seated_since is None:
+                        seated_since = time.time()
+                    else:
+                        _hip_y_samples.append(detector.hip_y)
+                        if detector.torso_length > 0:
+                            _torso_samples.append(detector.torso_length)
+                        if (time.time() - seated_since >= SEAT_HOLD
+                                and baseline_hip_y is None
+                                and len(_hip_y_samples) >= 10):
+                            baseline_hip_y = sum(_hip_y_samples) / len(_hip_y_samples)
+                            if _torso_samples:
+                                baseline_torso = sum(_torso_samples) / len(_torso_samples)
+                                hip_lift_threshold = baseline_torso * HIP_LIFT_RATIO
+                            else:
+                                baseline_torso = 0
+                                hip_lift_threshold = 15.0
+                            hip_x = detector.hip_x
+                            hip_y = detector.hip_y
+                            print(f"[TUG] Baseline hip_y={baseline_hip_y:.1f}, "
+                                  f"busto={baseline_torso:.1f}px, soglia={hip_lift_threshold:.1f}px")
+                            print("[TEST] Persona seduta stabile, inizio TUG")
+                            break
+                else:
+                    seated_since = None
+                    _hip_y_samples.clear()
+                    _torso_samples.clear()
             time.sleep(0.03)
         else:
-            print("[TEST] Persona non rilevata, test annullato")
+            print("[TEST] Posizione seduta non rilevata, test annullato")
             self._running = False
             return None
 
-        # Avvia il test
+        # Avvia il test con baseline pre-calcolata
         tug.start(hip_x, hip_y)
-        test_id = self.db.create_test_session(
-            summary_date=datetime.now().strftime("%Y-%m-%d"),
-            test_type="TUG",
-            start_time=datetime.now().isoformat(),
-            video_source="monitor_1" 
-        )
-
+        tug.baseline_hip_y = baseline_hip_y
+        tug.baseline_torso_length = baseline_torso
+        tug.hip_lift_threshold_px = hip_lift_threshold
+        now_dt = datetime.now()
+        test_timestamp = now_dt.isoformat()
+        test_dir_ts = now_dt.strftime("%Y%m%d_%H%M%S")
         start_time = time.time()
-        tracking_lost_since = None
-        tracking_lost_phases = []
-        tug_frames = []
-        standup_frames = []
-        _standup_captured = False
-        _tug_frame_buffer = deque(maxlen=5)  # ~0.15s a 30fps
+        person_lost_since = None
+        MAX_CONTINUOUS_LOSS = 2.0  # secondi consecutivi senza persona in inquadratura
+        last_landmark_log = 0  # timestamp dell'ultimo log periodico sui landmark
+
+        # Buffer per il campionamento periodico a fini di analisi VLM
+        ANALYSIS_CAPTURE_INTERVAL = 0.3  # secondi
+        ANALYSIS_TARGET_FRAMES = 15
+        analysis_buffer = []
+        last_analysis_capture = 0
 
         while self._running and (time.time() - start_time < timeout):
             frame = self._grab_frame(sct)
-            frame = detector.findPose(frame, draw=False)
+            frame = detector.findPose(frame, draw=True)
             lmList = detector.findPosition(frame, draw=False)
             self._update_fps(detector)
-            _tug_frame_buffer.append(frame)
 
-            if detector.tracking_quality >= 0.75 and len(lmList) > 0:
-                if tracking_lost_since is not None:
-                    lost_duration = time.time() - tracking_lost_since
-                    tracking_lost_phases.append((tug.phase, round(lost_duration, 1)))
-                    print(f"[TEST] Tracking recuperato dopo {lost_duration:.1f}s (fase: {tug.phase})")
-                    tracking_lost_since = None
+            person_in_frame = len(lmList) > 0
+
+            # Log periodico (~1Hz) sul numero di landmark visibili
+            if time.time() - last_landmark_log >= 1.0:
+                visible_landmarks = sum(1 for lm in lmList if lm[3] > 0.5)
+                print(f"[TUG-TRACK] fase={tug.phase} landmark visibili={visible_landmarks}/{len(lmList)}")
+                last_landmark_log = time.time()
+
+            if person_in_frame:
+                person_lost_since = None
 
                 state = detector.detect_posture("TUG")
                 knee_angle = detector.last_knee_angle
                 movement = detector.last_movement
 
-                # Al primo non-SITTING: cattura il frame di ~0.15s fa (persona in spinta)
-                if tug.phase == "SIT_TO_STAND" and state != "SITTING" and not _standup_captured:
-                    f = _tug_frame_buffer[0] if len(_tug_frame_buffer) == _tug_frame_buffer.maxlen else frame
-                    standup_frames.append(self._frame_to_base64(f))
-                    _standup_captured = True
-                    print(f"[TUG-STANDUP] Catturato frame alzata dal buffer (stato: {state})")
+                phase = tug.update(state, detector.hip_x, detector.hip_y, movement, knee_angle, detector.torso_length)
 
-                phase = tug.update(state, detector.hip_x, detector.hip_y, movement, knee_angle)
+                # Campionamento periodico per l'analisi VLM — frame pulito (senza overlay testo)
+                if (tug.start_time is not None
+                        and time.time() - last_analysis_capture >= ANALYSIS_CAPTURE_INTERVAL):
+                    analysis_buffer.append(self._frame_to_base64(frame))
+                    last_analysis_capture = time.time()
 
-                if tug.phase_just_changed:
-                    tug_frames.append(self._frame_to_base64(frame))
-                    print(f"[TUG-FRAME] Catturato frame per fase {tug.phase}, totale: {len(tug_frames)}")
-
+            if person_in_frame:
                 if phase == "FINISHED":
                     result = tug.get_result()
-                    if result and test_id:
-                        # Legge il test precedente prima di salvare quello nuovo
-                        today = datetime.now().strftime("%Y-%m-%d")
-                        prev_results = self.db.get_tug_results("2000-01-01", today)
-                        prev = prev_results[-1] if prev_results else None
-
-                        self.db.complete_test_session(test_id, datetime.now().isoformat())
-                        self.db.save_tug_result(test_id, result)
-
+                    test_id = None
+                    if result:
+                        test_id = self.db.save_tug_result(result, test_timestamp)
                         t = result['total_time']
                         obs_text = f"Test TUG completato: {t:.1f}s"
-
-                        # Trend velocità normalizzata rispetto al test precedente
-                        if prev and prev['avg_speed_px_s'] and result['avg_speed_px_s']:
-                            delta_pct = ((result['avg_speed_px_s'] - prev['avg_speed_px_s']) / prev['avg_speed_px_s']) * 100
-                            delta_t = t - prev['total_time']
-                            if abs(delta_pct) > 5:
-                                direzione = "miglioramento" if delta_pct > 0 else "peggioramento"
-                                if abs(delta_t) < 1.0:
-                                    tempo_note = ", nonostante tempo simile"
-                                else:
-                                    tempo_note = ""
-                                obs_text += f" — {direzione} del {abs(delta_pct):.0f}% nella velocità di cammino{tempo_note}"
-                            else:
-                                obs_text += " — prestazione simile al test precedente"
-
-                        if tracking_lost_phases:
-                            fasi = ", ".join(f"{fase} ({dur}s)" for fase, dur in tracking_lost_phases)
-                            obs_text += f" [tracking perso durante: {fasi}]"
-
                         print(f"[TEST] TUG: {obs_text}")
                         self._add_observation(obs_text)
                     self._running = False
-                    if standup_frames:
-                        self._save_frames(standup_frames, "TUG", "alzata")
-                    if tug_frames:
-                        self._save_frames(tug_frames, "TUG", "fasi")
-                    return result, standup_frames, tug_frames, test_id
+                    analysis_frames = analysis_buffer
+                    if len(analysis_buffer) > ANALYSIS_TARGET_FRAMES:
+                        step = len(analysis_buffer) / ANALYSIS_TARGET_FRAMES
+                        analysis_frames = [analysis_buffer[int(i * step)] for i in range(ANALYSIS_TARGET_FRAMES)]
+                    print(f"[TUG] Buffer analisi: {len(analysis_buffer)} catturati → {len(analysis_frames)} inviati al VLM")
+                    self._save_frames(analysis_frames, "TUG", "analisi", test_dir_ts)
+                    return result, analysis_frames, test_id
 
             else:
-                if tracking_lost_since is None:
-                    tracking_lost_since = time.time()
-                elif time.time() - tracking_lost_since > 2.0:
-                    print(f"[TEST] Tracking perso da più di 2s in fase {tug.phase}, test annullato")
+                if person_lost_since is None:
+                    person_lost_since = time.time()
+                elif time.time() - person_lost_since > MAX_CONTINUOUS_LOSS:
+                    print(f"[TEST] Persona non visibile da più di {MAX_CONTINUOUS_LOSS}s in fase {tug.phase}, test annullato")
                     self._add_observation(
-                        f"Test TUG annullato: tracking perso per più di 2 secondi durante la fase {tug.phase}"
+                        f"Test TUG annullato: persona non visibile per più di {MAX_CONTINUOUS_LOSS:.0f} secondi durante la fase {tug.phase}"
                     )
                     self._running = False
                     return None
@@ -193,107 +208,155 @@ class TestRunner:
         self._running = True
         self._frame_times.clear()
 
-        # Aspetta persona
-        print("[TEST] In attesa della persona...")
+        # Attende la posizione seduta stabile e raccoglie baseline anca
+        print("[TEST] In attesa che la persona si sieda...")
         start_wait = time.time()
-        while self._running and (time.time() - start_wait < 30): #se entro 30 secondi non viene rilevata una persona, annulla il test
+        seated_since = None
+        SEAT_HOLD = 1.0
+        HIP_LIFT_RATIO = 0.12
+        baseline_hip_y = None
+        baseline_torso = None
+        hip_lift_threshold = None
+        _hip_y_samples = []
+        _torso_samples = []
+        while self._running and (time.time() - start_wait < 60):
             frame = self._grab_frame(sct)
             frame = detector.findPose(frame, draw=False)
             self._update_fps(detector)
             lmList = detector.findPosition(frame, draw=False)
             if detector.tracking_quality >= 0.75 and len(lmList) > 0:
-                print("[TEST] Persona rilevata, inizio STS")
-                break
+                state = detector.detect_posture(None)
+                if state == "SITTING" and detector.last_knee_angle > 0:
+                    if seated_since is None:
+                        seated_since = time.time()
+                    else:
+                        _hip_y_samples.append(detector.hip_y)
+                        if detector.torso_length > 0:
+                            _torso_samples.append(detector.torso_length)
+                        if (time.time() - seated_since >= SEAT_HOLD
+                                and baseline_hip_y is None
+                                and len(_hip_y_samples) >= 10
+                                and len(_torso_samples) >= 5):
+                            baseline_hip_y = sum(_hip_y_samples) / len(_hip_y_samples)
+                            baseline_torso = sum(_torso_samples) / len(_torso_samples)
+                            hip_lift_threshold = baseline_torso * HIP_LIFT_RATIO
+                            print(f"[STS] Baseline hip_y={baseline_hip_y:.1f}, "
+                                  f"busto={baseline_torso:.1f}px, soglia={hip_lift_threshold:.1f}px")
+                            print("[TEST] Persona seduta stabile, inizio STS")
+                            break
+                else:
+                    seated_since = None
+                    _hip_y_samples.clear()
+                    _torso_samples.clear()
             time.sleep(0.03)
         else:
-            print("[TEST] Persona non rilevata, test annullato")
+            print("[TEST] Posizione seduta non rilevata, test annullato")
             self._running = False
             return None
 
         # Avvia il test
         sts.start()
-        test_id = self.db.create_test_session(
-            summary_date=datetime.now().strftime("%Y-%m-%d"),
-            test_type="STS",
-            start_time=datetime.now().isoformat(),
-            video_source="monitor_1"
-        )
-
+        now_dt = datetime.now()
+        test_timestamp = now_dt.isoformat()
+        test_dir_ts = now_dt.strftime("%Y%m%d_%H%M%S")
         start_time = time.time()
         tracking_lost_since = None
+        person_lost_since = None
+        MAX_CONTINUOUS_LOSS_STS = 2.0
         last_rep_count = 0
         last_rep_time = time.time()
+        rep_start_time = time.time()
+        rep_times = []
         inactivity_timeout = 20
-        transition_frames = []
-        _frame_buffer = deque(maxlen=5)  # ~0.15s a 30fps
+        ANALYSIS_CAPTURE_INTERVAL = 0.3
+        ANALYSIS_TARGET_FRAMES = 15
+        analysis_buffer = []
+        last_analysis_capture = 0
 
         while self._running and (time.time() - start_time < timeout):
             frame = self._grab_frame(sct)
-            frame = detector.findPose(frame, draw=False)
+            frame = detector.findPose(frame, draw=True)
             lmList = detector.findPosition(frame, draw=False)
-            _frame_buffer.append(frame)
 
-            if detector.tracking_quality >= 0.75 and len(lmList) > 0:
+            person_in_frame = len(lmList) > 0
+
+            if tracking_lost_since is not None and len(lmList) > 0:
                 tracking_lost_since = None
+            elif tracking_lost_since is None and len(lmList) == 0:
+                tracking_lost_since = time.time()
+
+            if person_in_frame:
+                person_lost_since = None
                 state = detector.detect_posture("STS")
                 knee_angle = detector.last_knee_angle
+
+                # Rileva alzata tramite soglia anca, come in TUG
+                if sts.start_time is None and baseline_hip_y is not None:
+                    if baseline_hip_y - detector.hip_y > hip_lift_threshold:
+                        sts.start_time = time.time()
+                        rep_start_time = sts.start_time
+                        delta = baseline_hip_y - detector.hip_y
+                        print(f"[STS] Hip lift rilevato, timer avviato (Δy={delta:.1f}px)")
+
                 sts.update(state, knee_angle)
 
-                if sts.standup_just_occurred:
-                    # Usa il frame più vecchio del buffer (~0.5s fa) per catturare la spinta
-                    f = _frame_buffer[0] if len(_frame_buffer) == _frame_buffer.maxlen else frame
-                    transition_frames.append(self._frame_to_base64(f))
-                if sts.transition_just_occurred:
-                    transition_frames.append(self._frame_to_base64(frame))
+                # Campionamento periodico per l'analisi VLM — frame pulito
+                if (sts.start_time is not None
+                        and time.time() - last_analysis_capture >= ANALYSIS_CAPTURE_INTERVAL):
+                    analysis_buffer.append(self._frame_to_base64(frame))
+                    last_analysis_capture = time.time()
 
                 if sts.reps > last_rep_count:
+                    rep_times.append(time.time() - rep_start_time)
+                    rep_start_time = time.time()
                     last_rep_count = sts.reps
                     last_rep_time = time.time()
                 elif sts.reps < 5 and time.time() - last_rep_time > inactivity_timeout:
                     print(f"[TEST] STS interrotto per inattività ({sts.reps}/5 rep)")
                     self._add_observation(f"Test STS interrotto: {sts.reps}/5 ripetizioni completate")
+                    partial = {'total_time': round(time.time() - start_time, 2), 'reps_completed': sts.reps}
+                    test_id = self.db.save_sts_result(partial, test_timestamp, completed=0)
+                    if test_id and rep_times:
+                        self.db.save_sts_reps(test_id, rep_times)
                     self._running = False
                     return None
 
-                if sts.reps >= 5:
-                    result = sts.get_result()
-                    if result and test_id:
-                        today = datetime.now().strftime("%Y-%m-%d")
-                        prev_results = self.db.get_sts_results("2000-01-01", today)
-                        prev = prev_results[-1] if prev_results else None
+            if person_in_frame and sts.reps >= 5 and not sts.test_active:
+                result = sts.get_result()
+                test_id = None
+                if result:
+                    test_id = self.db.save_sts_result(result, test_timestamp)
+                    if test_id and rep_times:
+                        self.db.save_sts_reps(test_id, rep_times)
+                    t = result['total_time']
+                    obs_text = f"Test STS completato: {t:.1f}s (5 ripetizioni)"
+                    print(f"[TEST] STS: {obs_text}")
+                    self._add_observation(obs_text)
+                self._running = False
+                analysis_frames = analysis_buffer
+                if len(analysis_buffer) > ANALYSIS_TARGET_FRAMES:
+                    step = len(analysis_buffer) / ANALYSIS_TARGET_FRAMES
+                    analysis_frames = [analysis_buffer[int(i * step)] for i in range(ANALYSIS_TARGET_FRAMES)]
+                print(f"[STS] Buffer analisi: {len(analysis_buffer)} catturati → {len(analysis_frames)} inviati al VLM")
+                self._save_frames(analysis_frames, "STS", "analisi", test_dir_ts)
+                return result, analysis_frames, test_id
 
-                        self.db.complete_test_session(test_id, datetime.now().isoformat())
-                        self.db.save_sts_result(test_id, result)
-
-                        t = result['total_time']
-                        obs_text = f"Test STS completato: {t:.1f}s (5 ripetizioni)"
-
-                        if prev and prev['total_time']:
-                            delta = t - prev['total_time']
-                            if delta > 1:
-                                obs_text += f" — peggioramento (+{delta:.1f}s rispetto al test precedente)"
-                            elif delta < -1:
-                                obs_text += f" — miglioramento ({abs(delta):.1f}s rispetto al test precedente)"
-                            else:
-                                obs_text += " — prestazione simile al test precedente"
-
-                        print(f"[TEST] STS: {obs_text}")
-                        self._add_observation(obs_text)
-                    self._running = False
-                    if transition_frames:
-                        self._save_frames(transition_frames, "STS", "transizioni")
-                    return result, transition_frames, test_id
-
-            else:
-                if tracking_lost_since is None:
-                    tracking_lost_since = time.time()
-                elif time.time() - tracking_lost_since > 1.0:
-                    print(f"[TEST] Tracking perso da più di 1s, test STS annullato (rep {sts.reps}/5)")
+            if not person_in_frame:
+                if person_lost_since is None:
+                    person_lost_since = time.time()
+                elif time.time() - person_lost_since > MAX_CONTINUOUS_LOSS_STS:
+                    print(f"[TEST] Persona non visibile da più di {MAX_CONTINUOUS_LOSS_STS}s, test STS annullato (rep {sts.reps}/5)")
                     self._add_observation(
-                        f"Test STS annullato: persona non visibile per più di 1 secondo (completate {sts.reps}/5 ripetizioni)"
+                        f"Test STS annullato: persona non visibile per più di {MAX_CONTINUOUS_LOSS_STS:.0f} secondi (completate {sts.reps}/5 ripetizioni)"
                     )
+                    partial = {'total_time': round(time.time() - start_time, 2), 'reps_completed': sts.reps}
+                    test_id = self.db.save_sts_result(partial, test_timestamp, completed=0)
+                    if test_id and rep_times:
+                        self.db.save_sts_reps(test_id, rep_times)
                     self._running = False
                     return None
+            else:
+                person_lost_since = None
 
             time.sleep(0.03)
 
@@ -317,44 +380,74 @@ class TestRunner:
         _, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
         return base64.b64encode(buf).decode("utf-8")
 
-    def _save_frames(self, frames_b64: list, test_type: str, label: str):
-        """Salva i frame base64 come JPEG nella cartella del diario."""
+    def _save_frames(self, frames_b64: list, test_type: str, label: str, test_ts: str = None):
+        """Salva i frame base64 come JPEG in una cartella dedicata al singolo test.
+
+        Args:
+            frames_b64: lista di frame in base64 da salvare.
+            test_type: tipo del test (es. "TUG", "STS").
+            label: etichetta che descrive il contenuto dei frame (es. "alzata", "fasi").
+            test_ts: timestamp condiviso del test; se omesso ne viene generato uno nuovo.
+        """
         import base64, os
-        folder = os.path.join(self._output_dir, "test_frames")
+        if test_ts is None:
+            test_ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        folder = os.path.join(self._output_dir, "test_frames", f"{test_ts}_{test_type}")
         os.makedirs(folder, exist_ok=True)
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         for i, b64 in enumerate(frames_b64):
-            path = os.path.join(folder, f"{ts}_{test_type}_{label}_{i+1}.jpg")
+            path = os.path.join(folder, f"{label}_{i+1}.jpg")
             with open(path, "wb") as f:
                 f.write(base64.b64decode(b64))
         print(f"[TEST] Salvati {len(frames_b64)} frame in {folder}/")
 
-    def _analyse_sts_quality(self, transition_frames: list) -> str:
-        """Analisi qualitativa VLM sui frame delle transizioni del test STS."""
+    def _analyse_sts_quality(self, analysis_frames: list):
+        """Analisi qualitativa VLM sui frame del test STS.
+
+        Ritorna: (testo_referto, durata_secondi)
+        """
         prompt = (
-            "Stai osservando una persona che esegue il test Sit-to-Stand (5 ripetizioni). "
-            "Rispondi in 2-3 frasi: la persona ha usato i braccioli o le mani per alzarsi? "
+            f"Ti mostro una sequenza di {len(analysis_frames)} frame in ordine temporale, "
+            "catturati durante l'esecuzione del test Sit-to-Stand (5 ripetizioni). "
+            "Valuta complessivamente il movimento e rispondi in 2-3 frasi: "
+            "la persona ha usato i braccioli o le mani per alzarsi? "
             "Il movimento è fluido o si notano difficoltà e instabilità?"
         )
-        return self._vlm.call_with_images(transition_frames, prompt_text=prompt, max_tokens=100)
+        self._analysis_pending = True
+        try:
+            t0 = time.perf_counter()
+            text = self._vlm.call_with_images(
+                analysis_frames, prompt_text=prompt, max_tokens=100, category="analisi_test_sts"
+            )
+            return text, round(time.perf_counter() - t0, 2)
+        finally:
+            self._analysis_pending = False
 
-    def _analyse_standup(self, standup_frames: list) -> str:
-        """Analisi VLM focalizzata sull'alzata dalla sedia nel test TUG."""
-        prompt = (
-            "Stai osservando una persona che si sta alzando dalla sedia all'inizio del test "
-            "Timed Up and Go. Rispondi in 2-3 frasi: la persona ha usato i braccioli o le mani "
-            "per spingersi su? Il movimento appare fluido o faticoso?"
-        )
-        return self._vlm.call_with_images(standup_frames, prompt_text=prompt, max_tokens=100)
+    def _analyse_tug(self, frames: list):
+        """Analisi VLM unificata sui frame del test TUG (alzata + andatura + svolta + ritorno).
 
-    def _analyse_tug_quality(self, tug_frames: list) -> str:
-        """Analisi qualitativa VLM sui frame delle fasi del test TUG."""
+        Ritorna: (testo_referto, durata_secondi)
+        """
         prompt = (
-            "Stai osservando una persona che esegue il test Timed Up and Go. "
-            "Rispondi in 2-3 frasi: l'andatura appare stabile e simmetrica? "
-            "La svolta è fluida? Si notano difficoltà o instabilità?"
+            f"Ti mostro una sequenza di {len(frames)} frame in ordine temporale, "
+            "catturati durante l'esecuzione del test Timed Up and Go. "
+            "I frame coprono in ordine l'intera esecuzione del test: l'alzata dalla sedia, "
+            "la camminata, la svolta, il ritorno e la riseduta. "
+            "Valuta complessivamente l'esecuzione e rispondi in 3-4 frasi:\n"
+            "1) la persona ha usato i braccioli o le mani per alzarsi? il movimento di alzata è fluido o faticoso?\n"
+            "2) l'andatura è stabile e simmetrica? la svolta appare fluida? si notano esitazioni, "
+            "oscillazioni laterali o appoggi compensatori?\n"
+            "3) la persona è stata sempre ben visibile e completamente inquadrata durante il test, "
+            "oppure alcune parti del corpo sono uscite dall'inquadratura o sono state coperte?"
         )
-        return self._vlm.call_with_images(tug_frames, prompt_text=prompt, max_tokens=100)
+        self._analysis_pending = True
+        try:
+            t0 = time.perf_counter()
+            text = self._vlm.call_with_images(
+                frames, prompt_text=prompt, max_tokens=200, category="analisi_test_tug"
+            )
+            return text, round(time.perf_counter() - t0, 2)
+        finally:
+            self._analysis_pending = False
 
     def _update_fps(self, detector):
         """Calcola FPS reali e aggiorna il detector."""

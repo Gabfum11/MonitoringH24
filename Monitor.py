@@ -58,7 +58,8 @@ class VLMMonitor:
         self.observer = Observer(
             self.capture, self.vlm, self.observations,
             save_callback=self.diary.save_data,
-            capture_interval=capture_interval
+            capture_interval=capture_interval,
+            output_dir=output_dir
         )
 
         # Tracking orario
@@ -167,6 +168,7 @@ class VLMMonitor:
                 local_cfg = json.load(f) #lettura del token da config.local.json, se presente, per evitare di esporlo in chiaro nel codice o nelle variabili d'ambiente
 
         token = local_cfg.get("telegram_token")
+        test_runner = None
         if token:
             test_runner = TestRunner(
                 monitor_area=self.capture.monitor,
@@ -189,7 +191,21 @@ class VLMMonitor:
         self._recover_missing_monthly_reports()
 
         try:
+            test_pause_announced = False
             while True:
+                # Se è in corso un test clinico (o la sua analisi VLM post-test),
+                # sospendi il loop di monitoraggio per non sottrarre CPU/GPU e per
+                # non contendere il server VLM con la chiamata di analisi
+                if test_runner is not None and test_runner.is_busy:
+                    if not test_pause_announced:
+                        print("[MONITOR] Test clinico in corso, monitoraggio sospeso")
+                        test_pause_announced = True
+                    time.sleep(0.5)
+                    continue
+                if test_pause_announced:
+                    print("[MONITOR] Test clinico terminato, monitoraggio ripreso")
+                    test_pause_announced = False
+
                 self._check_new_day()
                 self._check_hourly_summary()
 
@@ -211,8 +227,9 @@ class VLMMonitor:
                     else:
                         self.observer.observe(frame, mode='single')
 
-                # Confronto ambientale ogni ora
-                self.observer.check_comparison(frame)
+                # Confronto ambientale periodico (disattivato durante la raccolta
+                # dati di latenza per non contaminare le metriche del sistema "core")
+                # self.observer.check_comparison(frame)
 
                 time.sleep(2)
                 # Monitor CPU (debug)
@@ -249,6 +266,8 @@ def main():
                         help="Genera il report settimanale e esci")
     parser.add_argument("--gen-monthly", action="store_true",
                         help="Genera il report mensile e esci")
+    parser.add_argument("--regen-daily", metavar="YYYY-MM-DD",
+                        help="Rigenera il diario giornaliero per la data indicata e esci")
     parser.add_argument("--index-rag", action="store_true",
                         help="Indicizza i riepiloghi orari esistenti nel RAG e esci")
 
@@ -274,6 +293,22 @@ def main():
         return
     if args.gen_monthly:
         monitor.diary.generate_monthly_diary()
+        return
+    if args.regen_daily:
+        try:
+            date.fromisoformat(args.regen_daily)
+        except ValueError:
+            print(f"[ERRORE] Data non valida: {args.regen_daily} (atteso YYYY-MM-DD)")
+            return
+        monitor.observations.clear()
+        monitor.hourly_summaries.clear()
+        monitor.diary.today = args.regen_daily
+        monitor.diary.load_existing_data()
+        if not monitor.observations and not monitor.hourly_summaries:
+            print(f"[REGEN] Nessun dato trovato per {args.regen_daily}, impossibile rigenerare")
+            return
+        print(f"[REGEN] Rigenerazione diario per {args.regen_daily}...")
+        monitor.diary.generate_diary()
         return
     if args.preview:
         monitor.capture.preview()

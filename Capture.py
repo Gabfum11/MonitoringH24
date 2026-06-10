@@ -12,7 +12,6 @@ import time
 import mss
 import base64
 import numpy as np
-import subprocess
 from collections import deque
 
 
@@ -78,11 +77,6 @@ class CaptureManager:
         self._prev_frame_gray = gray
         self.last_diff = diff
 
-        if diff > 70:
-            self._change_streak = 0
-            print(f"[ROTAZIONE] Movimento camera rilevato (Diff: {diff:.2f}), ignoro...")
-            return False
-
         # Evento brusco improvviso: bypass soglia e streak
         if diff > 10:
             self._change_streak = 0
@@ -130,28 +124,6 @@ class CaptureManager:
         indices = [0, n // 3, (2 * n) // 3, n - 1]
         
         return [self.frame_to_base64(buffer_list[i]) for i in indices]
-
-    # =========================================
-    # ZOOM AUTOMATICO
-    # =========================================
-    def _click_center(self):
-        cx = self.monitor['left'] + self.monitor['width'] // 2
-        cy = self.monitor['top'] + self.monitor['height'] // 2
-        subprocess.run(
-            ['osascript', '-e',
-             f'tell application "System Events" to double click at {{{cx}, {cy}}}'],
-            capture_output=True
-        )
-
-    def zoom_in(self):
-        self._click_center()
-        time.sleep(2)
-        print("[ZOOM] Zoom avanti")
-
-    def zoom_out(self):
-        self._click_center()
-        time.sleep(2)
-        print("[ZOOM] Zoom indietro")
 
     # =========================================
     # ANTEPRIMA

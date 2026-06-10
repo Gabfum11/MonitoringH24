@@ -23,6 +23,9 @@ class VLMCalls:
         self.model = model
         self.lmstudio_url = lmstudio_url
 
+        # Accumulatore latenze per categoria (resettato a inizio giornata)
+        self._latency_samples = {}
+
         # Prompt di sistema per le osservazioni
         self.system_prompt = (
             "Sei un assistente per il monitoraggio domiciliare di una persona anziana.\n\n"
@@ -41,11 +44,7 @@ class VLMCalls:
             "Sii oggettivo e preciso.\n"
             "NON descrivere dettagli irrilevanti (arredamento, luce, ecc.) "
             "a meno che non siano importanti per la sicurezza.\n"
-            "Se la persona non è visibile, dichiaralo chiaramente.\n\n"
-            "Segnala se la persona è sedentaria (seduta o sdraiata) per lunghi periodi senza cambiamenti, "
-            "Se rilevi una situazione critica (caduta, persona a terra, instabilità grave, difficoltà nel movimento), "
-            "termina la risposta con: [ALERT: categoria]\n"
-            "Altrimenti non aggiungere nulla."
+            "Se la persona non è visibile, dichiaralo chiaramente."
         )
 
     # =========================================
@@ -79,9 +78,43 @@ class VLMCalls:
         return ""
 
     # =========================================
+    # METRICHE DI LATENZA
+    # =========================================
+    def _record_latency(self, category, ttft, ttlt):
+        """Memorizza un campione di latenza nella categoria indicata."""
+        if not category:
+            return
+        bucket = self._latency_samples.setdefault(category, {"ttft": [], "ttlt": []})
+        if ttft is not None:
+            bucket["ttft"].append(ttft)
+        bucket["ttlt"].append(ttlt)
+
+    def get_latency_summary(self):
+        """Restituisce le statistiche aggregate accumulate finora."""
+        summary = {}
+        for category, samples in self._latency_samples.items():
+            n = len(samples["ttlt"])
+            if n == 0:
+                continue
+            ttft = samples["ttft"]
+            ttlt = samples["ttlt"]
+            summary[category] = {
+                "n": n,
+                "ttft_mean": round(sum(ttft) / len(ttft), 2) if ttft else None,
+                "ttlt_mean": round(sum(ttlt) / len(ttlt), 2),
+                "ttlt_min": round(min(ttlt), 2),
+                "ttlt_max": round(max(ttlt), 2),
+            }
+        return summary
+
+    def reset_latency(self):
+        """Azzera l'accumulatore (es. a fine giornata)."""
+        self._latency_samples = {}
+
+    # =========================================
     # STREAMING INTERNO
     # =========================================
-    def _stream_request(self, messages, max_tokens, temperature, timeout=120):
+    def _stream_request(self, messages, max_tokens, temperature, timeout=120, category=None):
         """Esegue la chiamata in streaming, logga TTFT/TTLT e restituisce il testo."""
         t_start = time.perf_counter()
         try:
@@ -124,12 +157,13 @@ class VLMCalls:
         ttft = round(t_first - t_start, 3) if t_first else None
         ttlt = round(t_end - t_start, 3)
         print(f"[VLM] TTFT={ttft}s  TTLT={ttlt}s")
+        self._record_latency(category, ttft, ttlt)
         return "".join(parts).strip() or None
 
     # =========================================
     # CHIAMATA CON IMMAGINI
     # =========================================
-    def call_with_images(self, images_b64, context_messages=None, max_tokens=200, prompt_text=None):
+    def call_with_images(self, images_b64, context_messages=None, max_tokens=200, prompt_text=None, category=None):
         """Invia una o più immagini a LM Studio con contesto."""
         messages = [{"role": "system", "content": self.system_prompt}]
 
@@ -140,7 +174,8 @@ class VLMCalls:
         time_ctx = self.get_time_context()
 
         current_max = max_tokens
-        if isinstance(images_b64, list) and len(images_b64) > 1:
+        is_sequence = isinstance(images_b64, list) and len(images_b64) > 1
+        if is_sequence:
             current_max = 350
             if prompt_text is None:
                 prompt_text = (
@@ -165,15 +200,17 @@ class VLMCalls:
             ]
 
         messages.append({"role": "user", "content": content})
-        return self._stream_request(messages, current_max, temperature=0.3, timeout=60)
+        if category is None:
+            category = "sequenza" if is_sequence else "singolo"
+        return self._stream_request(messages, current_max, temperature=0.3, timeout=60, category=category)
 
     # =========================================
     # CHIAMATA SOLO TESTO
     # =========================================
-    def call_text(self, prompt, system=None, max_tokens=800):
+    def call_text(self, prompt, system=None, max_tokens=800, category="testo"):
         """Chiamata solo testo per sintesi orarie, diari e report."""
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
-        return self._stream_request(messages, max_tokens, temperature=0.4, timeout=120)
+        return self._stream_request(messages, max_tokens, temperature=0.4, timeout=120, category=category)

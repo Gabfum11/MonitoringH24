@@ -3,6 +3,10 @@ import math
 from datetime import datetime
 
 class TUGTest:
+    HIP_LIFT_RATIO = 0.12  # frazione della lunghezza del busto: spostamento minimo dell'anca verso l'alto per avvio timer
+    BASELINE_DURATION = 1.0  # secondi: durata della raccolta della linea base in fase READY
+    FINAL_SIT_HOLD = 0.4  # secondi: tempo minimo in SITTING per confermare la fine del test
+
     def __init__(self):
         self.active = False
         self.reset()
@@ -14,10 +18,16 @@ class TUGTest:
         self.prev_hip_x = None
         self.prev_hip_y = None
 
-        # Spostamento cumulativo
-        self.cumulative_distance = 0
-        self.forward_distance = 0
-        self.return_distance = 0 
+        # Linea base dell'anca per rilevare l'inizio dell'alzata
+        self.baseline_hip_y = None
+        self.baseline_torso_length = None
+        self.hip_lift_threshold_px = None
+        self._ready_hip_y_samples = []
+        self._ready_torso_samples = []
+        self._ready_start_time = None
+
+        # Conferma seduta finale stabile
+        self._final_sit_since = None
 
         # Per rilevare inversione di direzione
         self.timed_deltas = []
@@ -35,26 +45,60 @@ class TUGTest:
         self.phase_just_changed = False
 
     def start(self, hip_x, hip_y):
-        """Avvia il test. Non richiede calibrazione."""
+        """Avvia il test. Resta in attesa che l'anca inizi a sollevarsi."""
         self.reset()
         self.active = True
-        self.phase = "SIT_TO_STAND"
-        self.start_time = time.time()
-        self.phase_start_time = time.time()
+        self.phase = "READY"
         self.prev_hip_x = hip_x
         self.prev_hip_y = hip_y
+        self._ready_start_time = time.time()
 
-    def update(self, state, hip_x, hip_y, movement=0, knee_angle=0):
+    def update(self, state, hip_x, hip_y, movement=0, knee_angle=0, torso_length=0):
         if not self.active:
             return self.phase
 
         self.phase_just_changed = False
+        now = time.time()
+
+        # Il timer parte quando l'anca inizia a sollevarsi rispetto alla baseline
+        if self.phase == "READY":
+            self.prev_hip_x = hip_x
+            self.prev_hip_y = hip_y
+
+            if self.baseline_hip_y is None:
+                self._ready_hip_y_samples.append(hip_y)
+                if torso_length > 0:
+                    self._ready_torso_samples.append(torso_length)
+                if (now - self._ready_start_time >= self.BASELINE_DURATION
+                        and len(self._ready_hip_y_samples) >= 10):
+                    self.baseline_hip_y = (
+                        sum(self._ready_hip_y_samples) / len(self._ready_hip_y_samples)
+                    )
+                    if self._ready_torso_samples:
+                        self.baseline_torso_length = (
+                            sum(self._ready_torso_samples) / len(self._ready_torso_samples)
+                        )
+                        self.hip_lift_threshold_px = self.baseline_torso_length * self.HIP_LIFT_RATIO
+                    else:
+                        self.baseline_torso_length = 0
+                        self.hip_lift_threshold_px = 15.0  # fallback se busto non rilevato
+                    print(f"[TUG] Baseline hip_y={self.baseline_hip_y:.1f}, "
+                          f"busto={self.baseline_torso_length:.1f}px, "
+                          f"soglia={self.hip_lift_threshold_px:.1f}px")
+            else:
+                if self.baseline_hip_y - hip_y > self.hip_lift_threshold_px:
+                    delta = self.baseline_hip_y - hip_y
+                    self.phase = "SIT_TO_STAND"
+                    self.start_time = now
+                    self.phase_start_time = now
+                    self.phase_just_changed = True
+                    print(f"[TUG] READY → SIT_TO_STAND (anca sollevata Δy={delta:.1f}px)")
+            return self.phase
 
         if movement > 0:
             self.movement_values.append(movement)
         if knee_angle > 0:
             self.knee_angles.append(knee_angle)
-        now = time.time()
 
         if self.prev_hip_x is not None:
             delta_x = hip_x - self.prev_hip_x
@@ -62,16 +106,9 @@ class TUGTest:
             delta = math.sqrt(delta_x**2 + delta_y**2)
 
             if 0.3 < delta < 50:
-                self.cumulative_distance += delta
                 self.timed_deltas.append((now, delta_x, delta_y))
-
                 cutoff = now - 3.0
                 self.timed_deltas = [(t, dx, dy) for t, dx, dy in self.timed_deltas if t > cutoff]
-
-                if self.phase == "WALK_FORWARD":
-                    self.forward_distance += delta
-                elif self.phase == "WALK_BACK":
-                    self.return_distance += delta
 
         self.prev_hip_x = hip_x
         self.prev_hip_y = hip_y
@@ -83,7 +120,6 @@ class TUGTest:
             self.phase_times['sit_to_stand'] = now - self.phase_start_time
             self.phase = "WALK_FORWARD"
             self.phase_start_time = now
-            self.forward_distance = 0
             self.timed_deltas = []
             self.phase_just_changed = True
             print(f"[TUG] SIT_TO_STAND → WALK_FORWARD ({self.phase_times['sit_to_stand']:.1f}s)")
@@ -104,26 +140,31 @@ class TUGTest:
                 self.phase_times['turn'] = now - self.phase_start_time
                 self.phase = "WALK_BACK"
                 self.phase_start_time = now
-                self.return_distance = 0
                 self.timed_deltas = []
                 self.phase_just_changed = True
                 print(f"[TUG] TURN → WALK_BACK ({self.phase_times['turn']:.1f}s)")
 
-        # 4. WALK_BACK → FINISHED
-        elif self.phase == "WALK_BACK" and state == "SITTING":
-            self.phase_times['walk_back'] = now - self.phase_start_time
-            self.phase = "FINISHED"
-            self.end_time = now
-            self.active = False
-            self.phase_just_changed = True
-            print(f"[TUG] WALK_BACK → FINISHED ({self.phase_times['walk_back']:.1f}s)")
+        # 4. WALK_BACK → FINISHED: serve SITTING stabile per FINAL_SIT_HOLD secondi
+        elif self.phase == "WALK_BACK":
+            if state == "SITTING":
+                if self._final_sit_since is None:
+                    self._final_sit_since = now
+                elif now - self._final_sit_since >= self.FINAL_SIT_HOLD:
+                    self.phase_times['walk_back'] = now - self.phase_start_time
+                    self.phase = "FINISHED"
+                    self.end_time = now
+                    self.active = False
+                    self.phase_just_changed = True
+                    print(f"[TUG] WALK_BACK → FINISHED ({self.phase_times['walk_back']:.1f}s)")
+            else:
+                self._final_sit_since = None
 
         # DEBUG: stampa ogni secondo
         if hasattr(self, '_last_debug') and now - self._last_debug > 1.0:
             n_deltas = len(self.timed_deltas)
             elapsed = now - self.phase_start_time
             print(f"[TUG] Phase={self.phase} t={elapsed:.1f}s deltas={n_deltas} "
-                f"mov={movement:.1f} state={state} fwd={self.forward_distance:.0f}")
+                f"mov={movement:.1f} state={state}")
         self._last_debug = now
 
         return self.phase
@@ -166,11 +207,8 @@ class TUGTest:
             return None
 
         total_time = self.end_time - self.start_time
-        avg_speed = self.cumulative_distance / total_time if total_time > 0 else 0
 
         return {
             'timestamp': datetime.now().isoformat(),
             'total_time': round(total_time, 2),
-            'total_distance_px': round(self.cumulative_distance, 0),
-            'avg_speed_px_s': round(avg_speed, 2)
         }
